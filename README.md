@@ -3,7 +3,7 @@
 A one-year anniversary site for William & Zané. It's plain HTML, CSS and JavaScript with GSAP, so there's no install and no build step.
 
 **To open it:** double-click `index.html`.
-It needs an internet connection for GSAP, Google Fonts and the placeholder photos. Once you swap in your own photos, only GSAP and the fonts come from the web.
+It needs an internet connection for GSAP, Google Fonts and the placeholder photos. Once you swap in your own photos, only GSAP, the fonts and the Chowder & Panini video come from the web.
 
 ## Where everything lives
 
@@ -12,29 +12,44 @@ index.html          page structure (section headings/intros live here)
 css/style.css       all styling; colours, fonts and spacing are variables at the top
 js/data.js          ← ALL your personal content: edit this file
 js/main.js          behaviour (you shouldn't need to touch it)
-assets/images/      your photos (timeline, moments, closing photo)
+assets/images/      your photos: month-01 … month-12 for the timeline (photos and videos), plus moments and the closing photo
 assets/artists/     artist images for the music player
 assets/music/       your mp3 files
-assets/video/       the Chowder & Panini video
+assets/video/       small local videos (the Chowder & Panini one is hosted online, see below)
 ```
 
 ## Swap in your photos
 
-1. Put your photo in `assets/images/`, for example `assets/images/month-01-1.jpg` (month 1, photo 1).
-2. In `js/data.js`, find the line with that photo. Each line ends with a comment showing the suggested file name:
+Each month has its own folder: `assets/images/month-01/` for Month 1, up to `assets/images/month-12/`. Months 1–7 are done; months 8–12 still show placeholder photos.
+
+1. Put the photo in that month's folder and rename it to a short, lowercase name with hyphens instead of spaces that says what's in it, for example `assets/images/month-08/beach-day.jpg`. (Photos saved from WhatsApp are named like `WhatsApp Image 2026-09-28 at 21.05.53 (1).jpeg`. Rename those, because the spaces and brackets can break links once the site is online.)
+2. In `js/data.js`, find that month. Each placeholder line ends with a comment naming the folder:
    ```js
-   { src: "https://picsum.photos/seed/month1-1/600/750", alt: "Us on our very first date", caption: "Where it all began" }, // → assets/images/month-01-1.jpg
+   { src: "https://picsum.photos/seed/month8-1/600/750", alt: "A day at the beach", caption: "Sun-kissed" }, // → assets/images/month-08/
    ```
-3. Replace the `src` value:
+3. Replace the `src` value with the path to your photo:
    ```js
-   { src: "assets/images/month-01-1.jpg", alt: "Us on our very first date", caption: "Where it all began" },
+   { src: "assets/images/month-08/beach-day.jpg", alt: "A day at the beach", caption: "Sun-kissed" },
    ```
-4. Update `alt` so it describes the real photo. Screen readers read it aloud.
+4. Update `alt` so it describes the real photo (screen readers read it aloud), and `caption`, the handwritten line under the photo.
 
 Tips:
-- Portrait photos (about 4:5) fit the frames best. Other shapes still work: they get cropped to fill the frame.
-- Each month currently has 3–5 photos. To add or remove one, add or delete a `{ src, alt, caption }` line in that month's `images: [ ... ]` list. Any number works: they sit 3 to a row on wider screens and 2 to a row on phones, and 2 or 4 photos arrange as a neat square.
-- File names are case-sensitive on some systems, so `Photo.JPG` and `photo.jpg` are different files.
+- Portrait photos (about 4:5) fit the frames best. Other shapes still work: the small frame shows the middle of the photo, and clicking it opens the whole photo. If the middle is the wrong part (a face cut off, say), add `focus` to choose what the frame keeps: `"top"`, `"bottom"`, `"left"`, `"right"`, or a position like `"50% 20%"` (across, then down).
+- To add or remove a photo, add or delete a `{ src, alt, caption }` line in that month's `images: [ ... ]` list. Any number works: they sit 3 to a row on wider screens and 2 to a row on phones, and 2 or 4 photos arrange as a neat square.
+- File names are case-sensitive once the site is online, so `Photo.JPG` and `photo.jpg` are different files. Keeping everything lowercase avoids surprises.
+
+### Add a video
+
+Videos sit in the timeline next to the photos, with a play button on the frame. Clicking one opens it big, with sound and the usual controls, and the arrows step through photos and videos together. Playing a video pauses the music. Month 3 has three examples.
+
+1. Put the `.mp4` in the month's folder with a short lowercase name, e.g. `assets/images/month-08/first-dance.mp4`. Videos saved from WhatsApp or a phone are already MP4, which plays in every browser.
+2. Add a still picture from the video with the **same name** as a `.jpg` (`first-dance.jpg`). It's what shows in the frame and before the video starts. A screenshot of a good moment works well.
+3. Add a line with both:
+   ```js
+   { src: "assets/images/month-08/first-dance.jpg", video: "assets/images/month-08/first-dance.mp4", alt: "Our first dance", caption: "First dance" },
+   ```
+
+Videos only download when they're opened, so they don't slow the page down. Keeping each one under about 10 MB still helps on mobile data.
 
 ## Add your songs
 
@@ -56,18 +71,9 @@ The little × on the bubble tucks them away. A small round button with their fac
 
 Everything is set in `peek` near the bottom of `js/data.js`:
 
-1. **Video:** save it as `assets/video/chowder-panini.mp4`, or use any name and update `video`. Use MP4, since it plays in every browser.
+1. **Video:** it's hosted on 3dlasermonkey.co.za, because at 226 MB it's too big for GitHub (100 MB per file). `video` holds its web address. It streams, so it starts playing straight away, and nothing downloads until it's opened. To swap it, upload the new MP4 there and paste its address into `video`. A small video can also go in `assets/video/` with `video: "assets/video/name.mp4"`. Either way use MP4 (H.264), which plays in every browser.
 2. **Image:** currently `assets/images/chowder and panini 1.png`. To use a different picture, put it in `assets/images/` and change `image`. A PNG with a transparent background looks best, because they look like they're peeking up from the edge of the screen. Set `image: ""` to show two placeholder faces (🐱 🐰) instead.
 3. **Text:** change `bubble` (the speech bubble) and `title` (shown under the video).
-
-## Secret notes
-
-Tapping your names on the first screen opens a little love note. "Another one" shows the next, and they go round in order. A subtle hint under the opening line ("psst… tap our names") points the way.
-
-Edit them in `secret` in `js/data.js`:
-- `notes`: add, remove or reword as many as you like
-- `signoff`: the signature under each note
-- `hint`: the hint text
 
 ## Hidden letters
 
@@ -98,7 +104,6 @@ Everything personal is in `js/data.js`:
 - `moments`: the card stack (`caption` and `date` per photo)
 - `songs`: the playlist
 - `closing`: the heading, message paragraphs, final photo, sign-off and footer line
-- `secret`: the secret notes, their sign-off and the hint
 - `letters`: the six hidden letters, where they hide, their clues, and the "found them all" message
 - `peek`: the Chowder & Panini image, speech bubble and video
 
