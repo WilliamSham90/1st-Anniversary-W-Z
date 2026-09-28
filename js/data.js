@@ -27,8 +27,8 @@ const SITE_DATA = {
   timeline: [
     {
       date: "November 2025",
-      title: "Clay Painting & Farm Days",
-      text: "We started with clay painting: paint all over our hands, a little grey cat, a pink triceratops and pizza between coats. Then it was off to the farm for horses, dog cuddles and a day out hunting. Not your usual first chapter, but it's ours.",
+      title: "Clay Painting, Farm Days & Your Birthday",
+      text: "We started with clay painting: paint all over our hands, a little grey cat, a pink triceratops and pizza between coats. Then it was off to the farm for horses, dog cuddles and a day out hunting. And to top it off, your birthday dinner at Ocean Basket, where the shrimp became finger puppets. Not your usual first chapter, but it's ours.",
       images: [
         { src: "assets/images/month-01/clay-painting-paint-hands.jpg", alt: "Showing off paint-covered hands and pulling a cheeky face", caption: "Caught pink-handed" },
         { src: "assets/images/month-01/clay-painting-paint-hands-2.jpg", alt: "Holding up paint-covered hands and smiling under a tree", caption: "Guilty as charged" },
@@ -41,6 +41,7 @@ const SITE_DATA = {
         { src: "assets/images/month-01/farm-dog-kisses.jpg", alt: "Snuggled up in camp chairs, giving the little dog a kiss", caption: "Dog kisses" },
         { src: "assets/images/month-01/farm-hunt-hoof.jpg", alt: "Laughing and holding up a hoof on the farm", caption: "A leg up" },
         { src: "assets/images/month-01/farm-hunt-wildebeest.jpg", alt: "Kneeling with a rifle beside a black wildebeest on the hillside", caption: "The hunt" },
+        { src: "assets/images/month-01/zane-birthday-dinner-ocean-basket.jpg", video: "assets/images/month-01/zane-birthday-dinner-ocean-basket.mp4", focus: "50% 35%", alt: "Zané's birthday dinner at Ocean Basket, with shrimp heads worn as finger puppets over sushi", caption: "Zané's birthday dinner" },
       ],
     },
     {
@@ -202,24 +203,52 @@ const SITE_DATA = {
     },
     {
       date: "July 2026",
-      title: "Golden Hours",
-      text: "Sunsets that made us stop mid-sentence, and the realisation that home can be a person.",
+      title: "Spoegwolf, Sleepovers & Hair Checks",
+      text: "Spoegwolf live with Evan and the family, singing along from the stands. Then a sleepover under the blankets, full of wide eyes and tongues out. Everything in between was random in the best way: late-night video calls in your bonnet, a tiny bee, me learning to swallow a sword (don't ask), and a very important hair check.",
       images: [
-        { src: "https://picsum.photos/seed/month9-1/600/750", alt: "Watching the sunset together", caption: "Golden hour" }, // → assets/images/month-09/
-        { src: "https://picsum.photos/seed/month9-2/600/750", alt: "Our silhouettes against the sky", caption: "Just us" }, // → assets/images/month-09/
-        { src: "https://picsum.photos/seed/month9-3/600/750", alt: "Warm light through the trees", caption: "Glow" }, // → assets/images/month-09/
-        { src: "https://picsum.photos/seed/month9-4/600/750", alt: "An evening walk by the water", caption: "Evening stroll" }, // → assets/images/month-09/
-        { src: "https://picsum.photos/seed/month9-5/600/750", alt: "The sky turning pink", caption: "Cotton-candy sky" }, // → assets/images/month-09/
+        { src: "assets/images/month-09/spoegwolf-concert-stage.jpg", focus: "70%", alt: "Spoegwolf on a stage lit up in blue, seen from high up in the packed arena", caption: "Spoegwolf live!" },
+        { src: "assets/images/month-09/spoegwolf-concert-selfie.jpg", focus: "left", alt: "A concert selfie in the stands with Evan and the family in the row beside us", caption: "Concert crew" },
+        { src: "assets/images/month-09/spoegwolf-concert-fish-face.jpg", focus: "left", alt: "A fish face and an excited open mouth at the Spoegwolf concert", caption: "Fish face" },
+        { src: "assets/images/month-09/spoegwolf-concert-excited.jpg", focus: "left", alt: "Both of us shouting with excitement at the Spoegwolf concert", caption: "Singing along (loudly)" },
+        { src: "assets/images/month-09/sleepover-smile.jpg", alt: "A scrunched-up, sleepy smile under the blankets at the sleepover", caption: "Sleepover" },
+        { src: "assets/images/month-09/sleepover-wide-eyes.jpg", focus: "75%", alt: "Wide eyes, lying together under the blankets", caption: "What was that noise?" },
+        { src: "assets/images/month-09/sleepover-tongues-out.jpg", focus: "75%", alt: "Both tongues out under the blankets at the sleepover", caption: "Lights out? Never" },
+        { src: "assets/images/month-09/couch-tongue-out.jpg", focus: "50% 60%", alt: "A giggle and a tongue out on the couch, next to a woven heart on a brick wall", caption: "Couch chaos" },
+        { src: "assets/images/month-09/sword-swallower.jpg", focus: "50% 35%", alt: "Pretending to swallow a sword in the garden", caption: "Sword swallower in training" },
+        { src: "assets/images/month-09/video-call-bonnet.jpg", focus: "50% 75%", alt: "A late-night video call in a pink satin hair bonnet", caption: "Bonnet on, goodnight" },
+        { src: "assets/images/month-09/video-call-little-bee.jpg", focus: "50% 55%", alt: "Holding a tiny yellow bee up to the camera on a video call", caption: "Bzzz" },
+        { src: "assets/images/month-09/hair-check.jpg", video: "assets/images/month-09/hair-check.mp4", focus: "50% 30%", alt: "A hair check in the car, showing off freshly curled hair", caption: "Hair check" },
       ],
     },
     {
       date: "August 2026",
-      title: "The Road Trip",
-      text: "Questionable snacks, a perfect playlist and singing every word with the windows down.",
+      title: "Blood Donors & Irene Dairy Farm",
+      text: "We both donated blood (heroes, obviously) and struck a victory pose in the kitchen afterwards. Then a sunny spring day at Irene Dairy Farm: cows parading past the fence, a calf fast asleep in the hay, and the rest trying to eat your fingers and my shoes. Plus one very important outfit check.",
       images: [
-        { src: "https://picsum.photos/seed/month10-1/600/750", alt: "On the road during our trip", caption: "Windows down" }, // → assets/images/month-10/
-        { src: "https://picsum.photos/seed/month10-2/600/750", alt: "Road-trip snacks on the dashboard", caption: "Snack co-pilot" }, // → assets/images/month-10/
-        { src: "https://picsum.photos/seed/month10-3/600/750", alt: "A viewpoint on the way", caption: "Worth the detour" }, // → assets/images/month-10/
+        { src: "assets/images/month-10/blood-donation-zane.jpg", focus: "50% 45%", alt: "Zané donating blood in a big black chair, tongue out", caption: "Tongue out, needle in" },
+        { src: "assets/images/month-10/blood-donation-william.jpg", alt: "William donating blood, scrolling on his phone", caption: "Saving lives, casually" },
+        { src: "assets/images/month-10/kitchen-victory-pose.jpg", focus: "35%", alt: "A victory pose in the kitchen with our hands held high", caption: "Heroes, both of us" },
+        { src: "assets/images/month-10/kitchen-tongues-out.jpg", focus: "25%", alt: "Both tongues out in the kitchen, hands still in the air", caption: "Brave and silly" },
+        { src: "assets/images/month-10/kitchen-lean-on-me.jpg", focus: "30%", alt: "Leaning on a shoulder in the kitchen, eyes closed", caption: "Lean on me" },
+        { src: "assets/images/month-10/kitchen-selfie-from-above.jpg", focus: "20%", alt: "A selfie from above in the kitchen, one of us scrunching up her nose", caption: "Kitchen crew" },
+        { src: "assets/images/month-10/kitchen-cheek-to-cheek.jpg", focus: "20%", alt: "Cheek to cheek with a tongue out in the kitchen", caption: "Blurry but proud" },
+        { src: "assets/images/month-10/kitchen-hug.jpg", focus: "25%", alt: "A big side hug in the kitchen", caption: "Squeeze" },
+        { src: "assets/images/month-10/kitchen-laughing-hug.jpg", focus: "25%", alt: "Laughing in a hug in the kitchen", caption: "Giggles" },
+        { src: "assets/images/month-10/irene-farm-selfie.jpg", alt: "A sunny selfie at Irene Dairy Farm, with a Happy spring day banner behind us", caption: "Irene Dairy Farm" },
+        { src: "assets/images/month-10/irene-farm-tongues-out.jpg", focus: "45%", alt: "Both tongues out on the path at Irene Dairy Farm", caption: "Spring day silliness" },
+        { src: "assets/images/month-10/irene-farm-cows-grazing.jpg", focus: "15%", alt: "Black-and-white cows grazing along a wooden fence", caption: "Cow country" },
+        { src: "assets/images/month-10/irene-farm-william-and-cow.jpg", focus: "50% 60%", alt: "William leaning on the fence next to a cow", caption: "Me and my new friend" },
+        { src: "assets/images/month-10/irene-farm-cows.jpg", video: "assets/images/month-10/irene-farm-cows.mp4", focus: "50% 60%", alt: "A herd of cows walking past along the fence at Irene Dairy Farm", caption: "Moo-ving along" },
+        { src: "assets/images/month-10/irene-farm-sleeping-calf.jpg", focus: "50% 55%", alt: "A calf curled up asleep in the hay", caption: "Nap time" },
+        { src: "assets/images/month-10/irene-farm-calf-hello.jpg", alt: "A calf peering through the bars at the camera", caption: "Hello, gorgeous" },
+        { src: "assets/images/month-10/irene-farm-calf-boop.jpg", focus: "50% 60%", alt: "A red-nailed finger booping a calf on the nose", caption: "Boop" },
+        { src: "assets/images/month-10/irene-farm-calf-lick.jpg", focus: "50% 45%", alt: "A calf licking a finger with its long tongue", caption: "Tongue out, cow edition" },
+        { src: "assets/images/month-10/irene-farm-calf-hand-lick.jpg", focus: "50% 25%", alt: "A calf licking a hand through the bars", caption: "Slobber attack" },
+        { src: "assets/images/month-10/irene-farm-calf-shoe-nibble.jpg", focus: "50% 45%", alt: "A calf nibbling William's shoelaces in the hay", caption: "Snack: shoelaces" },
+        { src: "assets/images/month-10/irene-farm-calf-cuddles.jpg", video: "assets/images/month-10/irene-farm-calf-cuddles.mp4", alt: "Zané petting the calves in the barn at Irene Dairy Farm", caption: "Calf cuddles" },
+        { src: "assets/images/month-10/blanket-tongue-out.jpg", focus: "50% 40%", alt: "Lying on a blue blanket with a big tongue out", caption: "Standard face" },
+        { src: "assets/images/month-10/car-sun-kissed.jpg", alt: "A sunlit close-up in the car, cheek to cheek", caption: "Sun-kissed" },
+        { src: "assets/images/month-10/outfit-check.jpg", video: "assets/images/month-10/outfit-check.mp4", focus: "50% 40%", alt: "An outfit check in the car, in a black turtleneck and gold cross", caption: "Outfit check" },
       ],
     },
     {
@@ -308,7 +337,7 @@ const SITE_DATA = {
       },
       {
         spot: ".timeline__item:nth-child(9) .timeline__text",
-        clue: "Golden hours, in month 9. Read it slowly.",
+        clue: "Month 9 has a concert in it. Read it slowly.",
         title: "Open when you miss me",
         text: "Close your eyes. That warm, golden feeling? That's me thinking about you.\n\nI'm always just one message away.",
       },
