@@ -78,23 +78,45 @@ const SITE_DATA = {
     {
       date: "February 2026",
       title: "Our First Valentine's",
-      text: "Handwritten notes, a slightly burnt dinner, and laughing about it until our cheeks hurt.",
+      text: "Video calls where you showed off your outfit, flower crown and all. A lipstick heart on my cheek. Then our first Valentine's dinner, which turned into a straw-poking, nose-booping giggle fest. And in between it all, you were hard at work studying at university. Mostly.",
       images: [
-        { src: "https://picsum.photos/seed/month4-1/600/750", alt: "Valentine's dinner at home", caption: "Chef's kiss" }, // → assets/images/month-04/
-        { src: "https://picsum.photos/seed/month4-2/600/750", alt: "Handwritten notes on the table", caption: "Love notes" }, // → assets/images/month-04/
-        { src: "https://picsum.photos/seed/month4-3/600/750", alt: "Flowers on the kitchen counter", caption: "For you" }, // → assets/images/month-04/
+        { src: "assets/images/month-04/video-call-outfit.jpg", alt: "Showing off an orange top, white skirt and flower crown on a video call", caption: "Outfit check" },
+        { src: "assets/images/month-04/video-call-outfit-back.jpg", alt: "Turning around on the video call to show the flower crown and curls from behind", caption: "And the back view" },
+        { src: "assets/images/month-04/lipstick-heart-kiss-face.jpg", alt: "A lipstick heart on a cheek and a kissy face", caption: "Marked as yours" },
+        { src: "assets/images/month-04/lipstick-heart-smile.jpg", alt: "Grinning with a lipstick heart on one cheek", caption: "Not washing it off" },
+        { src: "assets/images/month-04/valentines-dinner-selfie.jpg", alt: "Smiling across the table at Valentine's dinner in an orange top", caption: "My Valentine" },
+        { src: "assets/images/month-04/valentines-dinner-candid.jpg", alt: "Looking off to the side at the Valentine's dinner table", caption: "Caught mid-thought" },
+        { src: "assets/images/month-04/valentines-straw-bite.jpg", alt: "Biting down on a paper straw held out across the table", caption: "Straw wars" },
+        { src: "assets/images/month-04/valentines-hand-bite.jpg", alt: "Playfully biting a hand across the dinner table", caption: "Nom" },
+        { src: "assets/images/month-04/valentines-straw-moustache.jpg", alt: "Smiling with a straw held under the nose like a moustache", caption: "Fancy moustache" },
+        { src: "assets/images/month-04/valentines-straw-tickle.jpg", alt: "Giggling as a straw tickles a nose", caption: "Tickle attack" },
+        { src: "assets/images/month-04/valentines-straw-boop.jpg", alt: "Scrunching up eyes as a straw boops a nose", caption: "Boop!" },
+        { src: "assets/images/month-04/valentines-eyes-closed.jpg", alt: "A close-up with eyes closed and a smile, showing off golden eye makeup", caption: "All glammed up" },
+        { src: "assets/images/month-04/studying-at-university.jpg", video: "assets/images/month-04/studying-at-university.mp4", focus: "50% 20%", alt: "Pulling a fed-up face while studying at university, then showing the Woordvorming lecture slides and notes", caption: "Woordvorming: 1, Zané: 0" },
       ],
     },
     {
       date: "March 2026",
-      title: "Little Adventures",
-      text: "Wrong turns, new cafés and the discovery that getting lost is more fun with you.",
+      title: "Gideon's Wedding Weekend",
+      text: "Gideon's wedding weekend: silly faces under the lapa, then all dressed up for the big day and pulling even sillier faces at the reception. The rest of the month was the good kind of ordinary: late-night video calls, lazy couch days, Coco modelling a bandana, and me trying very hard to be a mechanic.",
       images: [
-        { src: "https://picsum.photos/seed/month5-1/600/750", alt: "Exploring a new neighbourhood", caption: "Took the long way" }, // → assets/images/month-05/
-        { src: "https://picsum.photos/seed/month5-2/600/750", alt: "Coffee at a tiny café we found", caption: "Our new spot" }, // → assets/images/month-05/
-        { src: "https://picsum.photos/seed/month5-3/600/750", alt: "A map covered in scribbles", caption: "Where to next?" }, // → assets/images/month-05/
-        { src: "https://picsum.photos/seed/month5-4/600/750", alt: "Street art on a random wall", caption: "Found this!" }, // → assets/images/month-05/
-        { src: "https://picsum.photos/seed/month5-5/600/750", alt: "The view from a train window", caption: "Window seat" }, // → assets/images/month-05/
+        { src: "assets/images/month-05/lapa-tongues-out.jpg", focus: "30%", alt: "Pulling faces with our tongues out under a thatched lapa roof", caption: "Lapa life" },
+        { src: "assets/images/month-05/lapa-tongues-out-2.jpg", focus: "30%", alt: "Both of us sticking our tongues out under the lapa", caption: "Tongues out, as usual" },
+        { src: "assets/images/month-05/lapa-wave.jpg", focus: "30%", alt: "Waving at the camera under a bright light in the lapa", caption: "Hello, flash" },
+        { src: "assets/images/month-05/lapa-peekaboo.jpg", focus: "30%", alt: "A blurry close-up of our faces, one eye peeking at the camera", caption: "Peekaboo" },
+        { src: "assets/images/month-05/lapa-down-the-hatch.jpg", focus: "30%", alt: "Holding a bottle up to a wide-open mouth under the lapa", caption: "Down the hatch" },
+        { src: "assets/images/month-05/lapa-laughing.jpg", focus: "30%", alt: "Laughing with a hand on the forehead under the lapa", caption: "Giggle fit" },
+        { src: "assets/images/month-05/gideon-wedding-dressed-up.jpg", alt: "All dressed up for Gideon's wedding, in a pink dress with pearls and a peach shirt", caption: "Wedding ready" },
+        { src: "assets/images/month-05/gideon-wedding-fish-face.jpg", alt: "A tongue out and a fish face at the wedding reception under fairy lights", caption: "Fish face" },
+        { src: "assets/images/month-05/gideon-wedding-side-eye.jpg", alt: "Swapping a cheeky side-eye at the wedding reception", caption: "The side-eye" },
+        { src: "assets/images/month-05/gideon-wedding-wide-eyes.jpg", alt: "Wide-eyed surprise at the wedding reception", caption: "Caught off guard" },
+        { src: "assets/images/month-05/gideon-wedding-heads-together.jpg", alt: "Heads together at the wedding reception, one tongue out and one pout", caption: "Party mode" },
+        { src: "assets/images/month-05/gideon-wedding-funny-faces.jpg", alt: "Scrunched-up funny faces together under the fairy lights", caption: "Best-dressed goofballs" },
+        { src: "assets/images/month-05/garden-selfie.jpg", alt: "A selfie in the garden under a big tree, one of us looking down and smiling", caption: "Sunny days" },
+        { src: "assets/images/month-05/video-call-bedtime.jpg", focus: "50% 80%", alt: "A sleepy late-night video call, lying in bed", caption: "Goodnight call" },
+        { src: "assets/images/month-05/couch-smirk.jpg", alt: "Lying on the couch with a cheeky smirk", caption: "That look" },
+        { src: "assets/images/month-05/coco-bandana.jpg", alt: "Coco the tabby cat wearing a red bandana", caption: "Coco, looking sharp" },
+        { src: "assets/images/month-05/wannabe-mechanic.jpg", alt: "Standing in the yard with oil-stained jeans and a toolbox, wiping a sweaty face", caption: "Mechanic? More like me-can't-ic" },
       ],
     },
     {
@@ -269,7 +291,9 @@ const SITE_DATA = {
     image: "assets/images/chowder and panini 1.png", // a transparent PNG looks best. Set to "" for the 🐱 🐰 placeholder.
     alt: "Chowder and Panini",
     bubble: "Psst… click us!",
-    video: "assets/video/chowder-panini.mp4", // put your video here (mp4 plays everywhere)
+    // Hosted elsewhere because it's too big for GitHub (226 MB). It streams, so it starts playing
+    // straight away and only downloads once opened. A local file like "assets/video/name.mp4" works too.
+    video: "https://3dlasermonkey.co.za/wp-content/uploads/2026/09/chowder-panini.mp4",
     title: "Chowder & Panini",
   },
 };

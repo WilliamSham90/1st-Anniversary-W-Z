@@ -345,7 +345,8 @@
     video.play().catch(() => {}); // a missing file is reported by the "error" listener
   });
   video.addEventListener("error", () => {
-    $("#video-title").textContent = `Add your video at ${peekData.video}`;
+    $("#video-title").textContent = "Couldn't load the video. Check the internet connection and try again.";
+    console.warn(`Chowder & Panini video failed to load: ${peekData.video}`);
   });
   wireDialog(videoModal, () => {
     video.pause();
