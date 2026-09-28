@@ -6,6 +6,11 @@
      with hyphens, e.g. "assets/images/month-03/beach-day.jpg", and
      put that path in `src`. Update `alt` and `caption` too.
    • Add or remove photos inside any `images: [ ... ]` list.
+   • A video is a photo line with a `video` too: `src` is the still
+     shown in the frame (same name, .jpg), `video` is the .mp4.
+     See Month 3.
+   • Optional `focus` picks which part of a photo stays in the small
+     frame: "top", "left", "right", "bottom", or e.g. "50% 20%".
    • Songs need an mp3 in assets/music/ and an image in assets/artists/.
    • Plain text only — no HTML needed.
    ========================================================= */
@@ -18,7 +23,7 @@ const SITE_DATA = {
 
   heroLine: "Twelve months, countless little moments, and a lifetime of more to come.",
 
-  /* ---------- Our Year: one entry per month (Month 1 → Month 12), photos in assets/images/month-01 … month-12 ---------- */
+  /* ---------- Our Year: one entry per month (Month 1 → Month 12), photos and videos in assets/images/month-01 … month-12 ---------- */
   timeline: [
     {
       date: "November 2025",
@@ -57,14 +62,17 @@ const SITE_DATA = {
     },
     {
       date: "January 2026",
-      title: "A Brand-New Year",
-      text: "Midnight kisses and a whole year stretched out in front of us. Every plan suddenly had a 'we' in it.",
+      title: "Pizza Night & Just Dance",
+      text: "Pizza night at home: flour on our faces, in our hair and all over the kitchen, and a heart-shaped pizza piled high with pineapple. Then the lounge became a dance floor for Just Dance, and neither of us held back.",
       images: [
-        { src: "https://picsum.photos/seed/month3-1/600/750", alt: "Celebrating New Year's Eve together", caption: "Hello, 2026" }, // → assets/images/month-03/
-        { src: "https://picsum.photos/seed/month3-2/600/750", alt: "Fireworks over the city", caption: "Midnight sky" }, // → assets/images/month-03/
-        { src: "https://picsum.photos/seed/month3-3/600/750", alt: "Sparklers in the dark", caption: "Make a wish" }, // → assets/images/month-03/
-        { src: "https://picsum.photos/seed/month3-4/600/750", alt: "Our list of New Year's resolutions", caption: "Resolutions (ha)" }, // → assets/images/month-03/
-        { src: "https://picsum.photos/seed/month3-5/600/750", alt: "A lazy New Year's Day brunch", caption: "Recovery brunch" }, // → assets/images/month-03/
+        { src: "assets/images/month-03/pizza-flour-selfie.jpg", alt: "A flour-covered selfie, both of us sticking our tongues out", caption: "Floured & silly" },
+        { src: "assets/images/month-03/pizza-flour-kiss.jpg", alt: "A kiss on the cheek in a flour-covered selfie", caption: "Kiss the cook" },
+        { src: "assets/images/month-03/pizza-flour-face.jpg", alt: "Looking up at the camera with flour on face and messy hair", caption: "Flour power" },
+        { src: "assets/images/month-03/pizzas-ready-to-bake.jpg", alt: "Homemade pizzas with ham, pineapple and cheese on a baking tray, one shaped like a heart", caption: "Made with love (and pineapple)" },
+        { src: "assets/images/month-03/just-dance-lounge.jpg", video: "assets/images/month-03/just-dance-lounge.mp4", focus: "50% 20%", alt: "Dancing along to Just Dance in the lounge", caption: "Dance-off, round one" },
+        { src: "assets/images/month-03/just-dance-tv.jpg", video: "assets/images/month-03/just-dance-tv.mp4", focus: "left", alt: "Dancing to Just Dance in front of the TV", caption: "Dance-off, round two" },
+        { src: "assets/images/month-03/say-ooo-so-short.jpg", video: "assets/images/month-03/say-ooo-so-short.mp4", focus: "50% 30%", alt: "The “Say ooo… so short” finger video, holding up a bandaged finger", caption: "Say ooo… so short" },
+        { src: "assets/images/month-03/birthday-card-super-will.jpg", focus: "50% 65%", alt: "A comic-book birthday card that says Happy Birthday, Super Will!!!", caption: "Super Will!!!" },
       ],
     },
     {

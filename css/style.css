@@ -601,6 +601,22 @@ svg { fill: currentColor; }
 }
 .polaroid--static { cursor: default; }
 
+/* Video frames: the still image with a play button over it */
+.polaroid--video { cursor: pointer; }
+.polaroid__media { position: relative; display: block; }
+.polaroid__play {
+  position: absolute;
+  inset: 0;
+  width: clamp(2.25rem, 32%, 3.25rem);
+  margin: auto;
+  filter: drop-shadow(0 4px 10px rgba(58, 46, 50, 0.3));
+  transition: scale 0.35s var(--ease-spring);
+}
+.polaroid__play circle { fill: rgba(255, 255, 255, 0.9); }
+.polaroid__play path { fill: var(--color-primary-deep); }
+.polaroid--video:hover .polaroid__play,
+.polaroid--video:focus-visible .polaroid__play { scale: 1.12; }
+
 /* ---------- 7. Moments (card stack) ---------- */
 .section--moments {
   overflow: hidden;   /* the card flying off-screen must not cause horizontal scroll */
@@ -1001,7 +1017,9 @@ svg { fill: currentColor; }
   margin: 0;
   animation: zoom-in 0.35s var(--ease-out);
 }
-.lightbox__img {
+/* Timeline photos and videos keep their own shape (portrait or landscape) */
+.lightbox__img,
+.lightbox__clip {
   max-width: 100%;
   max-height: 72svh;
   border-radius: var(--radius-s);

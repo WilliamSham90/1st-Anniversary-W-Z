@@ -60,14 +60,20 @@
   $("#hero-line").textContent = data.heroLine;
   $(".hero__inner").style.opacity = 1; // hidden in CSS until the names are in
 
-  // Timeline. Every photo is also added to `gallery`, which the lightbox steps through.
+  // Timeline. Every photo and video is also added to `gallery`, which the lightbox steps through.
+  // A video shows its still image (`src`) with a play button; `focus` picks which part the frame shows.
   const gallery = [];
-  const polaroid = (img) => {
-    gallery.push(img);
+  const polaroid = (item) => {
+    gallery.push(item);
+    const focus = item.focus ? ` style="object-position: ${esc(item.focus)}"` : "";
+    const img = `<img src="${esc(item.src)}" alt="${esc(item.alt)}" loading="lazy"${focus}>`;
+    const media = item.video
+      ? `<span class="polaroid__media">${img}<svg class="polaroid__play" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><circle cx="24" cy="24" r="24"/><path d="M19 14.5v19l15-9.5z"/></svg></span>`
+      : img;
     return `
-      <button class="polaroid" type="button" data-index="${gallery.length - 1}" aria-label="View larger: ${esc(img.alt)}">
-        <img src="${esc(img.src)}" alt="${esc(img.alt)}" loading="lazy">
-        <span class="polaroid__caption">${esc(img.caption || "♥")}</span>
+      <button class="polaroid${item.video ? " polaroid--video" : ""}" type="button" data-index="${gallery.length - 1}" aria-label="${item.video ? "Play video" : "View larger"}: ${esc(item.alt)}">
+        ${media}
+        <span class="polaroid__caption">${esc(item.caption || "♥")}</span>
       </button>`;
   };
   $("#timeline-list").innerHTML = data.timeline.map((entry, i) => `
@@ -181,7 +187,7 @@
     else document.documentElement.style.overflow = locked ? "hidden" : "";
   };
 
-  /* ---------- 3. Dialogs: photo lightbox (native <dialog>: focus trap + Esc for free) ---------- */
+  /* ---------- 3. Dialogs: photo + video lightbox (native <dialog>: focus trap + Esc for free) ---------- */
   const openDialog = (dialog) => {
     dialog.showModal();
     lockScroll(true);
@@ -202,15 +208,33 @@
 
   const lightbox = $("#lightbox");
   const lbImg = $(".lightbox__img", lightbox);
+  const lbVideo = $(".lightbox__clip", lightbox);
   let lbIndex = 0;
   let lbOpener = null;
 
-  const showPhoto = (i) => {
+  // Stop and unload the video, so it doesn't keep playing or downloading in the background
+  const stopVideo = () => {
+    lbVideo.pause();
+    lbVideo.removeAttribute("src");
+    lbVideo.load();
+  };
+
+  const showItem = (i) => {
     lbIndex = (i + gallery.length) % gallery.length;
-    const photo = gallery[lbIndex];
-    lbImg.src = photo.src;
-    lbImg.alt = photo.alt;
-    $(".lightbox__caption", lightbox).textContent = photo.caption || photo.alt;
+    const item = gallery[lbIndex];
+    stopVideo();
+    lbImg.hidden = Boolean(item.video);
+    lbVideo.hidden = !item.video;
+    if (item.video) {
+      lbVideo.poster = item.src;
+      lbVideo.src = item.video;
+      lbVideo.setAttribute("aria-label", item.alt);
+      lbVideo.play().catch(() => {}); // if the browser blocks it, the play button is still there
+    } else {
+      lbImg.src = item.src;
+      lbImg.alt = item.alt;
+    }
+    $(".lightbox__caption", lightbox).textContent = item.caption || item.alt;
     $(".lightbox__count", lightbox).textContent = `${lbIndex + 1} / ${gallery.length}`;
   };
 
@@ -218,16 +242,20 @@
     const frame = e.target.closest(".polaroid");
     if (!frame) return;
     lbOpener = frame;
-    showPhoto(Number(frame.dataset.index));
+    showItem(Number(frame.dataset.index));
     openDialog(lightbox);
   });
-  $(".lightbox__nav--prev", lightbox).addEventListener("click", () => showPhoto(lbIndex - 1));
-  $(".lightbox__nav--next", lightbox).addEventListener("click", () => showPhoto(lbIndex + 1));
+  $(".lightbox__nav--prev", lightbox).addEventListener("click", () => showItem(lbIndex - 1));
+  $(".lightbox__nav--next", lightbox).addEventListener("click", () => showItem(lbIndex + 1));
   lightbox.addEventListener("keydown", (e) => {
-    if (e.key === "ArrowLeft") showPhoto(lbIndex - 1);
-    if (e.key === "ArrowRight") showPhoto(lbIndex + 1);
+    if (e.target === lbVideo) return; // arrow keys seek the video while its controls have focus
+    if (e.key === "ArrowLeft") showItem(lbIndex - 1);
+    if (e.key === "ArrowRight") showItem(lbIndex + 1);
   });
-  wireDialog(lightbox, () => lbOpener?.focus({ preventScroll: true }));
+  wireDialog(lightbox, () => {
+    stopVideo();
+    lbOpener?.focus({ preventScroll: true });
+  });
 
   /* ---------- 4. Music player (one shared <audio>) ---------- */
   const songs = data.songs;
@@ -278,6 +306,9 @@
 
   audio.addEventListener("play", () => setPlaying(true));
   audio.addEventListener("pause", () => setPlaying(false));
+  // Any video starting (timeline or Chowder & Panini) pauses the music, so they don't play over each other.
+  // "play" doesn't bubble, so listen in the capture phase.
+  document.addEventListener("play", (e) => e.target.matches("video") && audio.pause(), true);
   audio.addEventListener("ended", () => loadSong(current + 1, true));
   audio.addEventListener("loadedmetadata", () => {
     seek.max = audio.duration;
@@ -310,7 +341,6 @@
   const peekOpen = $("#peek-open");
 
   peekOpen.addEventListener("click", () => {
-    audio.pause(); // don't play over the music
     openDialog(videoModal);
     video.play().catch(() => {}); // a missing file is reported by the "error" listener
   });

@@ -98,19 +98,21 @@
     </div>
   </dialog>
 
-  <dialog class="lightbox" id="lightbox" aria-label="Photo viewer">
+  <!-- Photos and videos from the timeline (a video item in data.js has a `video` file) -->
+  <dialog class="lightbox" id="lightbox" aria-label="Photo and video viewer">
     <p class="lightbox__count" aria-live="polite"></p>
-    <button class="icon-btn lightbox__close" type="button" data-close aria-label="Close photo viewer">
+    <button class="icon-btn lightbox__close" type="button" data-close aria-label="Close viewer">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 6.4L17.6 5 12 10.6 6.4 5 5 6.4 10.6 12 5 17.6 6.4 19 12 13.4 17.6 19 19 17.6 13.4 12z"/></svg>
     </button>
-    <button class="icon-btn lightbox__nav lightbox__nav--prev" type="button" aria-label="Previous photo">
+    <button class="icon-btn lightbox__nav lightbox__nav--prev" type="button" aria-label="Previous">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15.4 6.4L14 5l-7 7 7 7 1.4-1.4L9.8 12z"/></svg>
     </button>
     <figure class="lightbox__figure">
       <img class="lightbox__img" alt="">
+      <video class="lightbox__clip" controls playsinline preload="none" hidden></video>
       <figcaption class="lightbox__caption"></figcaption>
     </figure>
-    <button class="icon-btn lightbox__nav lightbox__nav--next" type="button" aria-label="Next photo">
+    <button class="icon-btn lightbox__nav lightbox__nav--next" type="button" aria-label="Next">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8.6 17.6L10 19l7-7-7-7-1.4 1.4 5.6 5.6z"/></svg>
     </button>
   </dialog>
