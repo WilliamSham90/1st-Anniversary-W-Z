@@ -1,9 +1,10 @@
 /* =========================================================
    SITE CONTENT — edit everything personal here.
    ---------------------------------------------------------
-   • Swap a photo: replace the `src` string with your own file,
-     e.g. "assets/images/month-01.jpg" (the suggested name is in
-     the comment at the end of each line). Update `alt` too.
+   • Swap a photo: put it in that month's folder (the comment at the
+     end of each line says which one), give it a short lowercase name
+     with hyphens, e.g. "assets/images/month-03/beach-day.jpg", and
+     put that path in `src`. Update `alt` and `caption` too.
    • Add or remove photos inside any `images: [ ... ]` list.
    • Songs need an mp3 in assets/music/ and an image in assets/artists/.
    • Plain text only — no HTML needed.
@@ -17,27 +18,41 @@ const SITE_DATA = {
 
   heroLine: "Twelve months, countless little moments, and a lifetime of more to come.",
 
-  /* ---------- Our Year: one entry per month (Month 1 → Month 12), 3–5 photos each ---------- */
+  /* ---------- Our Year: one entry per month (Month 1 → Month 12), photos in assets/images/month-01 … month-12 ---------- */
   timeline: [
     {
       date: "November 2025",
-      title: "The Very Beginning",
-      text: "Nervous smiles, a coffee that went cold because we couldn't stop talking, and the quiet feeling that something good had started.",
+      title: "Clay Painting & Farm Days",
+      text: "We started with clay painting: paint all over our hands, a little grey cat, a pink triceratops and pizza between coats. Then it was off to the farm for horses, dog cuddles and a day out hunting. Not your usual first chapter, but it's ours.",
       images: [
-        { src: "https://picsum.photos/seed/month1-1/600/750", alt: "Us on our very first date", caption: "Where it all began" }, // → assets/images/month-01-1.jpg
-        { src: "https://picsum.photos/seed/month1-2/600/750", alt: "Two coffees going cold on the table", caption: "Talked for hours" }, // → assets/images/month-01-2.jpg
-        { src: "https://picsum.photos/seed/month1-3/600/750", alt: "Walking home after our first date", caption: "The long way home" }, // → assets/images/month-01-3.jpg
+        { src: "assets/images/month-01/clay-painting-paint-hands.jpg", alt: "Showing off paint-covered hands and pulling a cheeky face", caption: "Caught pink-handed" },
+        { src: "assets/images/month-01/clay-painting-paint-hands-2.jpg", alt: "Holding up paint-covered hands and smiling under a tree", caption: "Guilty as charged" },
+        { src: "assets/images/month-01/clay-painting-cat.jpg", alt: "A freshly painted grey clay cat on the painting table", caption: "Meet the cat" },
+        { src: "assets/images/month-01/clay-painting-cat-finished.jpg", alt: "Proudly holding up the finished clay cat with its yellow heart", caption: "Proud cat parent" },
+        { src: "assets/images/month-01/clay-painting-triceratops.jpg", alt: "A pink clay triceratops held up to the camera", caption: "Pink triceratops" },
+        { src: "assets/images/month-01/clay-painting-table.jpg", alt: "Paint pots, brushes, the clay cat and triceratops next to a pizza", caption: "Paint & pizza" },
+        { src: "assets/images/month-01/farm-horse.jpg", alt: "Saying hello to a horse over the fence at the farm", caption: "New friend" },
+        { src: "assets/images/month-01/farm-dog-cuddles.jpg", alt: "The two of us in camp chairs at the farm with a little dog", caption: "Camp-chair cuddles" },
+        { src: "assets/images/month-01/farm-dog-kisses.jpg", alt: "Snuggled up in camp chairs, giving the little dog a kiss", caption: "Dog kisses" },
+        { src: "assets/images/month-01/farm-hunt-hoof.jpg", alt: "Laughing and holding up a hoof on the farm", caption: "A leg up" },
+        { src: "assets/images/month-01/farm-hunt-wildebeest.jpg", alt: "Kneeling with a rifle beside a black wildebeest on the hillside", caption: "The hunt" },
       ],
     },
     {
       date: "December 2025",
-      title: "Winter Lights",
-      text: "Cold hands, warm drinks and fairy lights everywhere. Our first holidays with each other in the picture.",
+      title: "The Nutcracker & New Year's",
+      text: "All dressed up for The Nutcracker at Teatro, Montecasino, posing under the poster and pulling silly faces in our seats. Then we saw the year out together at a New Year's party: glitter, a photo frame, and 2026 starting with you right beside me.",
       images: [
-        { src: "https://picsum.photos/seed/month2-1/600/750", alt: "Walking under winter lights", caption: "Twinkly streets" }, // → assets/images/month-02-1.jpg
-        { src: "https://picsum.photos/seed/month2-2/600/750", alt: "Hot chocolate for two", caption: "Extra marshmallows" }, // → assets/images/month-02-2.jpg
-        { src: "https://picsum.photos/seed/month2-3/600/750", alt: "Decorating the tree together", caption: "Tinsel everywhere" }, // → assets/images/month-02-3.jpg
-        { src: "https://picsum.photos/seed/month2-4/600/750", alt: "Wrapped up in scarves in the cold", caption: "Cold noses" }, // → assets/images/month-02-4.jpg
+        { src: "assets/images/month-02/nutcracker-poster.jpg", alt: "Posing under The Nutcracker poster at Teatro, Montecasino", caption: "The Nutcracker!" },
+        { src: "assets/images/month-02/nutcracker-dressed-up.jpg", alt: "All dressed up and smiling against a sandstone wall", caption: "All dressed up" },
+        { src: "assets/images/month-02/nutcracker-laughing.jpg", alt: "Laughing together against a sandstone wall", caption: "Mid-laugh" },
+        { src: "assets/images/month-02/nutcracker-tongue-out.jpg", alt: "Hugging against the wall, one of us with a cheeky tongue out", caption: "Couldn't stay serious" },
+        { src: "assets/images/month-02/nutcracker-theatre-selfie.jpg", alt: "Pulling silly faces in our theatre seats", caption: "Best seats in the house" },
+        { src: "assets/images/month-02/back-smiley.jpg", alt: "A smiley face of love bites on a back", caption: "Left you a smile" },
+        { src: "assets/images/month-02/new-year-frame-kiss.jpg", alt: "Posing in a 2026 Happy New Year photo frame, one of us pulling a kissy face", caption: "Hello, 2026" },
+        { src: "assets/images/month-02/new-year-frame-smile.jpg", alt: "Smiling together in a 2026 Happy New Year photo frame", caption: "Our first New Year" },
+        { src: "assets/images/month-02/new-year-glitter.jpg", alt: "A glittery close-up with a tongue out at the New Year's party", caption: "Glitter everywhere" },
+        { src: "assets/images/month-02/new-year-selfie.jpg", alt: "A squished-together selfie, laughing", caption: "Squished & happy" },
       ],
     },
     {
@@ -45,11 +60,11 @@ const SITE_DATA = {
       title: "A Brand-New Year",
       text: "Midnight kisses and a whole year stretched out in front of us. Every plan suddenly had a 'we' in it.",
       images: [
-        { src: "https://picsum.photos/seed/month3-1/600/750", alt: "Celebrating New Year's Eve together", caption: "Hello, 2026" }, // → assets/images/month-03-1.jpg
-        { src: "https://picsum.photos/seed/month3-2/600/750", alt: "Fireworks over the city", caption: "Midnight sky" }, // → assets/images/month-03-2.jpg
-        { src: "https://picsum.photos/seed/month3-3/600/750", alt: "Sparklers in the dark", caption: "Make a wish" }, // → assets/images/month-03-3.jpg
-        { src: "https://picsum.photos/seed/month3-4/600/750", alt: "Our list of New Year's resolutions", caption: "Resolutions (ha)" }, // → assets/images/month-03-4.jpg
-        { src: "https://picsum.photos/seed/month3-5/600/750", alt: "A lazy New Year's Day brunch", caption: "Recovery brunch" }, // → assets/images/month-03-5.jpg
+        { src: "https://picsum.photos/seed/month3-1/600/750", alt: "Celebrating New Year's Eve together", caption: "Hello, 2026" }, // → assets/images/month-03/
+        { src: "https://picsum.photos/seed/month3-2/600/750", alt: "Fireworks over the city", caption: "Midnight sky" }, // → assets/images/month-03/
+        { src: "https://picsum.photos/seed/month3-3/600/750", alt: "Sparklers in the dark", caption: "Make a wish" }, // → assets/images/month-03/
+        { src: "https://picsum.photos/seed/month3-4/600/750", alt: "Our list of New Year's resolutions", caption: "Resolutions (ha)" }, // → assets/images/month-03/
+        { src: "https://picsum.photos/seed/month3-5/600/750", alt: "A lazy New Year's Day brunch", caption: "Recovery brunch" }, // → assets/images/month-03/
       ],
     },
     {
@@ -57,9 +72,9 @@ const SITE_DATA = {
       title: "Our First Valentine's",
       text: "Handwritten notes, a slightly burnt dinner, and laughing about it until our cheeks hurt.",
       images: [
-        { src: "https://picsum.photos/seed/month4-1/600/750", alt: "Valentine's dinner at home", caption: "Chef's kiss" }, // → assets/images/month-04-1.jpg
-        { src: "https://picsum.photos/seed/month4-2/600/750", alt: "Handwritten notes on the table", caption: "Love notes" }, // → assets/images/month-04-2.jpg
-        { src: "https://picsum.photos/seed/month4-3/600/750", alt: "Flowers on the kitchen counter", caption: "For you" }, // → assets/images/month-04-3.jpg
+        { src: "https://picsum.photos/seed/month4-1/600/750", alt: "Valentine's dinner at home", caption: "Chef's kiss" }, // → assets/images/month-04/
+        { src: "https://picsum.photos/seed/month4-2/600/750", alt: "Handwritten notes on the table", caption: "Love notes" }, // → assets/images/month-04/
+        { src: "https://picsum.photos/seed/month4-3/600/750", alt: "Flowers on the kitchen counter", caption: "For you" }, // → assets/images/month-04/
       ],
     },
     {
@@ -67,11 +82,11 @@ const SITE_DATA = {
       title: "Little Adventures",
       text: "Wrong turns, new cafés and the discovery that getting lost is more fun with you.",
       images: [
-        { src: "https://picsum.photos/seed/month5-1/600/750", alt: "Exploring a new neighbourhood", caption: "Took the long way" }, // → assets/images/month-05-1.jpg
-        { src: "https://picsum.photos/seed/month5-2/600/750", alt: "Coffee at a tiny café we found", caption: "Our new spot" }, // → assets/images/month-05-2.jpg
-        { src: "https://picsum.photos/seed/month5-3/600/750", alt: "A map covered in scribbles", caption: "Where to next?" }, // → assets/images/month-05-3.jpg
-        { src: "https://picsum.photos/seed/month5-4/600/750", alt: "Street art on a random wall", caption: "Found this!" }, // → assets/images/month-05-4.jpg
-        { src: "https://picsum.photos/seed/month5-5/600/750", alt: "The view from a train window", caption: "Window seat" }, // → assets/images/month-05-5.jpg
+        { src: "https://picsum.photos/seed/month5-1/600/750", alt: "Exploring a new neighbourhood", caption: "Took the long way" }, // → assets/images/month-05/
+        { src: "https://picsum.photos/seed/month5-2/600/750", alt: "Coffee at a tiny café we found", caption: "Our new spot" }, // → assets/images/month-05/
+        { src: "https://picsum.photos/seed/month5-3/600/750", alt: "A map covered in scribbles", caption: "Where to next?" }, // → assets/images/month-05/
+        { src: "https://picsum.photos/seed/month5-4/600/750", alt: "Street art on a random wall", caption: "Found this!" }, // → assets/images/month-05/
+        { src: "https://picsum.photos/seed/month5-5/600/750", alt: "The view from a train window", caption: "Window seat" }, // → assets/images/month-05/
       ],
     },
     {
@@ -79,10 +94,10 @@ const SITE_DATA = {
       title: "Spring in Bloom",
       text: "Picnics, flowers and long evenings. Everything felt lighter, and so did we.",
       images: [
-        { src: "https://picsum.photos/seed/month6-1/600/750", alt: "Picnic in the park in spring", caption: "Blossom season" }, // → assets/images/month-06-1.jpg
-        { src: "https://picsum.photos/seed/month6-2/600/750", alt: "Cherry blossoms overhead", caption: "Pink skies" }, // → assets/images/month-06-2.jpg
-        { src: "https://picsum.photos/seed/month6-3/600/750", alt: "A picnic blanket full of snacks", caption: "Too many snacks" }, // → assets/images/month-06-3.jpg
-        { src: "https://picsum.photos/seed/month6-4/600/750", alt: "Flowers from the market", caption: "Market flowers" }, // → assets/images/month-06-4.jpg
+        { src: "https://picsum.photos/seed/month6-1/600/750", alt: "Picnic in the park in spring", caption: "Blossom season" }, // → assets/images/month-06/
+        { src: "https://picsum.photos/seed/month6-2/600/750", alt: "Cherry blossoms overhead", caption: "Pink skies" }, // → assets/images/month-06/
+        { src: "https://picsum.photos/seed/month6-3/600/750", alt: "A picnic blanket full of snacks", caption: "Too many snacks" }, // → assets/images/month-06/
+        { src: "https://picsum.photos/seed/month6-4/600/750", alt: "Flowers from the market", caption: "Market flowers" }, // → assets/images/month-06/
       ],
     },
     {
@@ -90,9 +105,9 @@ const SITE_DATA = {
       title: "Sunday Mornings",
       text: "Slow breakfasts, crosswords we never finished and the comfort of doing nothing together.",
       images: [
-        { src: "https://picsum.photos/seed/month7-1/600/750", alt: "A lazy Sunday breakfast", caption: "Pancake Sundays" }, // → assets/images/month-07-1.jpg
-        { src: "https://picsum.photos/seed/month7-2/600/750", alt: "A crossword we never finished", caption: "7 down?" }, // → assets/images/month-07-2.jpg
-        { src: "https://picsum.photos/seed/month7-3/600/750", alt: "Rain on the window on a slow morning", caption: "Staying in" }, // → assets/images/month-07-3.jpg
+        { src: "https://picsum.photos/seed/month7-1/600/750", alt: "A lazy Sunday breakfast", caption: "Pancake Sundays" }, // → assets/images/month-07/
+        { src: "https://picsum.photos/seed/month7-2/600/750", alt: "A crossword we never finished", caption: "7 down?" }, // → assets/images/month-07/
+        { src: "https://picsum.photos/seed/month7-3/600/750", alt: "Rain on the window on a slow morning", caption: "Staying in" }, // → assets/images/month-07/
       ],
     },
     {
@@ -100,10 +115,10 @@ const SITE_DATA = {
       title: "Summer Begins",
       text: "Sunscreen, salty hair and the best ice cream debate of all time. (I was right.)",
       images: [
-        { src: "https://picsum.photos/seed/month8-1/600/750", alt: "A day at the beach", caption: "Sun-kissed" }, // → assets/images/month-08-1.jpg
-        { src: "https://picsum.photos/seed/month8-2/600/750", alt: "Sharing ice cream by the sea", caption: "Two scoops" }, // → assets/images/month-08-2.jpg
-        { src: "https://picsum.photos/seed/month8-3/600/750", alt: "Footprints in the sand", caption: "Side by side" }, // → assets/images/month-08-3.jpg
-        { src: "https://picsum.photos/seed/month8-4/600/750", alt: "Sunglasses and sunscreen on a towel", caption: "SPF 50, always" }, // → assets/images/month-08-4.jpg
+        { src: "https://picsum.photos/seed/month8-1/600/750", alt: "A day at the beach", caption: "Sun-kissed" }, // → assets/images/month-08/
+        { src: "https://picsum.photos/seed/month8-2/600/750", alt: "Sharing ice cream by the sea", caption: "Two scoops" }, // → assets/images/month-08/
+        { src: "https://picsum.photos/seed/month8-3/600/750", alt: "Footprints in the sand", caption: "Side by side" }, // → assets/images/month-08/
+        { src: "https://picsum.photos/seed/month8-4/600/750", alt: "Sunglasses and sunscreen on a towel", caption: "SPF 50, always" }, // → assets/images/month-08/
       ],
     },
     {
@@ -111,11 +126,11 @@ const SITE_DATA = {
       title: "Golden Hours",
       text: "Sunsets that made us stop mid-sentence, and the realisation that home can be a person.",
       images: [
-        { src: "https://picsum.photos/seed/month9-1/600/750", alt: "Watching the sunset together", caption: "Golden hour" }, // → assets/images/month-09-1.jpg
-        { src: "https://picsum.photos/seed/month9-2/600/750", alt: "Our silhouettes against the sky", caption: "Just us" }, // → assets/images/month-09-2.jpg
-        { src: "https://picsum.photos/seed/month9-3/600/750", alt: "Warm light through the trees", caption: "Glow" }, // → assets/images/month-09-3.jpg
-        { src: "https://picsum.photos/seed/month9-4/600/750", alt: "An evening walk by the water", caption: "Evening stroll" }, // → assets/images/month-09-4.jpg
-        { src: "https://picsum.photos/seed/month9-5/600/750", alt: "The sky turning pink", caption: "Cotton-candy sky" }, // → assets/images/month-09-5.jpg
+        { src: "https://picsum.photos/seed/month9-1/600/750", alt: "Watching the sunset together", caption: "Golden hour" }, // → assets/images/month-09/
+        { src: "https://picsum.photos/seed/month9-2/600/750", alt: "Our silhouettes against the sky", caption: "Just us" }, // → assets/images/month-09/
+        { src: "https://picsum.photos/seed/month9-3/600/750", alt: "Warm light through the trees", caption: "Glow" }, // → assets/images/month-09/
+        { src: "https://picsum.photos/seed/month9-4/600/750", alt: "An evening walk by the water", caption: "Evening stroll" }, // → assets/images/month-09/
+        { src: "https://picsum.photos/seed/month9-5/600/750", alt: "The sky turning pink", caption: "Cotton-candy sky" }, // → assets/images/month-09/
       ],
     },
     {
@@ -123,9 +138,9 @@ const SITE_DATA = {
       title: "The Road Trip",
       text: "Questionable snacks, a perfect playlist and singing every word with the windows down.",
       images: [
-        { src: "https://picsum.photos/seed/month10-1/600/750", alt: "On the road during our trip", caption: "Windows down" }, // → assets/images/month-10-1.jpg
-        { src: "https://picsum.photos/seed/month10-2/600/750", alt: "Road-trip snacks on the dashboard", caption: "Snack co-pilot" }, // → assets/images/month-10-2.jpg
-        { src: "https://picsum.photos/seed/month10-3/600/750", alt: "A viewpoint on the way", caption: "Worth the detour" }, // → assets/images/month-10-3.jpg
+        { src: "https://picsum.photos/seed/month10-1/600/750", alt: "On the road during our trip", caption: "Windows down" }, // → assets/images/month-10/
+        { src: "https://picsum.photos/seed/month10-2/600/750", alt: "Road-trip snacks on the dashboard", caption: "Snack co-pilot" }, // → assets/images/month-10/
+        { src: "https://picsum.photos/seed/month10-3/600/750", alt: "A viewpoint on the way", caption: "Worth the detour" }, // → assets/images/month-10/
       ],
     },
     {
@@ -133,10 +148,10 @@ const SITE_DATA = {
       title: "Cosy Season",
       text: "Blankets, rainy days and movie marathons. The kind of ordinary I'd choose again and again.",
       images: [
-        { src: "https://picsum.photos/seed/month11-1/600/750", alt: "Movie night under a blanket", caption: "Movie marathon" }, // → assets/images/month-11-1.jpg
-        { src: "https://picsum.photos/seed/month11-2/600/750", alt: "A rainy day through the window", caption: "Rain again" }, // → assets/images/month-11-2.jpg
-        { src: "https://picsum.photos/seed/month11-3/600/750", alt: "Two mugs of tea", caption: "Tea for two" }, // → assets/images/month-11-3.jpg
-        { src: "https://picsum.photos/seed/month11-4/600/750", alt: "Autumn leaves on a walk", caption: "Crunchy leaves" }, // → assets/images/month-11-4.jpg
+        { src: "https://picsum.photos/seed/month11-1/600/750", alt: "Movie night under a blanket", caption: "Movie marathon" }, // → assets/images/month-11/
+        { src: "https://picsum.photos/seed/month11-2/600/750", alt: "A rainy day through the window", caption: "Rain again" }, // → assets/images/month-11/
+        { src: "https://picsum.photos/seed/month11-3/600/750", alt: "Two mugs of tea", caption: "Tea for two" }, // → assets/images/month-11/
+        { src: "https://picsum.photos/seed/month11-4/600/750", alt: "Autumn leaves on a walk", caption: "Crunchy leaves" }, // → assets/images/month-11/
       ],
     },
     {
@@ -144,11 +159,11 @@ const SITE_DATA = {
       title: "One Whole Year",
       text: "Three hundred and sixty-five days of you. Here's to every single one still to come.",
       images: [
-        { src: "https://picsum.photos/seed/month12-1/600/750", alt: "Celebrating our first anniversary", caption: "Year one" }, // → assets/images/month-12-1.jpg
-        { src: "https://picsum.photos/seed/month12-2/600/750", alt: "The two of us, one year on", caption: "Still us" }, // → assets/images/month-12-2.jpg
-        { src: "https://picsum.photos/seed/month12-3/600/750", alt: "Our anniversary dinner table", caption: "Dinner for two" }, // → assets/images/month-12-3.jpg
-        { src: "https://picsum.photos/seed/month12-4/600/750", alt: "A cake with one candle", caption: "One candle" }, // → assets/images/month-12-4.jpg
-        { src: "https://picsum.photos/seed/month12-5/600/750", alt: "Holding hands", caption: "Always" }, // → assets/images/month-12-5.jpg
+        { src: "https://picsum.photos/seed/month12-1/600/750", alt: "Celebrating our first anniversary", caption: "Year one" }, // → assets/images/month-12/
+        { src: "https://picsum.photos/seed/month12-2/600/750", alt: "The two of us, one year on", caption: "Still us" }, // → assets/images/month-12/
+        { src: "https://picsum.photos/seed/month12-3/600/750", alt: "Our anniversary dinner table", caption: "Dinner for two" }, // → assets/images/month-12/
+        { src: "https://picsum.photos/seed/month12-4/600/750", alt: "A cake with one candle", caption: "One candle" }, // → assets/images/month-12/
+        { src: "https://picsum.photos/seed/month12-5/600/750", alt: "Holding hands", caption: "Always" }, // → assets/images/month-12/
       ],
     },
   ],
@@ -186,21 +201,6 @@ const SITE_DATA = {
     image: { src: "https://picsum.photos/seed/forever/600/750", alt: "The two of us together", caption: "Chapter one of many" }, // → assets/images/forever.jpg
     signoff: "All my love, William",
     footer: "Made with love by William, for Zané",
-  },
-
-  /* ---------- Secret notes ---------- */
-  // Tapping the names on the first screen opens these one at a time, in order.
-  secret: {
-    hint: "psst… tap our names",
-    signoff: "— W",
-    notes: [
-      "If you found this, you clicked on us. Fitting, really, because I clicked with you the moment we met.",
-      "I still replay the way you laughed on our first date. It's my favourite sound in the world.",
-      "You make ordinary Tuesdays feel like something worth remembering.",
-      "Thank you for your patience, your kindness and for stealing the blanket only some of the time.",
-      "My favourite place is wherever you are.",
-      "Year one: done. I can't wait for every single one after it. ♥",
-    ],
   },
 
   /* ---------- Hidden letters ---------- */

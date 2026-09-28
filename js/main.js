@@ -6,13 +6,12 @@
    3. Dialogs + photo lightbox
    4. Music player
    5. Chowder & Panini peek → video (+ bring-back button)
-   6. Secret notes
-   7. Hidden letters
-   8. Cursor trail + click hearts
-   9. ScrollSmoother, active nav link, scroll animations
-  10. Moments card stack
-  11. Keep ScrollTrigger accurate as images/fonts load
-   Parts 1–8 don't need GSAP, so they still work if the CDN is slow or down.
+   6. Hidden letters
+   7. Cursor trail + click hearts
+   8. ScrollSmoother, active nav link, scroll animations
+   9. Moments card stack
+  10. Keep ScrollTrigger accurate as images/fonts load
+   Parts 1–7 don't need GSAP, so they still work if the CDN is slow or down.
    ========================================================= */
 (() => {
   "use strict";
@@ -45,7 +44,7 @@
     return ctx;
   };
 
-  let smoother = null; // set in part 5 (stays null for reduced motion)
+  let smoother = null; // set in part 8 (stays null for reduced motion)
 
   /* ---------- 1. Render ---------- */
   const { one, two } = data.names;
@@ -129,12 +128,6 @@
   $("#peek-video").src = peekData.video;
   $("#video-title").textContent = peekData.title;
 
-  // Secret notes
-  const secret = data.secret;
-  $("#secret-hint").textContent = secret.hint;
-  $("#note-sign").textContent = secret.signoff;
-  $("#note-next").hidden = secret.notes.length < 2;
-
   // Floating hearts: random size/speed/position per heart, animated purely in CSS
   const rand = (min, max) => (min + Math.random() * (max - min)).toFixed(2);
   $("#hearts").innerHTML = Array.from({ length: 14 }, () =>
@@ -193,10 +186,10 @@
     dialog.showModal();
     lockScroll(true);
   };
-  // Shared by every dialog (photos, video, secret notes): the [data-close] button, a click on
+  // Shared by every dialog (photos, video, letters): the [data-close] button, a click on
   // the dark area, and clean-up however it was closed (X, Esc, outside click).
   const wireDialog = (dialog, onClose) => {
-    const figure = $(".lightbox__figure", dialog); // null for the note dialog, which is fine
+    const figure = $(".lightbox__figure", dialog); // null for the letters dialog, which is fine
     $("[data-close]", dialog).addEventListener("click", () => dialog.close());
     dialog.addEventListener("click", (e) => {
       if (e.target === dialog || e.target === figure) dialog.close();
@@ -343,29 +336,7 @@
     peekOpen.focus();
   });
 
-  /* ---------- 6. Secret notes (tap the names on the first screen) ---------- */
-  const noteDialog = $("#note");
-  const noteText = $("#note-text");
-  const namesBtn = $("#hero-names");
-  let noteIndex = -1;
-
-  const showNextNote = () => {
-    noteIndex = (noteIndex + 1) % secret.notes.length;
-    noteText.textContent = secret.notes[noteIndex];
-    $("#note-count").textContent = `${noteIndex + 1} of ${secret.notes.length}`;
-    if (!reduceMotion) {
-      noteText.animate([{ opacity: 0, transform: "translateY(8px)" }, { opacity: 1, transform: "none" }], { duration: 400, easing: "ease-out" });
-    }
-  };
-
-  namesBtn.addEventListener("click", () => {
-    showNextNote();
-    openDialog(noteDialog);
-  });
-  $("#note-next").addEventListener("click", showNextNote);
-  wireDialog(noteDialog, () => namesBtn.focus({ preventScroll: true }));
-
-  /* ---------- 7. Hidden letters (envelopes around the site + the collection dialog) ---------- */
+  /* ---------- 6. Hidden letters (envelopes around the site + the collection dialog) ---------- */
   const letters = data.letters.items;
   const lettersDialog = $("#letters");
   const listPanel = $("#letters-list");
@@ -585,7 +556,7 @@
   wireDialog(lettersDialog, () => lettersOpener?.focus({ preventScroll: true }));
   renderLetters();
 
-  /* ---------- 8. Cursor trail + click hearts (one decorative canvas) ---------- */
+  /* ---------- 7. Cursor trail + click hearts (one decorative canvas) ---------- */
   if (!reduceMotion) {
     const ctx = createCanvas("cursor-trail", document.body);
     const colors = ["#D98B9A", "#B5586B", "#F2B6C1", "#A8BFA3"];
@@ -676,7 +647,7 @@
     }, { passive: true });
   }
 
-  /* ---------- 9. ScrollSmoother, active nav link, scroll animations ---------- */
+  /* ---------- 8. ScrollSmoother, active nav link, scroll animations ---------- */
   gsap.registerPlugin(ScrollTrigger, ScrollSmoother);
 
   if (!reduceMotion) {
@@ -743,7 +714,7 @@
     }));
   }
 
-  /* ---------- 10. Moments card stack ---------- */
+  /* ---------- 9. Moments card stack ---------- */
   const pile = $("#stack-pile");
   const order = $$(".stack__card", pile); // order[0] is the top card
   const tilts = [-5, 6, -3.5, 4.5, -6, 3, 5, -4]; // degrees, one per card (repeats)
@@ -812,7 +783,7 @@
   });
   pile.addEventListener("pointercancel", () => (startX = null));
 
-  /* ---------- 11. Keep trigger positions accurate as images and fonts load ---------- */
+  /* ---------- 10. Keep trigger positions accurate as images and fonts load ---------- */
   let refreshTimer;
   const queueRefresh = () => {
     clearTimeout(refreshTimer);

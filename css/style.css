@@ -6,7 +6,7 @@
     2. Base                  10. Lightbox + video
     3. Buttons               11. Back to top
     4. Navbar                12. Chowder & Panini peek + return button
-    5. Hero + sections       13. Secret notes
+    5. Hero + sections       13. Note card (dialog)
     6. Timeline + polaroids  14. Hidden letters
     7. Moments (card stack)  15. Cursor trail
     8. Music player          16. Reduced motion
@@ -322,18 +322,6 @@ svg { fill: currentColor; }
 }
 .hero__amp { color: var(--color-primary); font-size: 0.75em; }
 
-/* The names are a button: tapping them opens a secret note */
-.hero__names-btn {
-  padding: 0 0.1em;
-  border: 0;
-  background: none;
-  line-height: inherit;
-  cursor: pointer;
-  transition: transform 0.5s var(--ease-out);
-}
-.hero__names-btn:hover { transform: scale(1.03) rotate(-1deg); }
-.hero__names-btn:active { transform: scale(0.98); }
-
 .hero__date {
   display: inline-flex;
   align-items: center;
@@ -356,21 +344,6 @@ svg { fill: currentColor; }
   margin-inline: auto;
   color: var(--color-muted);
   font-size: 1.05rem;
-}
-
-.hero__hint {
-  margin-top: 1.5rem;
-  color: var(--color-muted);
-  font-family: var(--font-heading);
-  font-size: 1.05rem;
-  font-style: italic;
-}
-.hero__hint::before,
-.hero__hint::after {
-  content: "✦";
-  margin-inline: 0.5rem;
-  color: var(--color-primary);
-  font-size: 0.7em;
 }
 
 .hero__sparkle {
@@ -1251,7 +1224,7 @@ svg { fill: currentColor; }
   75% { transform: rotate(6deg); }
 }
 
-/* ---------- 13. Secret notes (native <dialog>) ---------- */
+/* ---------- 13. Note card (native <dialog>, used by the hidden letters) ---------- */
 .note {
   width: min(26rem, calc(100% - 2.5rem));
   max-width: none;
@@ -1301,13 +1274,6 @@ svg { fill: currentColor; }
   font-weight: 500;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-}
-.note__text {
-  margin: 1rem 0 0;
-  font-family: var(--font-heading);
-  font-size: clamp(1.35rem, 4.5vw, 1.6rem);
-  font-style: italic;
-  line-height: 1.45;
 }
 .note__sign {
   margin: 0.75rem 0 1.5rem;

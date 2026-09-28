@@ -133,19 +133,6 @@
     <span class="peek-return__art" id="peek-return-art" aria-hidden="true">🐱</span>
   </button>
 
-  <!-- Secret notes (opened by tapping the names in the hero; text in data.js → secret) -->
-  <dialog class="note" id="note" aria-labelledby="note-title">
-    <div class="note__paper">
-      <button class="icon-btn note__close" type="button" data-close aria-label="Close note">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 6.4L17.6 5 12 10.6 6.4 5 5 6.4 10.6 12 5 17.6 6.4 19 12 13.4 17.6 19 19 17.6 13.4 12z"/></svg>
-      </button>
-      <p class="note__eyebrow" id="note-title">Secret note <span id="note-count"></span></p>
-      <p class="note__text" id="note-text" aria-live="polite"></p>
-      <p class="note__sign" id="note-sign"></p>
-      <button class="btn note__next" type="button" id="note-next">Another one <span aria-hidden="true">♥</span></button>
-    </div>
-  </dialog>
-
   <dialog class="lightbox" id="video-modal" aria-labelledby="video-title">
     <button class="icon-btn lightbox__close" type="button" data-close aria-label="Close video">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 6.4L17.6 5 12 10.6 6.4 5 5 6.4 10.6 12 5 17.6 6.4 19 12 13.4 17.6 19 19 17.6 13.4 12z"/></svg>
@@ -166,10 +153,9 @@
           <span class="hero__sparkle hero__sparkle--3" aria-hidden="true">♥</span>
           <div class="hero__inner">
             <p class="hero__eyebrow">One Year Together</p>
-            <h1 class="hero__names"><button class="hero__names-btn" id="hero-names" type="button" aria-describedby="secret-hint"></button></h1>
+            <h1 class="hero__names" id="hero-names"></h1>
             <p class="hero__date"><time id="hero-date"></time></p>
             <p class="hero__line" id="hero-line"></p>
-            <p class="hero__hint" id="secret-hint"></p>
           </div>
           <a class="scroll-cue" href="#our-year" aria-label="Scroll down to Our Year">
             <span class="scroll-cue__label" aria-hidden="true">Scroll</span>
