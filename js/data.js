@@ -253,13 +253,31 @@ const SITE_DATA = {
     },
     {
       date: "September 2026",
-      title: "Cosy Season",
-      text: "Blankets, rainy days and movie marathons. The kind of ordinary I'd choose again and again.",
+      title: "Afrikaans in die Wolke",
+      text: "A sunny day at Afrikaans in die Wolke: selfies on the lawn under the trees, wristbands on and way too many funny faces. We got our faces painted (a little deer for you, green scales for me) and rode the Ferris wheel, where we both put on our bravest faces and were secretly terrified. Worth it for the view from the top.",
       images: [
-        { src: "https://picsum.photos/seed/month11-1/600/750", alt: "Movie night under a blanket", caption: "Movie marathon" }, // → assets/images/month-11/
-        { src: "https://picsum.photos/seed/month11-2/600/750", alt: "A rainy day through the window", caption: "Rain again" }, // → assets/images/month-11/
-        { src: "https://picsum.photos/seed/month11-3/600/750", alt: "Two mugs of tea", caption: "Tea for two" }, // → assets/images/month-11/
-        { src: "https://picsum.photos/seed/month11-4/600/750", alt: "Autumn leaves on a walk", caption: "Crunchy leaves" }, // → assets/images/month-11/
+        { src: "assets/images/month-11/afrikaans-in-die-wolke-tongues-out.jpg", focus: "15%", alt: "Both tongues out on the lawn at Afrikaans in die Wolke", caption: "Afrikaans in die Wolke!" },
+        { src: "assets/images/month-11/afrikaans-in-die-wolke-surprise-kiss.jpg", focus: "20%", alt: "A surprise kiss on the cheek and a shocked face on the festival lawn", caption: "Surprise attack" },
+        { src: "assets/images/month-11/afrikaans-in-die-wolke-sunny-and-silly.jpg", focus: "20%", alt: "A grin and a tongue out in the sun at the festival", caption: "Sunny and silly" },
+        { src: "assets/images/month-11/afrikaans-in-die-wolke-cheek-kiss.jpg", focus: "25%", alt: "A kiss on the cheek on the festival lawn, eyes squeezed shut", caption: "Kisses in the sun" },
+        { src: "assets/images/month-11/afrikaans-in-die-wolke-smiles.jpg", focus: "40%", alt: "Smiling together on the lawn, sunglasses on her head", caption: "Festival glow" },
+        { src: "assets/images/month-11/afrikaans-in-die-wolke-whisper.jpg", focus: "30%", alt: "Whispering in her ear on the festival lawn while she smiles", caption: "Sweet nothings" },
+        { src: "assets/images/month-11/afrikaans-in-die-wolke-wristband-selfie.jpg", focus: "35%", alt: "Showing off our festival wristbands, with the Ferris wheel behind", caption: "Wristbands on" },
+        { src: "assets/images/month-11/afrikaans-in-die-wolke-under-the-tree.jpg", focus: "10%", alt: "Smiling under a big tree at the festival", caption: "Shade, finally" },
+        { src: "assets/images/month-11/afrikaans-in-die-wolke-wristbands.jpg", alt: "Two Afrikaans in die Wolke wristbands and a cold drink on the grass", caption: "Besoekers" },
+        { src: "assets/images/month-11/afrikaans-in-die-wolke-goofing.jpg", video: "assets/images/month-11/afrikaans-in-die-wolke-goofing.mp4", alt: "Goofing around on the festival lawn", caption: "Festival goofballs" },
+        { src: "assets/images/month-11/afrikaans-in-die-wolke-too-close.jpg", focus: "50% 35%", alt: "A very close-up selfie on the festival lawn", caption: "Too close, as always" },
+        { src: "assets/images/month-11/ferris-wheel-zane.jpg", focus: "50% 10%", alt: "Zané smiling in a Ferris wheel car", caption: "Up we go" },
+        { src: "assets/images/month-11/ferris-wheel-william.jpg", focus: "20%", alt: "William grinning at the top of the Ferris wheel, with the whole festival below", caption: "King of the wheel" },
+        { src: "assets/images/month-11/ferris-wheel-scared.jpg", video: "assets/images/month-11/ferris-wheel-scared.mp4", focus: "50% 15%", alt: "Riding the Ferris wheel and very scared of the height", caption: "Scared? Us? Never" },
+        { src: "assets/images/month-11/ferris-wheel-view.jpg", video: "assets/images/month-11/ferris-wheel-view.mp4", focus: "35%", alt: "The view over the festival from the top of the Ferris wheel", caption: "The view from the top" },
+        { src: "assets/images/month-11/face-paint-selfie.jpg", focus: "65%", alt: "Face paint selfie: a little deer for her and green scales for him", caption: "Oh deer" },
+        { src: "assets/images/month-11/face-paint-tongue-out.jpg", focus: "60%", alt: "A tongue out and a grin in our face paint", caption: "Painted and proud" },
+        { src: "assets/images/month-11/face-paint-wide-eyes.jpg", focus: "60%", alt: "Wide eyes in our face paint, one of us peeking over the other's head", caption: "Startled deer" },
+        { src: "assets/images/month-11/face-paint-scream.jpg", alt: "Screaming at the camera in our face paint", caption: "RAWR" },
+        { src: "assets/images/month-11/face-paint-deer-close-up.jpg", alt: "A close-up of the deer face paint: brown fur, white spots and a little black nose", caption: "Bambi eyes" },
+        { src: "assets/images/month-11/couch-william.jpg", focus: "50% 35%", alt: "Back home on the couch, still in the festival T-shirt, tongue out", caption: "Home, still silly" },
+        { src: "assets/images/month-11/couch-zane.jpg", focus: "50% 35%", alt: "Lying on the couch with a tongue out", caption: "Couch potato" },
       ],
     },
     {
