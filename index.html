@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>One Year Together</title>
+  <meta name="description" content="A little website celebrating our first year together.">
+  <meta name="theme-color" content="#FFF8F3">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90' fill='%23B5586B'>♥</text></svg>">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=DM+Sans:wght@400;500;700&family=Great+Vibes&display=swap">
+
+  <link rel="stylesheet" href="css/style.css">
+
+  <!-- GSAP (official CDN) → content → site logic. `defer` keeps them in this order. -->
+  <script defer src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/ScrollTrigger.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/ScrollSmoother.min.js"></script>
+  <script defer src="js/data.js"></script>
+  <script defer src="js/main.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#our-year">Skip to content</a>
+
+  <!-- Envelope drawings, reused with <use href="#env-closed"> / <use href="#env-open">. Colours: --env-* in style.css -->
+  <svg class="visually-hidden" aria-hidden="true" focusable="false">
+    <symbol id="env-closed" viewBox="0 0 48 44">
+      <rect x="1.5" y="9.5" width="45" height="33" rx="4" stroke-width="1.5" style="fill: var(--env-body); stroke: var(--env-line)"/>
+      <path d="M3 41 18.5 27.5M45 41 29.5 27.5" fill="none" stroke-width="1.5" stroke-linecap="round" opacity="0.6" style="stroke: var(--env-line)"/>
+      <path d="M2.5 10.5 24 28 45.5 10.5Z" stroke-width="1.5" stroke-linejoin="round" style="fill: var(--env-flap); stroke: var(--env-line)"/>
+      <path transform="translate(24 26.5) scale(0.085) translate(-75 -72)" d="M75 40C75 37 70 25 50 25C20 25 20 62.5 20 62.5C20 80 40 102 75 120C110 102 130 80 130 62.5C130 62.5 130 25 100 25C85 25 75 37 75 40Z" style="fill: var(--env-seal)"/>
+    </symbol>
+    <symbol id="env-open" viewBox="0 0 48 44">
+      <path d="M1.5 16 24 2 46.5 16Z" stroke-width="1.5" stroke-linejoin="round" style="fill: var(--env-flap); stroke: var(--env-line)"/>
+      <rect x="8" y="6" width="32" height="24" rx="2" fill="#fff" stroke-width="1.2" style="stroke: var(--env-line)"/>
+      <path d="M13 12h22M13 17h22M13 22h13" stroke-width="1.5" stroke-linecap="round" opacity="0.7" style="stroke: var(--env-line)"/>
+      <path d="M1.5 16 24 31 46.5 16V39a3.5 3.5 0 0 1-3.5 3.5H5A3.5 3.5 0 0 1 1.5 39Z" stroke-width="1.5" stroke-linejoin="round" style="fill: var(--env-body); stroke: var(--env-line)"/>
+      <path transform="translate(24 36) scale(0.085) translate(-75 -72)" d="M75 40C75 37 70 25 50 25C20 25 20 62.5 20 62.5C20 80 40 102 75 120C110 102 130 80 130 62.5C130 62.5 130 25 100 25C85 25 75 37 75 40Z" style="fill: var(--env-seal)"/>
+    </symbol>
+  </svg>
+
+  <!-- Fixed UI lives OUTSIDE #smooth-wrapper so ScrollSmoother doesn't move it -->
+  <header class="nav" id="nav">
+    <div class="nav__inner">
+      <a class="nav__brand" href="#home" aria-label="Back to top"></a>
+      <nav class="nav__nav" aria-label="Main">
+        <button class="nav__toggle" type="button" aria-expanded="false" aria-controls="nav-menu" aria-label="Open menu">
+          <span class="nav__toggle-bar"></span>
+          <span class="nav__toggle-bar"></span>
+          <span class="nav__toggle-bar"></span>
+        </button>
+        <ul class="nav__menu" id="nav-menu">
+          <li><a class="nav__link" href="#home">Home</a></li>
+          <li><a class="nav__link" href="#our-year">Our Year</a></li>
+          <li><a class="nav__link" href="#moments">Moments</a></li>
+          <li><a class="nav__link" href="#songs">Our Songs</a></li>
+          <li><a class="nav__link" href="#forever">Forever</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <a class="to-top" href="#home" aria-label="Back to top">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5l-7 7 1.4 1.4L11 8.8V19h2V8.8l4.6 4.6L19 12z"/></svg>
+  </a>
+
+  <!-- Hidden letters: must come right after .to-top so CSS can lift it above that button -->
+  <button class="letters-fab" type="button" id="letters-fab">
+    <svg viewBox="0 0 48 44" aria-hidden="true" focusable="false"><use href="#env-closed"/></svg>
+    <span class="letters-fab__count" id="letters-fab-count" aria-hidden="true"></span>
+  </button>
+
+  <!-- Hidden letters dialog: a collection panel and a reading panel (content in data.js → letters) -->
+  <dialog class="note letters" id="letters" aria-label="Hidden letters">
+    <div class="note__paper">
+      <button class="icon-btn note__close" type="button" data-close aria-label="Close letters">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 6.4L17.6 5 12 10.6 6.4 5 5 6.4 10.6 12 5 17.6 6.4 19 12 13.4 17.6 19 19 17.6 13.4 12z"/></svg>
+      </button>
+
+      <div class="letters__panel" id="letters-list">
+        <p class="note__eyebrow" id="letters-progress"></p>
+        <h2 class="letters__title" id="letters-list-title" tabindex="-1">Hidden letters</h2>
+        <ul class="letters__grid" id="letters-grid"></ul>
+        <p class="letters__hint" id="letters-hint" aria-live="polite"></p>
+        <button class="letters__reset" type="button" id="letters-reset">Hide them all again</button>
+      </div>
+
+      <div class="letters__panel" id="letters-read" hidden>
+        <p class="note__eyebrow" id="letter-count"></p>
+        <h2 class="letters__title" id="letter-title" tabindex="-1"></h2>
+        <p class="letters__text" id="letter-text"></p>
+        <p class="note__sign" id="letter-sign"></p>
+        <button class="btn" type="button" id="letters-back"><span aria-hidden="true">←</span> <span id="letters-back-label">All letters</span></button>
+      </div>
+    </div>
+  </dialog>
+
+  <dialog class="lightbox" id="lightbox" aria-label="Photo viewer">
+    <p class="lightbox__count" aria-live="polite"></p>
+    <button class="icon-btn lightbox__close" type="button" data-close aria-label="Close photo viewer">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 6.4L17.6 5 12 10.6 6.4 5 5 6.4 10.6 12 5 17.6 6.4 19 12 13.4 17.6 19 19 17.6 13.4 12z"/></svg>
+    </button>
+    <button class="icon-btn lightbox__nav lightbox__nav--prev" type="button" aria-label="Previous photo">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15.4 6.4L14 5l-7 7 7 7 1.4-1.4L9.8 12z"/></svg>
+    </button>
+    <figure class="lightbox__figure">
+      <img class="lightbox__img" alt="">
+      <figcaption class="lightbox__caption"></figcaption>
+    </figure>
+    <button class="icon-btn lightbox__nav lightbox__nav--next" type="button" aria-label="Next photo">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8.6 17.6L10 19l7-7-7-7-1.4 1.4 5.6 5.6z"/></svg>
+    </button>
+  </dialog>
+
+  <!-- Chowder & Panini surprise (image, text and video are set in data.js → peek) -->
+  <div class="peek" id="peek">
+    <button class="peek__open" type="button" id="peek-open">
+      <span class="peek__bubble" id="peek-bubble"></span>
+      <span class="peek__art" id="peek-art">
+        <span class="peek__placeholder peek__placeholder--chowder" aria-hidden="true">🐱</span>
+        <span class="peek__placeholder peek__placeholder--panini" aria-hidden="true">🐰</span>
+      </span>
+    </button>
+    <button class="peek__close" type="button" id="peek-close" aria-label="Hide Chowder and Panini">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 6.4L17.6 5 12 10.6 6.4 5 5 6.4 10.6 12 5 17.6 6.4 19 12 13.4 17.6 19 19 17.6 13.4 12z"/></svg>
+    </button>
+  </div>
+  <!-- Shown after the peek is closed, to bring Chowder & Panini back -->
+  <button class="peek-return" type="button" id="peek-return" aria-label="Bring back Chowder and Panini">
+    <span class="peek-return__art" id="peek-return-art" aria-hidden="true">🐱</span>
+  </button>
+
+  <!-- Secret notes (opened by tapping the names in the hero; text in data.js → secret) -->
+  <dialog class="note" id="note" aria-labelledby="note-title">
+    <div class="note__paper">
+      <button class="icon-btn note__close" type="button" data-close aria-label="Close note">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 6.4L17.6 5 12 10.6 6.4 5 5 6.4 10.6 12 5 17.6 6.4 19 12 13.4 17.6 19 19 17.6 13.4 12z"/></svg>
+      </button>
+      <p class="note__eyebrow" id="note-title">Secret note <span id="note-count"></span></p>
+      <p class="note__text" id="note-text" aria-live="polite"></p>
+      <p class="note__sign" id="note-sign"></p>
+      <button class="btn note__next" type="button" id="note-next">Another one <span aria-hidden="true">♥</span></button>
+    </div>
+  </dialog>
+
+  <dialog class="lightbox" id="video-modal" aria-labelledby="video-title">
+    <button class="icon-btn lightbox__close" type="button" data-close aria-label="Close video">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 6.4L17.6 5 12 10.6 6.4 5 5 6.4 10.6 12 5 17.6 6.4 19 12 13.4 17.6 19 19 17.6 13.4 12z"/></svg>
+    </button>
+    <figure class="lightbox__figure">
+      <video class="lightbox__video" id="peek-video" controls playsinline preload="none"></video>
+      <figcaption class="lightbox__caption" id="video-title"></figcaption>
+    </figure>
+  </dialog>
+
+  <div id="smooth-wrapper">
+    <div id="smooth-content">
+      <main>
+        <!-- ===== Hero ===== -->
+        <section class="hero" id="home" tabindex="-1">
+          <span class="hero__sparkle hero__sparkle--1" aria-hidden="true">✦</span>
+          <span class="hero__sparkle hero__sparkle--2" aria-hidden="true">✦</span>
+          <span class="hero__sparkle hero__sparkle--3" aria-hidden="true">♥</span>
+          <div class="hero__inner">
+            <p class="hero__eyebrow">One Year Together</p>
+            <h1 class="hero__names"><button class="hero__names-btn" id="hero-names" type="button" aria-describedby="secret-hint"></button></h1>
+            <p class="hero__date"><time id="hero-date"></time></p>
+            <p class="hero__line" id="hero-line"></p>
+            <p class="hero__hint" id="secret-hint"></p>
+          </div>
+          <a class="scroll-cue" href="#our-year" aria-label="Scroll down to Our Year">
+            <span class="scroll-cue__label" aria-hidden="true">Scroll</span>
+            <span class="scroll-cue__mouse" aria-hidden="true"><span class="scroll-cue__dot"></span></span>
+          </a>
+        </section>
+
+        <!-- ===== Timeline ===== -->
+        <section class="section" id="our-year" tabindex="-1" aria-labelledby="our-year-title">
+          <header class="section__header" data-reveal>
+            <p class="section__eyebrow">Month by month</p>
+            <h2 class="section__title" id="our-year-title">Our Year</h2>
+            <p class="section__intro">Twelve little chapters of us.</p>
+          </header>
+          <div class="timeline">
+            <div class="timeline__line" aria-hidden="true"><div class="timeline__progress"></div></div>
+            <ol class="timeline__list" id="timeline-list"></ol>
+          </div>
+        </section>
+
+        <!-- ===== Moments (card stack) ===== -->
+        <section class="section section--moments" id="moments" tabindex="-1" aria-labelledby="moments-title">
+          <div class="moments">
+            <header class="section__header section__header--left" data-reveal>
+              <p class="section__eyebrow">Snapshots</p>
+              <h2 class="section__title" id="moments-title">Moments</h2>
+              <p class="section__intro">Tap the top photo, swipe it away or press “Next” to shuffle through a few favourites.</p>
+            </header>
+            <div class="stack" data-reveal>
+              <div class="stack__pile" id="stack-pile" role="group" aria-label="Photo stack"></div>
+              <div class="stack__controls">
+                <p class="stack__count" id="stack-count" aria-live="polite"></p>
+                <button class="btn" type="button" id="stack-next">
+                  Next
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8.6 17.6L10 19l7-7-7-7-1.4 1.4 5.6 5.6z"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ===== Music ===== -->
+        <section class="section" id="songs" tabindex="-1" aria-labelledby="songs-title">
+          <header class="section__header" data-reveal>
+            <p class="section__eyebrow">The soundtrack</p>
+            <h2 class="section__title" id="songs-title">Our Songs</h2>
+            <p class="section__intro">The songs that sound like us.</p>
+          </header>
+          <div class="music">
+            <div class="player" id="player" data-reveal>
+              <div class="player__art">
+                <img class="player__img" id="player-img" alt="">
+                <span class="player__eq" aria-hidden="true"><span></span><span></span><span></span><span></span></span>
+              </div>
+              <p class="player__title" id="player-title"></p>
+              <p class="player__artist" id="player-artist"></p>
+
+              <div class="player__progress">
+                <span id="player-current">0:00</span>
+                <input class="range" id="player-seek" type="range" min="0" max="0" step="1" value="0" aria-label="Seek">
+                <span id="player-duration">0:00</span>
+              </div>
+
+              <div class="player__controls">
+                <button class="icon-btn" type="button" id="player-prev" aria-label="Previous song">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
+                </button>
+                <button class="icon-btn player__play" type="button" id="player-play" aria-label="Play">
+                  <svg class="icon-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
+                  <svg class="icon-pause" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 19h4V5H6zm8-14v14h4V5z"/></svg>
+                </button>
+                <button class="icon-btn" type="button" id="player-next" aria-label="Next song">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 18l8.5-6L6 6zM16 6v12h2V6z"/></svg>
+                </button>
+              </div>
+
+              <div class="player__volume">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3A4.5 4.5 0 0 0 14 8v8a4.5 4.5 0 0 0 2.5-4z"/></svg>
+                <input class="range" id="player-volume" type="range" min="0" max="1" step="0.05" value="0.8" aria-label="Volume">
+              </div>
+
+              <p class="player__status" id="player-status" role="status"></p>
+            </div>
+
+            <ol class="playlist" id="playlist" aria-label="Playlist" data-reveal></ol>
+          </div>
+        </section>
+
+        <!-- ===== Forever ===== -->
+        <section class="section forever" id="forever" tabindex="-1" aria-labelledby="forever-title">
+          <div class="hearts" id="hearts" aria-hidden="true"></div>
+          <div class="forever__inner" data-reveal>
+            <p class="section__eyebrow">Always</p>
+            <h2 class="section__title" id="forever-title"></h2>
+            <figure class="polaroid polaroid--static forever__photo">
+              <img id="forever-img" alt="" loading="lazy">
+              <figcaption class="polaroid__caption" id="forever-caption"></figcaption>
+            </figure>
+            <div class="forever__message" id="forever-message"></div>
+            <p class="forever__signoff" id="forever-signoff"></p>
+          </div>
+        </section>
+      </main>
+
+      <footer class="footer">
+        <p id="footer-text"></p>
+      </footer>
+    </div>
+  </div>
+</body>
+</html>
