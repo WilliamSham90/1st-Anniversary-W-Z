@@ -183,13 +183,21 @@ const SITE_DATA = {
     },
     {
       date: "June 2026",
-      title: "Summer Begins",
-      text: "Sunscreen, salty hair and the best ice cream debate of all time. (I was right.)",
+      title: "Garden Days, Scrapbooks & Family",
+      text: "Back to the botanical garden, this time with a retro digital camera: tongues out, big screams and very close close-ups. Then you started our scrapbook of memories (p.s. I love you too). Add car rides with your brother Evan, silly faces with my sister Mika, one very dramatic \"sad & moeg\" selfie and a random check-in, and that was June.",
       images: [
-        { src: "https://picsum.photos/seed/month8-1/600/750", alt: "A day at the beach", caption: "Sun-kissed" }, // → assets/images/month-08/
-        { src: "https://picsum.photos/seed/month8-2/600/750", alt: "Sharing ice cream by the sea", caption: "Two scoops" }, // → assets/images/month-08/
-        { src: "https://picsum.photos/seed/month8-3/600/750", alt: "Footprints in the sand", caption: "Side by side" }, // → assets/images/month-08/
-        { src: "https://picsum.photos/seed/month8-4/600/750", alt: "Sunglasses and sunscreen on a towel", caption: "SPF 50, always" }, // → assets/images/month-08/
+        { src: "assets/images/month-08/botanical-garden-digicam-tongues-out.jpg", focus: "45%", alt: "A retro digital-camera selfie at the botanical garden, both tongues out", caption: "Retro camera, same faces" },
+        { src: "assets/images/month-08/botanical-garden-digicam-smile.jpg", focus: "55%", alt: "A big smile and a tongue out, heads together on the lawn", caption: "Garden, round two" },
+        { src: "assets/images/month-08/botanical-garden-digicam-scream.jpg", focus: "55%", alt: "Both of us screaming at the camera with mouths wide open", caption: "AAAH!" },
+        { src: "assets/images/month-08/botanical-garden-digicam-eyes.jpg", alt: "An extreme close-up of our eyes side by side", caption: "Too close, again" },
+        { src: "assets/images/month-08/botanical-garden-digicam-laughing.jpg", focus: "30%", alt: "Laughing with eyes closed on the sunny lawn", caption: "Mid-giggle" },
+        { src: "assets/images/month-08/botanical-garden-digicam-sunlit.jpg", alt: "A soft smile with sunlight in her hair at the botanical garden", caption: "Sunlit" },
+        { src: "assets/images/month-08/botanical-garden-digicam-grin.jpg", focus: "45%", alt: "A big grin over the shoulder among the trees", caption: "Say cheese" },
+        { src: "assets/images/month-08/scrapbook-memories-cover.jpg", focus: "50% 40%", alt: "The cover of our scrapbook: Memories in cut-out letters, a photo of us with a dog, and a note that says p.s. i love u", caption: "p.s. i love u" },
+        { src: "assets/images/month-08/zane-and-evan-car.jpg", focus: "50% 30%", alt: "Zané and her brother Evan pulling rock-on faces in the car", caption: "Backseat rockers: Zané & Evan" },
+        { src: "assets/images/month-08/zane-and-mika.jpg", focus: "50% 70%", alt: "Zané and my sister Mika pulling silly faces with their tongues out", caption: "Zané & Mika, up to no good" },
+        { src: "assets/images/month-08/sad-and-moeg-selfie.jpg", focus: "50% 40%", alt: "A grumpy selfie with a doodle that says sad & moeg and drawn-on tears", caption: "Sad & moeg" },
+        { src: "assets/images/month-08/random-check-in.jpg", video: "assets/images/month-08/random-check-in.mp4", focus: "50% 60%", alt: "A random check-in video, chatting to the camera at home", caption: "Random check-in" },
       ],
     },
     {
