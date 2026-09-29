@@ -310,9 +310,15 @@ const SITE_DATA = {
 
   /* ---------- Our Songs ---------- */
   // The mp3 and its square cover image live in assets/songs/ (lowercase names with hyphens).
+  // The player starts on the middle song (the 4th of 7), so the covers fan out on both sides.
   songs: [
     { title: "Chowder Theme Song", artist: "Chowder", image: "assets/songs/chowder-cover.jpg", file: "assets/songs/chowder-theme-song.mp3" },
     { title: "Dandelions", artist: "Ruth B.", image: "assets/songs/dandelions-cover.jpg", file: "assets/songs/dandelions-ruth-b.mp3" },
+    { title: "She's Always a Woman", artist: "Billy Joel", image: "assets/songs/shes-always-a-woman-cover.jpg", file: "assets/songs/shes-always-a-woman-billy-joel.mp3" },
+    { title: "All My Love", artist: "Noah Kahan", image: "assets/songs/all-my-love-cover.jpg", file: "assets/songs/all-my-love-noah-kahan.mp3" },
+    { title: "Someone New", artist: "Hozier", image: "assets/songs/someone-new-cover.jpg", file: "assets/songs/someone-new-hozier.mp3" },
+    { title: "Orbiter", artist: "Noah Kahan", image: "assets/songs/orbiter-cover.jpg", file: "assets/songs/orbiter-noah-kahan.mp3" },
+    { title: "The Bitch Is Back", artist: "Elton John", image: "assets/songs/the-bitch-is-back-cover.jpg", file: "assets/songs/the-bitch-is-back-elton-john.mp3" },
   ],
 
   /* ---------- Forever: closing section ---------- */
@@ -372,8 +378,8 @@ const SITE_DATA = {
         ],
       },
       {
-        spot: "#songs .coverflow",
-        clue: "In Our Songs, hover over the album covers (or tap them on a phone).",
+        spot: '#covers [data-song="Chowder Theme Song"]',   // on Chowder's album cover (by song title)
+        clue: "In Our Songs, bring Chowder's song to the middle and hover over its cover (or tap it on a phone).",
         title: "lieg jy vir my?",
         images: [
           { src: "assets/images/worsie-meme.png", alt: "A sausage with the words Sê Worsie !!!" },

@@ -106,11 +106,15 @@
       </div>`).join("");
   $("#booth-printed").textContent = `All ${data.moments.length} snaps, printed ♥`; // set before part 6 hides an envelope here
 
-  // Playlist: one album cover per song (placed in 3D by part 4)
+  // Playlist: one album cover per song (placed in 3D by part 4). data-song lets a hidden letter pick a cover.
   $("#covers").innerHTML = data.songs.map((s, i) => `
-    <li class="covers__item">
+    <li class="covers__item" data-song="${esc(s.title)}">
       <button class="cover" type="button" data-index="${i}" aria-label="${esc(s.title)} by ${esc(s.artist)}">
         <img src="${esc(s.image)}" alt="" draggable="false">
+        <span class="cover__overlay" aria-hidden="true">
+          <svg class="icon-play" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+          <svg class="icon-pause" viewBox="0 0 24 24"><path d="M6 19h4V5H6zm8-14v14h4V5z"/></svg>
+        </span>
       </button>
     </li>`).join("");
 
@@ -299,6 +303,7 @@
     item.style.setProperty("--distance", Math.abs(offset));
     item.inert = Math.abs(offset) > 3; // too far away to see, so not focusable either
     cover.setAttribute("aria-current", offset === 0);
+    if (offset) item.classList.remove("is-peeking"); // a tapped-open envelope tucks away when its cover moves aside
   });
 
   const loadSong = (i, autoplay) => {
@@ -328,8 +333,8 @@
   $("#player-prev").addEventListener("click", () => loadSong(current - 1, true));
   $("#player-next").addEventListener("click", () => loadSong(current + 1, true));
 
-  // Click a side cover to play that song. The middle cover does nothing: play/pause is the round button,
-  // and tapping the covers on a phone reveals the hidden envelope instead.
+  // Click a side cover to play that song, the middle cover to play/pause. The one cover holding a hidden
+  // envelope (Chowder's) doesn't play/pause from the middle: tapping it reveals the envelope instead.
   // A swipe that ends on a cover (or on the envelope) is followed by a click; ignore that click.
   // Keyboard clicks (Enter/Space) have detail 0 and always count.
   let lastSwipe = -Infinity;
@@ -338,7 +343,10 @@
     const cover = e.target.closest(".cover");
     if (!cover || isSwipeClick(e)) return;
     const i = Number(cover.dataset.index);
-    if (i !== current) loadSong(i, true);
+    if (i !== current) {
+      loadSong(i, true);
+      e.stopPropagation(); // choosing Chowder's cover shouldn't also reveal its envelope; only a tap in the middle does
+    } else if (!cover.parentElement.classList.contains("has-stash")) togglePlay();
   });
   coverList.addEventListener("keydown", (e) => {
     const step = { ArrowLeft: -1, ArrowRight: 1 }[e.key];

@@ -62,7 +62,7 @@ Videos only download when they're opened, so they don't slow the page down. Keep
 
 Add or remove whole lines to change the playlist. Until an mp3 exists, the player shows a small note saying which file is missing.
 
-The Our Songs section has no heading on screen, just the album covers in a 3D "coverflow" over slowly drifting, blurred colours, with the player underneath. Swipe or drag the covers sideways, click one, or tab to a cover and use the ← → keys to browse. Clicking a side cover plays that song; the round button plays and pauses. Browsing keeps the music going if it was already playing. It starts on the middle song so the covers fan out on both sides. One hidden envelope pops up over the middle cover when you hover over the covers (or tap them on a phone).
+The Our Songs section has no heading on screen, just the album covers in a 3D "coverflow" over slowly drifting, blurred colours, with the player underneath. Swipe or drag the covers sideways, click one, or tab to a cover and use the ← → keys to browse. Clicking a side cover plays that song; clicking the middle cover (or the round button) plays and pauses. Browsing keeps the music going if it was already playing. It starts on the middle song so the covers fan out on both sides. Chowder's cover is the exception: instead of play/pause it hides an envelope, which pops up when Chowder's song is in the middle and you hover over it (or tap it on a phone). The letter's `spot` picks the cover by song title, so reordering the songs is fine.
 
 ### Mini music player
 

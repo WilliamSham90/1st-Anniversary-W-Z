@@ -915,22 +915,23 @@ svg { fill: currentColor; }
 }
 @media (min-width: 700px) { .covers { --step: 105%; } }
 
-/* The hidden envelope pops up over the middle cover when you hover or tap the covers (or tab to it).
-   Once found it tucks away again instead of staying on top of the album art. */
-.coverflow > .stash {
+/* One cover (Chowder's) holds a hidden envelope instead of the play/pause button. While that cover is
+   in the middle, the envelope pops up when you hover or tap it (or tab to it); once found it tucks away
+   again so the art shows. As a side cover it's hidden and can't be clicked, so a click there plays the song. */
+.covers__item > .stash {
   position: absolute;
   top: calc(var(--cover) / 2);
   left: 50%;
-  z-index: 20;   /* above every cover */
+  z-index: 1;   /* above its cover */
   width: 3.5rem;
   height: 3.25rem;
   margin: -1.625rem 0 0 -1.75rem;
   filter: drop-shadow(0 4px 10px rgba(58, 46, 50, 0.35));
 }
-.coverflow.has-stash.is-peeking > .stash { opacity: 1; transform: none; }
-.coverflow > .stash.is-found:not(:focus-visible) { opacity: 0; transform: translateY(4px) scale(0.5); }
-.coverflow.has-stash:hover > .stash { opacity: 1; transform: none; }
-.coverflow.has-stash > .stash:hover { transform: scale(1.15) rotate(-6deg); }
+.covers__item > .stash.is-found:not(:focus-visible) { opacity: 0; transform: translateY(4px) scale(0.5); }
+.covers__item.has-stash:is(:hover, .is-peeking) > .stash { opacity: 1; transform: none; }
+.covers__item.has-stash > .stash:hover { transform: scale(1.15) rotate(-6deg); }
+.covers__item:not(:has(> .cover[aria-current="true"])) > .stash { visibility: hidden; }
 
 .covers__item {
   position: absolute;
@@ -967,7 +968,24 @@ svg { fill: currentColor; }
   /* Mirror reflection underneath (Chrome, Edge, Safari; other browsers simply show no reflection) */
   -webkit-box-reflect: below 6px linear-gradient(transparent 55%, rgba(0, 0, 0, 0.3));
 }
-/* Play/pause icon follows the player (.is-playing on .music) */
+/* Play/pause on the middle cover when you hover or tab to it (not on the envelope's cover) */
+.cover__overlay {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  border-radius: inherit;
+  background: rgba(58, 46, 50, 0.45);
+  color: #fff;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.cover__overlay svg { width: 3.5rem; height: 3.5rem; }
+.cover[aria-current="true"]:is(:hover, :focus-visible) .cover__overlay { opacity: 1; }
+.has-stash .cover__overlay { display: none; }
+
+/* Play/pause icons follow the player (.is-playing on .music) */
+.cover__overlay .icon-pause,
 .player__play .icon-pause,
 .music.is-playing .icon-play { display: none; }
 .music.is-playing .icon-pause { display: block; }
