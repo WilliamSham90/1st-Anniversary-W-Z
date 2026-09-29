@@ -23,7 +23,7 @@
   <script defer src="js/main.js"></script>
 </head>
 <body>
-  <a class="skip-link" href="#our-year">Skip to content</a>
+  <a class="skip-link" href="#moments">Skip to content</a>
 
   <!-- Envelope drawings, reused with <use href="#env-closed"> / <use href="#env-open">. Colours: --env-* in style.css -->
   <svg class="visually-hidden" aria-hidden="true" focusable="false">
@@ -54,9 +54,9 @@
         </button>
         <ul class="nav__menu" id="nav-menu">
           <li><a class="nav__link" href="#home">Home</a></li>
-          <li><a class="nav__link" href="#our-year">Our Year</a></li>
           <li><a class="nav__link" href="#moments">Moments</a></li>
           <li><a class="nav__link" href="#songs">Our Songs</a></li>
+          <li><a class="nav__link" href="#our-year">Our Year</a></li>
           <li><a class="nav__link" href="#forever">Forever</a></li>
         </ul>
       </nav>
@@ -92,13 +92,15 @@
         <p class="note__eyebrow" id="letter-count"></p>
         <h2 class="letters__title" id="letter-title" tabindex="-1"></h2>
         <p class="letters__text" id="letter-text"></p>
+        <!-- A photo letter (images instead of text in data.js) shows its photos here; they open in the lightbox -->
+        <div class="letters__photos" id="letter-photos" hidden></div>
         <p class="note__sign" id="letter-sign"></p>
         <button class="btn" type="button" id="letters-back"><span aria-hidden="true">←</span> <span id="letters-back-label">All letters</span></button>
       </div>
     </div>
   </dialog>
 
-  <!-- Photos and videos from the timeline (a video item in data.js has a `video` file) -->
+  <!-- Photos and videos from one timeline month, or a photo letter's photos (a video item in data.js has a `video` file) -->
   <dialog class="lightbox" id="lightbox" aria-label="Photo and video viewer">
     <p class="lightbox__count" aria-live="polite"></p>
     <button class="icon-btn lightbox__close" type="button" data-close aria-label="Close viewer">
@@ -135,14 +137,43 @@
     <span class="peek-return__art" id="peek-return-art" aria-hidden="true">🐱</span>
   </button>
 
-  <dialog class="lightbox" id="video-modal" aria-labelledby="video-title">
+  <dialog class="lightbox" id="video-modal" aria-labelledby="video-title-text">
     <button class="icon-btn lightbox__close" type="button" data-close aria-label="Close video">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 6.4L17.6 5 12 10.6 6.4 5 5 6.4 10.6 12 5 17.6 6.4 19 12 13.4 17.6 19 19 17.6 13.4 12z"/></svg>
     </button>
     <figure class="lightbox__figure">
       <video class="lightbox__video" id="peek-video" controls playsinline preload="none"></video>
-      <figcaption class="lightbox__caption" id="video-title"></figcaption>
+      <!-- The names go in the span; a hidden-letter envelope sits after them -->
+      <figcaption class="lightbox__caption" id="video-title"><span id="video-title-text"></span></figcaption>
     </figure>
+  </dialog>
+
+  <!-- Photo booth show: countdown, a flash per snap, then two printed strips (reuses the .note paper card) -->
+  <dialog class="note booth-show" id="booth-show" aria-labelledby="booth-title">
+    <div class="note__paper">
+      <button class="icon-btn note__close" type="button" data-close aria-label="Close the photo booth">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 6.4L17.6 5 12 10.6 6.4 5 5 6.4 10.6 12 5 17.6 6.4 19 12 13.4 17.6 19 19 17.6 13.4 12z"/></svg>
+      </button>
+      <p class="note__eyebrow">Photo booth</p>
+      <h2 class="booth-show__title" id="booth-title">Say cheese!</h2>
+      <div class="booth-show__viewfinder" id="booth-viewfinder">
+        <img class="booth-show__shot" id="booth-shot" alt="">
+        <p class="booth-show__count" id="booth-count" aria-hidden="true"></p>
+        <span class="booth-show__flash" id="booth-flash" aria-hidden="true"></span>
+      </div>
+      <div class="booth-show__prints" id="booth-prints" hidden></div>
+      <p class="booth-show__status" id="booth-status" aria-live="polite"></p>
+      <!-- Its own paragraph (not the live status above) so a hidden-letter envelope can sit at the end of it -->
+      <p class="booth-show__printed" id="booth-printed" hidden></p>
+      <button class="booth-show__skip" type="button" id="booth-skip">Skip to the prints</button>
+      <div class="booth-show__actions" id="booth-actions" hidden>
+        <button class="btn-soft" type="button" id="booth-download">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20h14v-2H5v2zM19 9h-4V3H9v6H5l7 7 7-7z"/></svg>
+          <span id="booth-download-label">Download as a picture</span>
+        </button>
+        <button class="btn" type="button" id="booth-done">Keep them <span aria-hidden="true">♥</span></button>
+      </div>
+    </div>
   </dialog>
 
   <div id="smooth-wrapper">
@@ -159,59 +190,40 @@
             <p class="hero__date"><time id="hero-date"></time></p>
             <p class="hero__line" id="hero-line"></p>
           </div>
-          <a class="scroll-cue" href="#our-year" aria-label="Scroll down to Our Year">
+          <a class="scroll-cue" href="#moments" aria-label="Scroll down to Moments">
             <span class="scroll-cue__label" aria-hidden="true">Scroll</span>
             <span class="scroll-cue__mouse" aria-hidden="true"><span class="scroll-cue__dot"></span></span>
           </a>
         </section>
 
-        <!-- ===== Timeline ===== -->
-        <section class="section" id="our-year" tabindex="-1" aria-labelledby="our-year-title">
-          <header class="section__header" data-reveal>
-            <p class="section__eyebrow">Month by month</p>
-            <h2 class="section__title" id="our-year-title">Our Year</h2>
-            <p class="section__intro">Twelve little chapters of us.</p>
-          </header>
-          <div class="timeline">
-            <div class="timeline__line" aria-hidden="true"><div class="timeline__progress"></div></div>
-            <ol class="timeline__list" id="timeline-list"></ol>
+        <!-- ===== Moments (photo booth; photos in data.js → moments) ===== -->
+        <section class="section section--band section--moments" id="moments" tabindex="-1" aria-labelledby="moments-title">
+          <div class="booth" data-reveal>
+            <h2 class="booth__sign" id="moments-title">Photo booth</h2>
+            <div class="booth__window" aria-hidden="true"><span class="booth__lens"></span></div>
+            <button class="btn" type="button" id="booth-start">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15.2a3.2 3.2 0 1 0 0-6.4 3.2 3.2 0 0 0 0 6.4zM9 2 7.17 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2h-3.17L15 2H9zm3 15c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5z"/></svg>
+              Take our snapshots
+            </button>
+            <!-- Shown once the booth has printed (remembered in this browser) -->
+            <button class="btn-soft booth__film" type="button" id="booth-film" hidden>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 3v2h-2V3H8v2H6V3H4v18h2v-2h2v2h8v-2h2v2h2V3h-2zM8 17H6v-2h2v2zm0-4H6v-2h2v2zm0-4H6V7h2v2zm10 8h-2v-2h2v2zm0-4h-2v-2h2v2zm0-4h-2V7h2v2z"/></svg>
+              See our prints again
+            </button>
           </div>
         </section>
 
-        <!-- ===== Moments (card stack) ===== -->
-        <section class="section section--moments" id="moments" tabindex="-1" aria-labelledby="moments-title">
-          <div class="moments">
-            <header class="section__header section__header--left" data-reveal>
-              <p class="section__eyebrow">Snapshots</p>
-              <h2 class="section__title" id="moments-title">Moments</h2>
-              <p class="section__intro">Tap the top photo, swipe it away or press “Next” to shuffle through a few favourites.</p>
-            </header>
-            <div class="stack" data-reveal>
-              <div class="stack__pile" id="stack-pile" role="group" aria-label="Photo stack"></div>
-              <div class="stack__controls">
-                <p class="stack__count" id="stack-count" aria-live="polite"></p>
-                <button class="btn" type="button" id="stack-next">
-                  Next
-                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8.6 17.6L10 19l7-7-7-7-1.4 1.4 5.6 5.6z"/></svg>
-                </button>
-              </div>
+        <!-- ===== Music: album covers in a coverflow + the player (songs in data.js → songs) ===== -->
+        <section class="section section--band section--songs" id="songs" tabindex="-1" aria-labelledby="songs-title">
+          <h2 class="visually-hidden" id="songs-title">Our Songs</h2>
+          <div class="music" id="music" data-reveal>
+            <!-- Swipe/drag, click a cover, or use ← → while a cover has focus.
+                 A hidden-letter envelope is added to .coverflow and pops up over the middle cover. -->
+            <div class="coverflow">
+              <ol class="covers" id="covers" aria-label="Playlist"></ol>
             </div>
-          </div>
-        </section>
 
-        <!-- ===== Music ===== -->
-        <section class="section" id="songs" tabindex="-1" aria-labelledby="songs-title">
-          <header class="section__header" data-reveal>
-            <p class="section__eyebrow">The soundtrack</p>
-            <h2 class="section__title" id="songs-title">Our Songs</h2>
-            <p class="section__intro">The songs that sound like us.</p>
-          </header>
-          <div class="music">
-            <div class="player" id="player" data-reveal>
-              <div class="player__art">
-                <img class="player__img" id="player-img" alt="">
-                <span class="player__eq" aria-hidden="true"><span></span><span></span><span></span><span></span></span>
-              </div>
+            <div class="player">
               <p class="player__title" id="player-title"></p>
               <p class="player__artist" id="player-artist"></p>
 
@@ -234,15 +246,21 @@
                 </button>
               </div>
 
-              <div class="player__volume">
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3A4.5 4.5 0 0 0 14 8v8a4.5 4.5 0 0 0 2.5-4z"/></svg>
-                <input class="range" id="player-volume" type="range" min="0" max="1" step="0.05" value="0.8" aria-label="Volume">
-              </div>
-
               <p class="player__status" id="player-status" role="status"></p>
             </div>
+          </div>
+        </section>
 
-            <ol class="playlist" id="playlist" aria-label="Playlist" data-reveal></ol>
+        <!-- ===== Timeline ===== -->
+        <section class="section" id="our-year" tabindex="-1" aria-labelledby="our-year-title">
+          <header class="section__header" data-reveal>
+            <p class="section__eyebrow">Month by month</p>
+            <h2 class="section__title" id="our-year-title">Our Year</h2>
+            <p class="section__intro">Twelve little chapters of us.</p>
+          </header>
+          <div class="timeline">
+            <div class="timeline__line" aria-hidden="true"><div class="timeline__progress"></div></div>
+            <ol class="timeline__list" id="timeline-list"></ol>
           </div>
         </section>
 

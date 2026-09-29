@@ -13,23 +13,23 @@ css/style.css       all styling; colours, fonts and spacing are variables at the
 js/data.js          ← ALL your personal content: edit this file
 js/main.js          behaviour (you shouldn't need to touch it)
 assets/images/      your photos: month-01 … month-12 for the timeline (photos and videos), plus moments and the closing photo
-assets/artists/     artist images for the music player
+assets/artists/     album covers for the music player
 assets/music/       your mp3 files
 assets/video/       small local videos (the Chowder & Panini one is hosted online, see below)
 ```
 
 ## Swap in your photos
 
-Each month has its own folder: `assets/images/month-01/` for Month 1, up to `assets/images/month-12/`. Months 1–7 are done; months 8–12 still show placeholder photos.
+Each month has its own folder: `assets/images/month-01/` for Month 1, up to `assets/images/month-12/`. Months 1–11 are done; month 12 still shows placeholder photos.
 
-1. Put the photo in that month's folder and rename it to a short, lowercase name with hyphens instead of spaces that says what's in it, for example `assets/images/month-08/beach-day.jpg`. (Photos saved from WhatsApp are named like `WhatsApp Image 2026-09-28 at 21.05.53 (1).jpeg`. Rename those, because the spaces and brackets can break links once the site is online.)
+1. Put the photo in that month's folder and rename it to a short, lowercase name with hyphens instead of spaces that says what's in it, for example `assets/images/month-12/anniversary-dinner.jpg`. (Photos saved from WhatsApp are named like `WhatsApp Image 2026-09-28 at 21.05.53 (1).jpeg`. Rename those, because the spaces and brackets can break links once the site is online.)
 2. In `js/data.js`, find that month. Each placeholder line ends with a comment naming the folder:
    ```js
-   { src: "https://picsum.photos/seed/month8-1/600/750", alt: "A day at the beach", caption: "Sun-kissed" }, // → assets/images/month-08/
+   { src: "https://picsum.photos/seed/month12-1/600/750", alt: "Celebrating our first anniversary", caption: "Year one" }, // → assets/images/month-12/
    ```
 3. Replace the `src` value with the path to your photo:
    ```js
-   { src: "assets/images/month-08/beach-day.jpg", alt: "A day at the beach", caption: "Sun-kissed" },
+   { src: "assets/images/month-12/anniversary-dinner.jpg", alt: "Celebrating our first anniversary", caption: "Year one" },
    ```
 4. Update `alt` so it describes the real photo (screen readers read it aloud), and `caption`, the handwritten line under the photo.
 
@@ -42,11 +42,11 @@ Tips:
 
 Videos sit in the timeline next to the photos, with a play button on the frame. Clicking one opens it big, with sound and the usual controls, and the arrows step through photos and videos together. Playing a video pauses the music. Month 3 has three examples.
 
-1. Put the `.mp4` in the month's folder with a short lowercase name, e.g. `assets/images/month-08/first-dance.mp4`. Videos saved from WhatsApp or a phone are already MP4, which plays in every browser.
+1. Put the `.mp4` in the month's folder with a short lowercase name, e.g. `assets/images/month-12/first-dance.mp4`. Videos saved from WhatsApp or a phone are already MP4, which plays in every browser.
 2. Add a still picture from the video with the **same name** as a `.jpg` (`first-dance.jpg`). It's what shows in the frame and before the video starts. A screenshot of a good moment works well.
 3. Add a line with both:
    ```js
-   { src: "assets/images/month-08/first-dance.jpg", video: "assets/images/month-08/first-dance.mp4", alt: "Our first dance", caption: "First dance" },
+   { src: "assets/images/month-12/first-dance.jpg", video: "assets/images/month-12/first-dance.mp4", alt: "Our first dance", caption: "First dance" },
    ```
 
 Videos only download when they're opened, so they don't slow the page down. Keeping each one under about 10 MB still helps on mobile data.
@@ -54,7 +54,7 @@ Videos only download when they're opened, so they don't slow the page down. Keep
 ## Add your songs
 
 1. Put each mp3 in `assets/music/`, named as in `data.js` (`song-01.mp3`, `song-02.mp3`, ...), or use any name you like and update `file`.
-2. Put an artist or cover image in `assets/artists/` and update `image`.
+2. Put the album cover in `assets/artists/` and update `image`. Covers are shown square, so a square image looks best.
 3. Edit `title` and `artist`.
 
 ```js
@@ -62,6 +62,8 @@ Videos only download when they're opened, so they don't slow the page down. Keep
 ```
 
 Add or remove whole lines to change the playlist. Until an mp3 exists, the player shows a small note saying which file is missing.
+
+The Our Songs section has no heading on screen, just the album covers in a 3D "coverflow" over slowly drifting, blurred colours, with the player underneath. Swipe or drag the covers sideways, click one, or tab to a cover and use the ← → keys to browse. Clicking a side cover plays that song; the round button plays and pauses. Browsing keeps the music going if it was already playing. It starts on the middle song so the covers fan out on both sides. One hidden envelope pops up over the middle cover when you hover over the covers (or tap them on a phone).
 
 ## Chowder & Panini surprise
 
@@ -83,13 +85,28 @@ The round envelope button at the bottom-right (with the "2/6" badge) opens the c
 
 Edit everything in `letters` in `js/data.js`:
 - `items`: the six letters, each with a `title`, `text` (a blank line starts a new paragraph), a `clue`, and a `spot` saying where it hides
-- `spot` is a CSS selector for a paragraph on the page, for example `".timeline__item:nth-child(4) .timeline__text"` means "the text of Month 4". If a spot doesn't match anything, that envelope isn't shown, and the browser console says which one.
+- A letter can have `images` instead of `text`: then it shows just its title and those photos, which open in the photo viewer (stepping through only that letter's photos). The Chowder & Panini letter, "Love U my Bebe Girllll", works like this. Its envelope hides beside the names under the Chowder & Panini video.
+- `spot` is a CSS selector for a paragraph on the page, for example `".timeline__item:nth-child(7) .timeline__text"` means "the text of Month 7". If a spot doesn't match anything, that envelope isn't shown, and the browser console says which one.
 - `hint`: the general hint at the bottom of the collection
 - `signoff`: the signature under each letter
 
 Once all six are found, confetti rains the first time the collection shows them all together, whether that's straight after the last letter or the next time the envelope button is opened. It plays only once; after that the collection simply says "You found them all ♥". Change that message with `complete` in `letters`.
 
 Found letters, and whether the confetti has played, are remembered in the browser, so they survive closing the page. **If you test the hunt on the device you'll show Zané, click "Hide them all again"** at the bottom of the collection. That hides every envelope again and resets the confetti, so she gets the full experience.
+
+## Photo booth (Moments)
+
+The Moments section (the pink band after the first screen) is a little photo booth card. Pressing **Take our snapshots** opens a pop-up that counts down 3, 2, 1, then takes the photos in `moments` one by one, each with a soft camera flash inside the booth's window. At the end they come out as two photo strips that "develop" from a hazy sepia. "Skip to the prints" jumps straight to the strips.
+
+After the first time, a small film-strip button, **See our prints again**, appears under the booth and opens the finished strips directly. It's remembered in the browser, so it's still there next visit.
+
+Under the prints, **Download as a picture** saves both strips as one JPEG (`william-and-zane-photo-booth.jpg`), drawn the same way as on screen. This only works once the site is online (GitHub Pages is fine). Browsers block it when `index.html` is opened by double-clicking, and the booth says so. To try it on your computer, run a local server in the project folder, for example `npx serve`.
+
+One of the hidden envelopes sits at the end of the "All 8 snaps, printed ♥" line under the prints.
+
+**Sticker backgrounds:** the pink Moments band shows `assets/images/photo-booth-pattern.webp` repeated over the pink, and the pop-up (and the downloaded picture) shows `assets/images/photo-booth-card-pattern.webp` over a light apricot. These are compressed copies of `PhotoBooth_bg.png` and `photobooth_card_bg.png` (about 5 times smaller). To change a pattern, replace the `.webp` file with the same name, or point the `url(...)` in `css/style.css` (section 7) at a new image. Patterns made to tile seamlessly look best.
+
+Edit the photos in `moments` in `js/data.js` (`src`, `alt`, `caption`; `date` isn't shown here). Eight photos fill two strips of four; any number works. Put the files in `assets/images/`, e.g. `assets/images/moment-01.jpg`.
 
 ## Little extras
 
@@ -100,8 +117,8 @@ Found letters, and whether the confetti has played, are remembered in the browse
 
 Everything personal is in `js/data.js`:
 - `names`, `anniversary` (YYYY-MM-DD) and `heroLine`: the opening screen
-- `timeline`: 12 entries, one per month, each with `date`, `title`, `text` and `images`. The "Month 1–12" labels are added automatically in order.
-- `moments`: the card stack (`caption` and `date` per photo)
+- `timeline`: 12 entries, one per month, each with `date`, `title`, `text` and `images`. The "Month 1–12" labels are added automatically in order. Clicking a photo opens the viewer for that month only ("3 / 12"), and its arrows step through that month's photos and videos.
+- `moments`: the photo booth snapshots (`src`, `alt` and `caption` per photo)
 - `songs`: the playlist
 - `closing`: the heading, message paragraphs, final photo, sign-off and footer line
 - `letters`: the six hidden letters, where they hide, their clues, and the "found them all" message
@@ -111,6 +128,6 @@ Section headings and their one-line intros ("Our Year", "Twelve little chapters 
 
 ## Accessibility and motion
 
-If someone's device is set to *reduce motion*, the site automatically turns off smooth scrolling, scroll animations, the floating hearts, the cursor trail, the heart bursts and the confetti.
+If someone's device is set to *reduce motion*, the site automatically turns off smooth scrolling, scroll animations, the drifting colours behind the names and the music, the floating hearts, the cursor trail, the heart bursts and the confetti. The photo booth skips its countdown and flashes and goes straight to the printed strips.
 
 The muted text colour is `#7D6D71`, slightly darker than `#8A7B7F` from the original palette, so small text meets WCAG AA contrast on the cream background. You can change it in `css/style.css` under `--color-muted`.

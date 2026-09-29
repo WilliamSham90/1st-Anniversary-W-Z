@@ -8,7 +8,7 @@
     4. Navbar                12. Chowder & Panini peek + return button
     5. Hero + sections       13. Note card (dialog)
     6. Timeline + polaroids  14. Hidden letters
-    7. Moments (card stack)  15. Cursor trail
+    7. Moments (photo booth) 15. Cursor trail
     8. Music player          16. Reduced motion
    ========================================================= */
 
@@ -16,6 +16,9 @@
 :root {
   /* Colour */
   --color-bg: #FFF8F3;
+  --color-bg-blush: #FCE8EC;         /* Moments band, closing section, footer */
+  --color-bg-sage: #EEF3EB;          /* Our Songs band */
+  --color-bg-honey: #FFEBC8;         /* photo booth pop-up (under the sticker pattern) */
   --color-surface: #FFFFFF;
   --color-primary: #D98B9A;
   --color-primary-deep: #B5586B;
@@ -142,6 +145,24 @@ svg { fill: currentColor; }
 .btn:hover { background: var(--color-primary-deeper); transform: translateY(-2px); }
 .btn:active { transform: translateY(0); }
 .btn svg { width: 1.2rem; height: 1.2rem; }
+
+/* Quieter outlined pill for secondary actions (photo booth: "See our prints again", "Download") */
+.btn-soft {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 1rem 0.45rem 0.7rem;
+  border: 1px solid var(--color-accent);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface);
+  color: var(--color-primary-deeper);   /* 4.6:1 even on the pink hover */
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+.btn-soft:hover { background: var(--color-accent); }
+.btn-soft svg { width: 1.3rem; height: 1.3rem; }
 
 .icon-btn {
   display: grid;
@@ -289,17 +310,29 @@ svg { fill: currentColor; }
   padding: calc(var(--nav-h) + 2rem) var(--gutter) 7rem;
   overflow: hidden;
   text-align: center;
+  --color-muted: #6B5C60;   /* darker grey here: the drifting glow can pass under the small text (keeps WCAG AA) */
 }
-/* Soft blush + sage glow behind the names */
+/* Soft blush + sage glow behind the names. Like the music section it slowly drifts, blurred;
+   larger than the hero so its edges never show. Only runs while on screen (.is-in-view, main.js). */
 .hero::before {
   content: "";
   position: absolute;
-  inset: 0;
+  inset: -20%;
   z-index: -1;
   background:
-    radial-gradient(38% 32% at 28% 32%, rgba(246, 214, 220, 0.95), transparent 70%),
-    radial-gradient(34% 30% at 76% 68%, rgba(168, 191, 163, 0.35), transparent 70%),
-    radial-gradient(28% 26% at 72% 22%, rgba(217, 139, 154, 0.18), transparent 70%);
+    radial-gradient(27% 23% at 34% 37%, rgba(246, 214, 220, 0.95), transparent 70%),
+    radial-gradient(24% 21% at 69% 63%, rgba(168, 191, 163, 0.45), transparent 70%),
+    radial-gradient(20% 19% at 66% 30%, rgba(217, 139, 154, 0.24), transparent 70%);
+  filter: blur(30px);
+  animation: color-drift 60s ease-in-out infinite alternate paused;
+  will-change: transform;
+}
+.hero.is-in-view::before { animation-play-state: running; }
+
+/* Shared by the hero and the music section */
+@keyframes color-drift {
+  from { transform: translate3d(-8%, -5%, 0) scale(1.15) rotate(-4deg); }
+  to { transform: translate3d(8%, 5%, 0) scale(1) rotate(6deg); }
 }
 
 .hero__inner { max-width: 44rem; opacity: 0; } /* shown by JS once the names are rendered */
@@ -565,8 +598,9 @@ svg { fill: currentColor; }
 .polaroid:hover,
 .polaroid:focus-visible { z-index: 2; rotate: 0deg; scale: 1.05; } /* z-index: lift above neighbours */
 
-/* Washi tape */
-.polaroid::before {
+/* Washi tape (also on the photo booth strips) */
+.polaroid::before,
+.strip::before {
   content: "";
   position: absolute;
   top: -0.7rem;
@@ -579,7 +613,8 @@ svg { fill: currentColor; }
   box-shadow: 0 1px 2px rgba(58, 46, 50, 0.1);
   rotate: -3deg;
 }
-.polaroid:nth-child(2n)::before {
+.polaroid:nth-child(2n)::before,
+.strip:nth-child(2n)::before {
   background: repeating-linear-gradient(45deg, rgba(168, 191, 163, 0.7) 0 6px, rgba(255, 255, 255, 0.6) 6px 12px);
   rotate: 4deg;
 }
@@ -617,194 +652,344 @@ svg { fill: currentColor; }
 .polaroid--video:hover .polaroid__play,
 .polaroid--video:focus-visible .polaroid__play { scale: 1.12; }
 
-/* ---------- 7. Moments (card stack) ---------- */
+/* ---------- 7. Moments (photo booth) ---------- */
+
+/* Moments + Our Songs sit between the hero and the timeline as full-width tinted bands.
+   The tints are darker than the cream page, so muted text gets a darker shade inside them
+   to keep WCAG AA contrast (5.4:1 on blush, 5.6:1 on sage). */
+.section--band { --color-muted: #6B5C60; }
+.section--songs { background: var(--color-bg-sage); }
+/* Pink band with a repeating sticker sheet (transparent PNG → WebP) on top */
 .section--moments {
-  overflow: hidden;   /* the card flying off-screen must not cause horizontal scroll */
-  background: linear-gradient(180deg, transparent, rgba(246, 214, 220, 0.35) 30%, rgba(246, 214, 220, 0.35) 70%, transparent);
+  background:
+    url("../assets/images/photo-booth-pattern.webp") center / clamp(360px, 60vw, 600px) auto repeat,
+    var(--color-bg-blush);
 }
 
-.moments {
-  display: grid;
-  gap: var(--space-l);
-  align-items: center;
-  max-width: 62rem;
-  margin-inline: auto;
-}
-.moments .section__header { margin-bottom: 0; }
-
-@media (min-width: 860px) {
-  .moments { grid-template-columns: 1fr 1fr; gap: var(--space-xl); }
-  .section__header--left { text-align: left; }
-  .section__header--left .section__title::after { letter-spacing: 0.5em; text-align: left; }
-}
-
-.stack {
+/* The booth on the page: striped awning, a sign, the camera window and the button */
+.booth {
+  position: relative;
   display: grid;
   justify-items: center;
-  gap: 2.25rem;
-}
-
-.stack__pile {
-  position: relative;
-  width: min(20rem, 76vw);
-  aspect-ratio: 4 / 5.8;
-  cursor: pointer;
-  touch-action: pan-y;        /* vertical scroll stays native; horizontal swipes are ours */
-  user-select: none;
-  -webkit-user-select: none;
-}
-
-.stack__card {
-  position: absolute;
-  inset: 0;
-  display: grid;
-  grid-template-rows: minmax(0, 1fr) auto;
-  margin: 0;
-  padding: 0.75rem 0.75rem 0;
-  border-radius: var(--radius-m);
+  gap: 1.25rem;
+  width: min(21rem, 100%);
+  margin-inline: auto;
+  padding: 3rem 1.75rem 2rem;
+  overflow: hidden;   /* clips the awning to the rounded corners */
+  border-radius: var(--radius-l);
   background: var(--color-surface);
   box-shadow: var(--shadow-soft);
-  will-change: transform;
 }
-.stack__card img {
+.booth::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 1.5rem;
+  background: repeating-linear-gradient(90deg, var(--color-accent) 0 1.5rem, var(--color-surface) 1.5rem 3rem);
+}
+/* The section's heading, drawn as the booth's sign */
+.booth__sign {
+  margin: 0;
+  color: var(--color-primary-deep);
+  font-family: var(--font-script);
+  font-weight: 400;   /* Great Vibes only has one weight; h2's 600 would fake-bold it */
+  font-size: clamp(2.4rem, 7vw, 3rem);
+}
+.booth__window {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  border-radius: var(--radius-m);
+  background: var(--color-text);
+}
+/* Flash bulb */
+.booth__window::after {
+  content: "";
+  position: absolute;
+  top: 0.9rem;
+  right: 1rem;
+  width: 0.75rem;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: var(--color-accent);
+}
+.booth__lens {
+  width: 42%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 34% 34%, rgba(255, 255, 255, 0.5) 0 7%, transparent 8%),
+    radial-gradient(circle, #1C1518 0 44%, #5A4A50 45% 58%, #2A2023 59%);
+}
+/* Appears once the booth has printed: opens the finished strips again */
+.booth__film:not([hidden]) { animation: panel-in 0.5s var(--ease-out); }
+
+/* The show (a .note dialog; .note.booth-show so it beats the .note rules later in this file):
+   tall enough to scroll on phones, with room above for the washi tape */
+.note.booth-show {
+  width: min(40rem, calc(100% - 1rem));
+  max-height: 100svh;
+  padding: 1.25rem 0.5rem;
+  overflow-y: auto;
+}
+.booth-show .note__paper {
+  container-type: inline-size;
+  rotate: -0.75deg;
+  padding-inline: clamp(1.1rem, 5vw, 2rem);
+  /* Light apricot card with a repeating sticker pattern (both the snapping and the printed stage) */
+  background:
+    url("../assets/images/photo-booth-card-pattern.webp") center / 340px repeat,
+    var(--color-bg-honey);
+}
+/* Text on the stickers sits on little solid cream labels, so it stays readable (small text 4.7:1) */
+.booth-show :is(.note__eyebrow, .booth-show__title, .booth-show__status:not(.visually-hidden), .booth-show__printed, .booth-show__skip) {
+  width: fit-content;
+  margin-inline: auto;
+  padding: 0.2em 0.9em;
+  border-radius: var(--radius-pill);
+  background: #FFFBF3;
+}
+.booth-show .booth-show__status:empty { visibility: hidden; }   /* no empty label */
+.booth-show .note__close { background: #FFFBF3; }
+.booth-show .note__close:hover { background: var(--color-accent); }
+
+.booth-show__viewfinder {
+  position: relative;
+  width: min(17rem, 100%);
+  aspect-ratio: 4 / 5;
+  margin: 1rem auto;
+  overflow: hidden;
+  border: 0.6rem solid var(--color-text);   /* the camera's frame */
+  border-radius: var(--radius-m);
+  background: var(--color-text);
+}
+.booth-show__shot {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
-  border-radius: calc(var(--radius-m) - 0.4rem);
-  background: var(--color-accent);
+}
+.booth-show__shot:not([src]) { visibility: hidden; }
+.booth-show__count {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  margin: 0;
+  color: #fff;
+  font-family: var(--font-heading);
+  font-size: 7rem;
+  font-weight: 600;
+}
+.booth-show__flash {
+  position: absolute;
+  inset: 0;
+  background: #fff;
+  opacity: 0;
   pointer-events: none;
 }
-.stack__card figcaption {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  gap: 0.75rem;
-  padding: 0.8rem 0.35rem 1rem;
-}
-.stack__caption {
-  font-family: var(--font-heading);
-  font-size: 1.25rem;
-  font-style: italic;
-  line-height: 1.2;
-}
-.stack__date {
-  flex-shrink: 0;
+.booth-show__status,
+.booth-show__printed {
+  margin: 0 0 0.25rem;
   color: var(--color-muted);
-  font-size: 0.72rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  font-family: var(--font-heading);
+  font-size: 1.1rem;
+  font-style: italic;
+}
+.booth-show__status { min-height: 1.7em; }   /* no jump when the text changes */
+.booth-show__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 0.75rem;
 }
 
-.stack__controls {
-  display: flex;
-  align-items: center;
-  gap: 1.25rem;
+/* The prints: two strips side by side on phones, stacked across on wider screens */
+.booth-show__prints {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  margin: 1.5rem 0 1rem;
 }
-.stack__count {
+.booth-show__prints:not([hidden]) { animation: panel-in 0.5s var(--ease-out); }
+.strip {
+  position: relative;
+  padding: 0.5rem 0.5rem 0.6rem;
+  background: var(--color-surface);
+  box-shadow: var(--shadow-soft);
+  rotate: -1.5deg;
+}
+.strip:nth-child(2) { rotate: 1.25deg; }
+.strip__frames {
+  display: grid;
+  gap: 0.5rem;
   margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.strip__frames img {
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+  background: var(--color-accent);   /* shows while the photo loads */
+}
+.strip__caption {
+  display: block;
+  padding-top: 0.2rem;
   color: var(--color-muted);
-  font-variant-numeric: tabular-nums;
+  font-family: var(--font-heading);
+  font-size: 0.95rem;
+  font-style: italic;
+}
+.strip__stamp {
+  margin: 0.4rem 0 0;
+  color: var(--color-primary-deep);
+  font-family: var(--font-script);
+  font-size: 1.5rem;
+}
+.strip__date { margin: 0; color: var(--color-muted); font-size: 0.75rem; }
+
+@container (min-width: 30rem) {
+  .booth-show__prints { grid-template-columns: 1fr; gap: 1.75rem; }
+  .strip { rotate: -0.75deg; }
+  .strip:nth-child(2) { rotate: 0.75deg; }
+  .strip__frames { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 }
 
 /* ---------- 8. Music player ---------- */
+
+/* Behind the music: soft blush, rose, sage and honey clouds, blurred and slowly drifting.
+   Only runs while the section is on screen (.is-in-view is set in main.js). */
+.section--songs {
+  isolation: isolate;
+  overflow: hidden;   /* clips the drifting colours and the far-away covers */
+}
+.section--songs::before {
+  content: "";
+  position: absolute;
+  inset: -20%;
+  z-index: -1;
+  background:
+    radial-gradient(32% 38% at 22% 28%, rgba(246, 214, 220, 0.95), transparent 70%),
+    radial-gradient(26% 30% at 78% 22%, rgba(217, 139, 154, 0.32), transparent 70%),
+    radial-gradient(34% 40% at 70% 78%, rgba(168, 191, 163, 0.5), transparent 70%),
+    radial-gradient(26% 30% at 20% 82%, rgba(242, 197, 124, 0.22), transparent 70%);
+  filter: blur(40px);
+  animation: color-drift 60s ease-in-out infinite alternate paused;   /* keyframes in section 5 */
+  will-change: transform;
+}
+.section--songs.is-in-view::before { animation-play-state: running; }
+
 .music {
-  display: grid;
-  gap: var(--space-l);
   max-width: 62rem;
   margin-inline: auto;
-}
-@media (min-width: 860px) {
-  .music { grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); align-items: center; }
-}
-
-.player {
-  padding: clamp(1.5rem, 4vw, 2.25rem);
-  border-radius: var(--radius-l);
-  background: var(--color-surface);
-  box-shadow: var(--shadow-soft);
   text-align: center;
 }
 
-.player__art {
+/* Coverflow: every cover is stacked in the middle, then moved by its --offset from the current
+   song (set in main.js): sideways, back into the distance, and turned towards the centre. */
+.coverflow {
+  --cover: min(13rem, 52vw);
   position: relative;
-  width: min(15rem, 72%);
-  aspect-ratio: 1;
-  margin: 0 auto 1.5rem;
+  touch-action: pan-y;   /* up/down scrolls the page; sideways swipes change the song */
+  user-select: none;
+  -webkit-user-select: none;
 }
-.player__img {
+.covers {
+  --step: 62%;   /* space between covers, as a share of a cover's width: neighbours peek in on phones */
   position: relative;
-  z-index: 1;
+  height: calc(var(--cover) * 1.5);   /* the cover plus its reflection */
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  perspective: 1000px;
+}
+@media (min-width: 700px) { .covers { --step: 105%; } }
+
+/* The hidden envelope pops up over the middle cover when you hover or tap the covers (or tab to it).
+   Once found it tucks away again instead of staying on top of the album art. */
+.coverflow > .stash {
+  position: absolute;
+  top: calc(var(--cover) / 2);
+  left: 50%;
+  z-index: 20;   /* above every cover */
+  width: 3.5rem;
+  height: 3.25rem;
+  margin: -1.625rem 0 0 -1.75rem;
+  filter: drop-shadow(0 4px 10px rgba(58, 46, 50, 0.35));
+}
+.coverflow.has-stash.is-peeking > .stash { opacity: 1; transform: none; }
+.coverflow > .stash.is-found:not(:focus-visible) { opacity: 0; transform: translateY(4px) scale(0.5); }
+.coverflow.has-stash:hover > .stash { opacity: 1; transform: none; }
+.coverflow.has-stash > .stash:hover { transform: scale(1.15) rotate(-6deg); }
+
+.covers__item {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  z-index: calc(10 - var(--distance, 0));
+  width: var(--cover);
+  margin-left: calc(var(--cover) / -2);
+  opacity: clamp(0, 4 - var(--distance, 0), 1);   /* four or more covers away: hidden */
+  transform:
+    translateX(calc(var(--offset, 0) * var(--step)))
+    translateZ(calc(var(--distance, 0) * -110px))
+    rotateY(calc(var(--offset, 0) * -25deg));
+  transition: transform 0.6s var(--ease-out), opacity 0.4s;
+}
+
+.cover {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 1;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-m);
+  background: var(--color-accent);   /* shows while the cover loads */
+  cursor: pointer;
+}
+.cover img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  border-radius: var(--radius-l);
-  background: var(--color-accent);
-  box-shadow: var(--shadow-lift);
+  border-radius: inherit;
+  pointer-events: none;
+  /* Mirror reflection underneath (Chrome, Edge, Safari; other browsers simply show no reflection) */
+  -webkit-box-reflect: below 6px linear-gradient(transparent 55%, rgba(0, 0, 0, 0.3));
 }
-/* Pulsing halo while music plays */
-.player__art::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: var(--radius-l);
-  background: var(--color-primary);
-  opacity: 0;
-}
-.player.is-playing .player__art::before { animation: pulse 2.4s ease-out infinite; }
-@keyframes pulse {
-  0% { opacity: 0.45; transform: scale(1); }
-  100% { opacity: 0; transform: scale(1.2); }
-}
+/* Play/pause icon follows the player (.is-playing on .music) */
+.player__play .icon-pause,
+.music.is-playing .icon-play { display: none; }
+.music.is-playing .icon-pause { display: block; }
 
-.player__eq {
-  position: absolute;
-  right: 0.75rem;
-  bottom: 0.75rem;
-  z-index: 2;
-  display: flex;
-  align-items: flex-end;
-  gap: 3px;
-  height: 1.6rem;
-  padding: 0.35rem 0.45rem;
-  border-radius: 0.6rem;
-  background: rgba(255, 255, 255, 0.88);
-  opacity: 0;
-  transition: opacity 0.3s;
+.player {
+  width: min(24rem, 100%);
+  margin-inline: auto;
 }
-.player__eq span {
-  width: 3px;
-  height: 100%;
-  border-radius: 2px;
-  background: var(--color-primary-deep);
-  transform: scaleY(0.3);
-  transform-origin: bottom;
-}
-.player.is-playing .player__eq { opacity: 1; }
-.player.is-playing .player__eq span { animation: eq 0.8s ease-in-out infinite alternate; }
-.player.is-playing .player__eq span:nth-child(2) { animation-duration: 0.6s; animation-delay: -0.3s; }
-.player.is-playing .player__eq span:nth-child(3) { animation-duration: 0.95s; animation-delay: -0.5s; }
-.player.is-playing .player__eq span:nth-child(4) { animation-duration: 0.7s; animation-delay: -0.1s; }
-@keyframes eq {
-  from { transform: scaleY(0.25); }
-  to { transform: scaleY(1); }
-}
-
+/* Text sits right on the moving colours, so it uses the darkest shades:
+   body text 7:1 or more everywhere, the large title and the seek bar 3.5:1 or more */
 .player__title {
   margin: 0;
-  color: var(--color-primary-deep);
+  color: var(--color-primary-deeper);
   font-family: var(--font-heading);
-  font-size: 1.9rem;
+  font-size: clamp(1.7rem, 5vw, 2.1rem);
   font-weight: 600;
   line-height: 1.2;
 }
-.player__artist { margin: 0.25rem 0 1.5rem; color: var(--color-muted); }
+.player__artist { margin: 0.25rem 0 1.5rem; color: var(--color-text); }
 
 .player__progress {
   display: grid;
   grid-template-columns: 2.75rem 1fr 2.75rem;
   align-items: center;
   gap: 0.5rem;
-  color: var(--color-muted);
+  color: var(--color-text);
   font-size: 0.8rem;
   font-variant-numeric: tabular-nums;
 }
@@ -813,40 +998,39 @@ svg { fill: currentColor; }
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 1.25rem;
-  margin: 1.25rem 0;
+  gap: 1.75rem;
+  margin: 1.5rem 0 0.75rem;
 }
-.player__play {
-  width: 4rem;
-  height: 4rem;
+/* Round frosted-glass buttons, like the original but in the site's colours */
+.player__controls .icon-btn {
+  width: 3.25rem;
+  height: 3.25rem;
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  background: rgba(255, 255, 255, 0.55);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  color: var(--color-primary-deeper);
+}
+.player__controls .icon-btn:hover { background: rgba(255, 255, 255, 0.85); transform: scale(0.96); }
+.player__controls .player__play {
+  width: 4.25rem;
+  height: 4.25rem;
+  border-color: transparent;
   background: var(--color-primary-deep);
   color: #fff;
   box-shadow: 0 12px 24px -10px rgba(181, 88, 107, 0.75);
 }
-.player__play:hover { background: var(--color-primary-deeper); transform: scale(1.05); }
+.player__controls .player__play:hover { background: var(--color-primary-deeper); transform: scale(1.05); }
 .player__play svg { width: 1.8rem; height: 1.8rem; }
-.player__play .icon-pause,
-.player.is-playing .player__play .icon-play { display: none; }
-.player.is-playing .player__play .icon-pause { display: block; }
-
-.player__volume {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  max-width: 12rem;
-  margin-inline: auto;
-  color: var(--color-muted);
-}
-.player__volume svg { flex-shrink: 0; width: 1.25rem; height: 1.25rem; }
 
 .player__status {
   min-height: 1.4em;
-  margin: 1rem 0 0;
-  color: var(--color-primary-deep);
+  margin: 0;
+  color: var(--color-text);
   font-size: 0.85rem;
 }
 
-/* Range inputs (seek + volume). --fill is set from JS for WebKit/Blink. */
+/* Seek bar. --fill is set from JS for WebKit/Blink. The unfilled part is a see-through dark tint so it shows on the moving colours. */
 .range {
   --fill: 0%;
   width: 100%;
@@ -860,7 +1044,7 @@ svg { fill: currentColor; }
 .range::-webkit-slider-runnable-track {
   height: 4px;
   border-radius: 4px;
-  background: linear-gradient(to right, var(--color-primary-deep) var(--fill), var(--color-accent) var(--fill));
+  background: linear-gradient(to right, var(--color-primary-deeper) var(--fill), rgba(58, 46, 50, 0.18) var(--fill));
 }
 .range::-webkit-slider-thumb {
   width: 14px;
@@ -868,68 +1052,29 @@ svg { fill: currentColor; }
   margin-top: -5px;
   border: 2px solid #fff;
   border-radius: 50%;
-  background: var(--color-primary-deep);
+  background: var(--color-primary-deeper);
   box-shadow: 0 1px 4px rgba(58, 46, 50, 0.3);
   -webkit-appearance: none;
   appearance: none;
 }
-.range::-moz-range-track { height: 4px; border-radius: 4px; background: var(--color-accent); }
-.range::-moz-range-progress { height: 4px; border-radius: 4px; background: var(--color-primary-deep); }
+.range::-moz-range-track { height: 4px; border-radius: 4px; background: rgba(58, 46, 50, 0.18); }
+.range::-moz-range-progress { height: 4px; border-radius: 4px; background: var(--color-primary-deeper); }
 .range::-moz-range-thumb {
   width: 12px;
   height: 12px;
   border: 2px solid #fff;
   border-radius: 50%;
-  background: var(--color-primary-deep);
+  background: var(--color-primary-deeper);
   box-shadow: 0 1px 4px rgba(58, 46, 50, 0.3);
 }
 
-/* Playlist */
-.playlist {
-  display: grid;
-  gap: 0.6rem;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-.song {
-  display: grid;
-  grid-template-columns: 3.25rem minmax(0, 1fr) auto;
-  align-items: center;
-  gap: 1rem;
-  width: 100%;
-  padding: 0.6rem 1rem 0.6rem 0.6rem;
-  border: 1px solid transparent;
-  border-radius: var(--radius-m);
-  background: rgba(255, 255, 255, 0.6);
-  text-align: left;
-  cursor: pointer;
-  transition: transform 0.25s var(--ease-out), background-color 0.2s, border-color 0.2s;
-}
-.song:hover { background: var(--color-surface); transform: translateX(4px); }
-.song[aria-current="true"] {
-  border-color: var(--color-primary);
-  background: var(--color-surface);
-  box-shadow: var(--shadow-soft);
-}
-.song__img {
-  width: 3.25rem;
-  height: 3.25rem;
-  border-radius: 0.8rem;
-  object-fit: cover;
-  background: var(--color-accent);
-}
-.song__title { display: block; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.song__artist { display: block; color: var(--color-muted); font-size: 0.85rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.song__mark { color: var(--color-primary); opacity: 0; transition: opacity 0.2s; }
-.song[aria-current="true"] .song__mark { opacity: 1; }
 
 /* ---------- 9. Forever + footer ---------- */
 .forever {
   isolation: isolate;
   overflow: hidden;
   text-align: center;
-  background: linear-gradient(180deg, var(--color-bg), #FCE8EC);
+  background: linear-gradient(180deg, var(--color-bg), var(--color-bg-blush));
 }
 .forever__inner { position: relative; z-index: 1; max-width: 42rem; margin-inline: auto; }
 
@@ -979,7 +1124,7 @@ svg { fill: currentColor; }
 
 .footer {
   padding: 2rem var(--gutter) 2.5rem;
-  background: #FCE8EC;
+  background: var(--color-bg-blush);
   color: var(--color-muted);
   font-size: 0.85rem;
   text-align: center;
@@ -1374,7 +1519,8 @@ svg { fill: currentColor; }
 .letters .note__paper { rotate: -0.75deg; padding-inline: clamp(1.1rem, 5vw, 2rem); }
 .letters__panel:not([hidden]) { animation: panel-in 0.35s var(--ease-out); }
 
-.letters__title {
+.letters__title,
+.booth-show__title {
   margin: 0.25rem 0 1.25rem;
   font-size: clamp(1.8rem, 6vw, 2.2rem);
 }
@@ -1443,7 +1589,8 @@ svg { fill: currentColor; }
 }
 .letters__hint::before { content: "✦ "; color: var(--color-primary-deep); }
 
-.letters__reset {
+.letters__reset,
+.booth-show__skip {
   margin-top: 0.9rem;
   padding: 0.25rem;
   border: 0;
@@ -1461,6 +1608,14 @@ svg { fill: currentColor; }
   line-height: 1.5;
   text-align: left;
   white-space: pre-line;   /* blank lines in data.js become paragraphs */
+}
+
+/* A photo letter: its photos as two taped polaroids side by side (they open in the lightbox) */
+.letters__photos {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.25rem;
+  margin: 1.5rem 0.25rem 1.75rem;
 }
 
 @keyframes panel-in { from { opacity: 0; transform: translateY(10px); } }

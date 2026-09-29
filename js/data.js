@@ -294,7 +294,9 @@ const SITE_DATA = {
     },
   ],
 
-  /* ---------- Moments: the shuffle-able card stack ---------- */
+  /* ---------- Moments: the photo booth ---------- */
+  // Pressing "Take our snapshots" snaps these one by one, then prints them as two strips.
+  // 8 fills two strips of four; any number works.
   moments: [
     { src: "https://picsum.photos/seed/moment1/600/750", alt: "Our first selfie together", caption: "Our first selfie", date: "Nov 2025" }, // → assets/images/moment-01.jpg
     { src: "https://picsum.photos/seed/moment2/600/750", alt: "A rainy-day picnic", caption: "That rainy picnic", date: "Dec 2025" }, // → assets/images/moment-02.jpg
@@ -336,6 +338,7 @@ const SITE_DATA = {
   //   spot:  where it hides (a CSS selector for a paragraph on the page)
   //   clue:  shown when you tap an envelope that hasn't been found yet
   //   text:  the letter itself; a blank line starts a new paragraph
+  //   images: instead of `text`, a photo letter: just the title and these photos (they open in the viewer)
   letters: {
     hint: "Six envelopes are hiding around the site. Hover over the words (or tap them on a phone) to find them. Stuck? Tap a grey envelope for a clue.",
     complete: "You found every single letter, and every word is true. ♥",   // shown once all are found
@@ -348,26 +351,29 @@ const SITE_DATA = {
         text: "Happy one year, my love.\n\nEvery day with you has been my favourite kind of ordinary. Thank you for choosing me, again and again.",
       },
       {
-        spot: ".timeline__item:nth-child(4) .timeline__text",
-        clue: "Month 4 has a story about a certain dinner.",
+        spot: ".timeline__item:nth-child(7) .timeline__text",
+        clue: "Month 7 has a picnic, a chess game and a parrot dance in it.",
         title: "Open when you need a laugh",
         text: "Remember the burnt dinner? You laughed so hard you snorted, and that's when I knew I was in trouble. The good kind.",
       },
       {
-        spot: ".timeline__item:nth-child(9) .timeline__text",
-        clue: "Month 9 has a concert in it. Read it slowly.",
-        title: "Open when you miss me",
-        text: "Close your eyes. That warm, golden feeling? That's me thinking about you.\n\nI'm always just one message away.",
+        spot: "#video-title",   // next to the names under the Chowder & Panini video
+        clue: "Play the Chowder & Panini video and look beside their names.",
+        title: "Love U my Bebe Girllll",
+        images: [
+          { src: "assets/images/chowder-love-note-1.jpg", alt: "Panini leaping for joy in a burst of hearts, with Chowder peeking out of a TV" },
+          { src: "assets/images/chowder-love-note-2.jpg", alt: "A Chowder and Panini collage, with Panini covering Chowder's eyes: Guess who?" },
+        ],
       },
       {
-        spot: "#moments .section__intro",
-        clue: "The Moments section has something tucked into its words.",
+        spot: "#booth-printed",
+        clue: "Take our snapshots in the photo booth, then read the line under the prints.",
         title: "Open when you can't sleep",
         text: "Count little moments instead of sheep: the matching mugs, the midnight ice cream, you mid-laugh.\n\nI'll be right here in the morning.",
       },
       {
-        spot: "#songs .section__intro",
-        clue: "The songs that sound like us… hover and listen.",
+        spot: "#songs .coverflow",
+        clue: "In Our Songs, hover over the album covers (or tap them on a phone).",
         title: "Open when you hear our song",
         text: "Turn it up and dance in the kitchen like nobody's watching. If I'm not there, I'm dancing with you anyway.",
       },
