@@ -21,7 +21,7 @@ const SITE_DATA = {
   // YYYY-MM-DD
   anniversary: "2026-10-29",
 
-  heroLine: "Twelve months, countless little moments, and a lifetime of more to come.",
+  heroLine: "Congratulations, you survived. 1 year down and only the rest of your life to go.",
 
   /* ---------- Our Year: one entry per month (Month 1 → Month 12), photos and videos in assets/images/month-01 … month-12 ---------- */
   timeline: [
@@ -64,7 +64,7 @@ const SITE_DATA = {
     {
       date: "January 2026",
       title: "Pizza Night & Just Dance",
-      text: "Pizza night at home: flour on our faces, in our hair and all over the kitchen, and a heart-shaped pizza piled high with pineapple. Then the lounge became a dance floor for Just Dance, and neither of us held back.",
+      text: "Pizza night at home: flour on our faces, in our hair and all over the kitchen, and a heart-shaped pizza piled high with pineapple. It was the first time you showed me your moves in Just Dance.",
       images: [
         { src: "assets/images/month-03/pizza-flour-selfie.jpg", alt: "A flour-covered selfie, both of us sticking our tongues out", caption: "Floured & silly" },
         { src: "assets/images/month-03/pizza-flour-kiss.jpg", alt: "A kiss on the cheek in a flour-covered selfie", caption: "Kiss the cook" },
@@ -79,7 +79,7 @@ const SITE_DATA = {
     {
       date: "February 2026",
       title: "Our First Valentine's",
-      text: "Video calls where you showed off your outfit, flower crown and all. A lipstick heart on my cheek. Then our first Valentine's dinner, which turned into a straw-poking, nose-booping giggle fest. And in between it all, you were hard at work studying at university. Mostly.",
+      text: "Video calls where you showed off your outfit, flower crown and all. A lipstick heart on my cheek. Then our first Valentine's dinner, which turned into a straw-poking, nose-booping giggle fest. And in between it all, you were hard at work studying at university. Mostly. That is not very nice.",
       images: [
         { src: "assets/images/month-04/video-call-outfit.jpg", alt: "Showing off an orange top, white skirt and flower crown on a video call", caption: "Outfit check" },
         { src: "assets/images/month-04/video-call-outfit-back.jpg", alt: "Turning around on the video call to show the flower crown and curls from behind", caption: "And the back view" },
@@ -99,7 +99,7 @@ const SITE_DATA = {
     {
       date: "March 2026",
       title: "Gideon's Wedding Weekend",
-      text: "Gideon's wedding weekend: silly faces under the lapa, then all dressed up for the big day and pulling even sillier faces at the reception. The rest of the month was the good kind of ordinary: late-night video calls, lazy couch days, Coco modelling a bandana, and me trying very hard to be a mechanic.",
+      text: "Gideon's wedding weekend: first time going away alone. The rest of the month was the good kind of ordinary: late-night video calls, lazy couch days, Coco modelling, and me trying very hard to be a mechanic. Haha I fix cars.",
       images: [
         { src: "assets/images/month-05/lapa-tongues-out.jpg", focus: "30%", alt: "Pulling faces with our tongues out under a thatched lapa roof", caption: "Lapa life" },
         { src: "assets/images/month-05/lapa-tongues-out-2.jpg", focus: "30%", alt: "Both of us sticking our tongues out under the lapa", caption: "Tongues out, as usual" },
@@ -155,7 +155,7 @@ const SITE_DATA = {
     {
       date: "May 2026",
       title: "Barnyard, Blankets & the Botanical Garden",
-      text: "Chips and silly faces at Barnyard, then a movie night buried under blankets. The best day was our picnic at the botanical garden: wraps, a chess game neither of us really won, golden-hour light, headlocks, face squishes and, of course, the parrot dance. Poor Coco also had a trip to the vet. His review: help me.",
+      text: "Barnyard, where I met oom Peer's fam (very interesting), then a movie night buried under blankets. The best day was our picnic at the botanical garden: wraps, a chess game where I beat your ass, back scratches and, of course, the parrot dance. Poor Coco also had a trip to the vet. His review: help me.",
       images: [
         { src: "assets/images/month-07/barnyard-chips.jpg", focus: "55%", alt: "Biting a chip and grinning at Barnyard", caption: "Chips at Barnyard" },
         { src: "assets/images/month-07/barnyard-pout.jpg", focus: "55%", alt: "A pout and a tongue out at Barnyard", caption: "Pout-off" },
@@ -185,7 +185,7 @@ const SITE_DATA = {
     {
       date: "June 2026",
       title: "Garden Days, Scrapbooks & Family",
-      text: "Back to the botanical garden, this time with a retro digital camera: tongues out, big screams and very close close-ups. Then you started our scrapbook of memories (p.s. I love you too). Add car rides with your brother Evan, silly faces with my sister Mika, one very dramatic \"sad & moeg\" selfie and a random check-in, and that was June.",
+      text: "Back to the botanical garden, this time with a retro digital camera. Then you started our scrapbook of memories (p.s. I love you too). Add car rides with your brother Evan, a diabolical scheme with my sister Mika, one very dramatic \"sad & moeg\" selfie and a random check-in, and that was June.",
       images: [
         { src: "assets/images/month-08/botanical-garden-digicam-tongues-out.jpg", focus: "45%", alt: "A retro digital-camera selfie at the botanical garden, both tongues out", caption: "Retro camera, same faces" },
         { src: "assets/images/month-08/botanical-garden-digicam-smile.jpg", focus: "55%", alt: "A big smile and a tongue out, heads together on the lawn", caption: "Garden, round two" },
@@ -204,7 +204,7 @@ const SITE_DATA = {
     {
       date: "July 2026",
       title: "Spoegwolf, Sleepovers & Hair Checks",
-      text: "Spoegwolf live with Evan and the family, singing along from the stands. Then a sleepover under the blankets, full of wide eyes and tongues out. Everything in between was random in the best way: late-night video calls in your bonnet, a tiny bee, me learning to swallow a sword (don't ask), and a very important hair check.",
+      text: "Spoegwolf live with Evan, singing along from the stands. Then a sleepover under the blankets, full of wide eyes and PJs. Everything in between was random in the best way: late-night video calls in your bonnet, a tiny bee, me learning to become a sword master (don't ask), and a very important hair check.",
       images: [
         { src: "assets/images/month-09/spoegwolf-concert-stage.jpg", focus: "70%", alt: "Spoegwolf on a stage lit up in blue, seen from high up in the packed arena", caption: "Spoegwolf live!" },
         { src: "assets/images/month-09/spoegwolf-concert-selfie.jpg", focus: "left", alt: "A concert selfie in the stands with Evan and the family in the row beside us", caption: "Concert crew" },
@@ -214,7 +214,7 @@ const SITE_DATA = {
         { src: "assets/images/month-09/sleepover-wide-eyes.jpg", focus: "75%", alt: "Wide eyes, lying together under the blankets", caption: "What was that noise?" },
         { src: "assets/images/month-09/sleepover-tongues-out.jpg", focus: "75%", alt: "Both tongues out under the blankets at the sleepover", caption: "Lights out? Never" },
         { src: "assets/images/month-09/couch-tongue-out.jpg", focus: "50% 60%", alt: "A giggle and a tongue out on the couch, next to a woven heart on a brick wall", caption: "Couch chaos" },
-        { src: "assets/images/month-09/sword-swallower.jpg", focus: "50% 35%", alt: "Pretending to swallow a sword in the garden", caption: "Sword swallower in training" },
+        { src: "assets/images/month-09/sword-swallower.jpg", focus: "50% 35%", alt: "Pretending to swallow a sword in the garden", caption: "Sword master in training" },
         { src: "assets/images/month-09/video-call-bonnet.jpg", focus: "50% 75%", alt: "A late-night video call in a pink satin hair bonnet", caption: "Bonnet on, goodnight" },
         { src: "assets/images/month-09/video-call-little-bee.jpg", focus: "50% 55%", alt: "Holding a tiny yellow bee up to the camera on a video call", caption: "Bzzz" },
         { src: "assets/images/month-09/hair-check.jpg", video: "assets/images/month-09/hair-check.mp4", focus: "50% 30%", alt: "A hair check in the car, showing off freshly curled hair", caption: "Hair check" },
@@ -254,7 +254,7 @@ const SITE_DATA = {
     {
       date: "September 2026",
       title: "Afrikaans in die Wolke",
-      text: "A sunny day at Afrikaans in die Wolke: selfies on the lawn under the trees, wristbands on and way too many funny faces. We got our faces painted (a little deer for you, green scales for me) and rode the Ferris wheel, where we both put on our bravest faces and were secretly terrified. Worth it for the view from the top.",
+      text: "A sunny day at Afrikaans in die Wolke: selfies on the lawn under the trees, wristbands on and way too many funny faces. We got our faces painted (a little deer for you, hunter for me) and rode the Ferris wheel, where we both put on our bravest faces and were secretly terrified. Worth it for the view from the top.",
       images: [
         { src: "assets/images/month-11/afrikaans-in-die-wolke-tongues-out.jpg", focus: "15%", alt: "Both tongues out on the lawn at Afrikaans in die Wolke", caption: "Afrikaans in die Wolke!" },
         { src: "assets/images/month-11/afrikaans-in-die-wolke-surprise-kiss.jpg", focus: "20%", alt: "A surprise kiss on the cheek and a shocked face on the festival lawn", caption: "Surprise attack" },
@@ -271,7 +271,7 @@ const SITE_DATA = {
         { src: "assets/images/month-11/ferris-wheel-william.jpg", focus: "20%", alt: "William grinning at the top of the Ferris wheel, with the whole festival below", caption: "King of the wheel" },
         { src: "assets/images/month-11/ferris-wheel-scared.jpg", video: "assets/images/month-11/ferris-wheel-scared.mp4", focus: "50% 15%", alt: "Riding the Ferris wheel and very scared of the height", caption: "Scared? Us? Never" },
         { src: "assets/images/month-11/ferris-wheel-view.jpg", video: "assets/images/month-11/ferris-wheel-view.mp4", focus: "35%", alt: "The view over the festival from the top of the Ferris wheel", caption: "The view from the top" },
-        { src: "assets/images/month-11/face-paint-selfie.jpg", focus: "65%", alt: "Face paint selfie: a little deer for her and green scales for him", caption: "Oh deer" },
+        { src: "assets/images/month-11/face-paint-selfie.jpg", focus: "65%", alt: "Face paint selfie: a little deer for her and hunter paint for him", caption: "Oh deer" },
         { src: "assets/images/month-11/face-paint-tongue-out.jpg", focus: "60%", alt: "A tongue out and a grin in our face paint", caption: "Painted and proud" },
         { src: "assets/images/month-11/face-paint-wide-eyes.jpg", focus: "60%", alt: "Wide eyes in our face paint, one of us peeking over the other's head", caption: "Startled deer" },
         { src: "assets/images/month-11/face-paint-scream.jpg", alt: "Screaming at the camera in our face paint", caption: "RAWR" },
@@ -296,16 +296,16 @@ const SITE_DATA = {
 
   /* ---------- Moments: the photo booth ---------- */
   // Pressing "Take our snapshots" snaps these one by one, then prints them as two strips.
-  // 8 fills two strips of four; any number works.
+  // 8 fills two strips of four; any number works. Photos live in assets/images/photo-booth/.
   moments: [
-    { src: "https://picsum.photos/seed/moment1/600/750", alt: "Our first selfie together", caption: "Our first selfie", date: "Nov 2025" }, // → assets/images/moment-01.jpg
-    { src: "https://picsum.photos/seed/moment2/600/750", alt: "A rainy-day picnic", caption: "That rainy picnic", date: "Dec 2025" }, // → assets/images/moment-02.jpg
-    { src: "https://picsum.photos/seed/moment3/600/750", alt: "Our matching mugs", caption: "Matching mugs", date: "Jan 2026" }, // → assets/images/moment-03.jpg
-    { src: "https://picsum.photos/seed/moment4/600/750", alt: "Ice cream at midnight", caption: "Midnight ice cream", date: "Mar 2026" }, // → assets/images/moment-04.jpg
-    { src: "https://picsum.photos/seed/moment5/600/750", alt: "Sunset on the pier", caption: "Sunset on the pier", date: "May 2026" }, // → assets/images/moment-05.jpg
-    { src: "https://picsum.photos/seed/moment6/600/750", alt: "Laughing at something silly", caption: "You, mid-laugh", date: "Jul 2026" }, // → assets/images/moment-06.jpg
-    { src: "https://picsum.photos/seed/moment7/600/750", alt: "Our blanket fort for movie night", caption: "Blanket fort HQ", date: "Sep 2026" }, // → assets/images/moment-07.jpg
-    { src: "https://picsum.photos/seed/moment8/600/750", alt: "The two of us together", caption: "Us, always", date: "Oct 2026" }, // → assets/images/moment-08.jpg
+    { src: "assets/images/photo-booth/tongues-out.jpg", alt: "Both of us sticking our tongues out in a garden selfie", caption: "Tongues out!" },
+    { src: "assets/images/photo-booth/personal-space.jpg", alt: "An extreme close-up of our eyes, squished side by side", caption: "Personal space? Nah" },
+    { src: "assets/images/photo-booth/giggle-attack.jpg", alt: "Hugging against a sandstone wall, one of us giggling with a tongue out", caption: "Giggle attack" },
+    { src: "assets/images/photo-booth/locked-in-love.jpg", alt: "A cosy selfie in front of a little Eiffel Tower covered in love locks", caption: "Locked in love" },
+    { src: "assets/images/photo-booth/cheek-to-cheek.jpg", alt: "Cuddled up cheek to cheek at a bar, one hand on a face", caption: "Cheek to cheek" },
+    { src: "assets/images/photo-booth/plot-twist.jpg", alt: "An upside-down face peering over a forehead and two big eyes", caption: "Plot twist!" },
+    { src: "assets/images/photo-booth/model-and-goofball.jpg", alt: "On a deck by the lake: one of us posing into the distance, the other pulling a face", caption: "Model & goofball" },
+    { src: "assets/images/photo-booth/too-cool.jpg", alt: "A tongue out and a big grin in pink sports sunglasses at a festival", caption: "Too cool for school" },
   ],
 
   /* ---------- Our Songs ---------- */
@@ -338,7 +338,8 @@ const SITE_DATA = {
   //   spot:  where it hides (a CSS selector for a paragraph on the page)
   //   clue:  shown when you tap an envelope that hasn't been found yet
   //   text:  the letter itself; a blank line starts a new paragraph
-  //   images: instead of `text`, a photo letter: just the title and these photos (they open in the viewer)
+  //   images: instead of `text`, a photo letter: just the title and these photos (they open in the viewer);
+  //           an item with `video` (and its still image as `src`) is a video, like in the timeline
   letters: {
     hint: "Six envelopes are hiding around the site. Hover over the words (or tap them on a phone) to find them. Stuck? Tap a grey envelope for a clue.",
     complete: "You found every single letter, and every word is true. ♥",   // shown once all are found
@@ -347,14 +348,14 @@ const SITE_DATA = {
       {
         spot: ".hero__date",
         clue: "Start at the very beginning, with the date that matters most.",
-        title: "Open when it's our anniversary",
-        text: "Happy one year, my love.\n\nEvery day with you has been my favourite kind of ordinary. Thank you for choosing me, again and again.",
+        title: "Happy one year, my liefie.",
+        text: "Haha kan jy glo ons is nou al een jaar saam dis crazy bbg. Ek is super baie lief vir jou en dankie dat jy vir n volle jaar met my kak op sit.",
       },
       {
         spot: ".timeline__item:nth-child(7) .timeline__text",
         clue: "Month 7 has a picnic, a chess game and a parrot dance in it.",
-        title: "Open when you need a laugh",
-        text: "Remember the burnt dinner? You laughed so hard you snorted, and that's when I knew I was in trouble. The good kind.",
+        title: "Die is my gunsteling maande",
+        text: "Ek bedoel, check die cool kk's en ek kon jou ry soos n paret haha.",
       },
       {
         spot: "#video-title",   // next to the names under the Chowder & Panini video
@@ -368,14 +369,18 @@ const SITE_DATA = {
       {
         spot: "#booth-printed",
         clue: "Take our snapshots in the photo booth, then read the line under the prints.",
-        title: "Open when you can't sleep",
-        text: "Count little moments instead of sheep: the matching mugs, the midnight ice cream, you mid-laugh.\n\nI'll be right here in the morning.",
+        title: "Haha Coco and Sniper!!!",
+        images: [
+          { src: "assets/images/coco-and-sniper-love-note.jpg", video: "assets/images/coco-and-sniper-love-note.mp4", alt: "Coco the kitten and Sniper the black dog play-fighting on a garden chair" },
+        ],
       },
       {
         spot: "#songs .coverflow",
         clue: "In Our Songs, hover over the album covers (or tap them on a phone).",
-        title: "Open when you hear our song",
-        text: "Turn it up and dance in the kitchen like nobody's watching. If I'm not there, I'm dancing with you anyway.",
+        title: "lieg jy vir my?",
+        images: [
+          { src: "assets/images/worsie-meme.png", alt: "A sausage with the words Sê Worsie !!!" },
+        ],
       },
       {
         spot: "#forever-message p:last-child",

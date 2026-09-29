@@ -703,6 +703,8 @@ svg { fill: currentColor; }
   aspect-ratio: 4 / 3;
   border-radius: var(--radius-m);
   background: var(--color-text);
+  outline: 3px solid var(--color-primary);   /* rose outline with a white gap, like a camera's trim */
+  outline-offset: 4px;
 }
 /* Flash bulb */
 .booth__window::after {
@@ -722,6 +724,8 @@ svg { fill: currentColor; }
   background:
     radial-gradient(circle at 34% 34%, rgba(255, 255, 255, 0.5) 0 7%, transparent 8%),
     radial-gradient(circle, #1C1518 0 44%, #5A4A50 45% 58%, #2A2023 59%);
+  outline: 2px solid var(--color-primary);   /* matches the camera's outline */
+  outline-offset: 4px;
 }
 /* Appears once the booth has printed: opens the finished strips again */
 .booth__film:not([hidden]) { animation: panel-in 0.5s var(--ease-out); }
@@ -758,7 +762,7 @@ svg { fill: currentColor; }
 .booth-show__viewfinder {
   position: relative;
   width: min(17rem, 100%);
-  aspect-ratio: 4 / 5;
+  aspect-ratio: 1;   /* square, like the prints: fits landscape and portrait photos */
   margin: 1rem auto;
   overflow: hidden;
   border: 0.6rem solid var(--color-text);   /* the camera's frame */
@@ -834,7 +838,7 @@ svg { fill: currentColor; }
 }
 .strip__frames img {
   width: 100%;
-  aspect-ratio: 4 / 5;
+  aspect-ratio: 1;   /* square photo-booth frames suit landscape and portrait photos */
   object-fit: cover;
   background: var(--color-accent);   /* shows while the photo loads */
 }
@@ -1617,6 +1621,8 @@ svg { fill: currentColor; }
   gap: 1.25rem;
   margin: 1.5rem 0.25rem 1.75rem;
 }
+/* Just one (e.g. a video letter): a single, slightly larger frame in the middle */
+.letters__photos:has(> :only-child) { grid-template-columns: min(14rem, 100%); justify-content: center; }
 
 @keyframes panel-in { from { opacity: 0; transform: translateY(10px); } }
 

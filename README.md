@@ -102,11 +102,11 @@ After the first time, a small film-strip button, **See our prints again**, appea
 
 Under the prints, **Download as a picture** saves both strips as one JPEG (`william-and-zane-photo-booth.jpg`), drawn the same way as on screen. This only works once the site is online (GitHub Pages is fine). Browsers block it when `index.html` is opened by double-clicking, and the booth says so. To try it on your computer, run a local server in the project folder, for example `npx serve`.
 
-One of the hidden envelopes sits at the end of the "All 8 snaps, printed ♥" line under the prints.
+One of the hidden envelopes sits at the end of the "All 8 snaps, printed ♥" line under the prints. Its letter, "Haha Coco and Sniper!!!", is a video (`assets/images/coco-and-sniper-love-note.mp4`) that opens in the video viewer.
 
 **Sticker backgrounds:** the pink Moments band shows `assets/images/photo-booth-pattern.webp` repeated over the pink, and the pop-up (and the downloaded picture) shows `assets/images/photo-booth-card-pattern.webp` over a light apricot. These are compressed copies of `PhotoBooth_bg.png` and `photobooth_card_bg.png` (about 5 times smaller). To change a pattern, replace the `.webp` file with the same name, or point the `url(...)` in `css/style.css` (section 7) at a new image. Patterns made to tile seamlessly look best.
 
-Edit the photos in `moments` in `js/data.js` (`src`, `alt`, `caption`; `date` isn't shown here). Eight photos fill two strips of four; any number works. Put the files in `assets/images/`, e.g. `assets/images/moment-01.jpg`.
+Edit the photos in `moments` in `js/data.js` (`src`, `alt` and a short, silly `caption`, like "Plot twist!"). The photos live in `assets/images/photo-booth/`; the booth takes them in the order listed. Eight photos fill two strips of four; any number works. The frames are square, like a real photo booth, so landscape and portrait photos both fit; the middle of each photo is shown.
 
 ## Little extras
 

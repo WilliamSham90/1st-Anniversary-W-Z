@@ -244,7 +244,7 @@
   const openAlbum = (items, i, opener) => {
     album = items;
     lbOpener = opener;
-    $$(".lightbox__nav", lightbox).forEach((btn) => (btn.hidden = items.length < 2));
+    $$(".lightbox__nav, .lightbox__count", lightbox).forEach((el) => (el.hidden = items.length < 2)); // no arrows or "1 / 1" for one item
     showItem(i);
     openDialog(lightbox);
   };
@@ -793,8 +793,8 @@
     const color = (name) => css.getPropertyValue(`--color-${name}`).trim();
     const strips = [moments.slice(0, half), moments.slice(half)].filter((strip) => strip.length);
 
-    // Sizes in pixels: 300 × 375 photos (4:5, like on screen)
-    const FRAME_W = 300, FRAME_H = 375, PAD = 18, GAP = 16, MARGIN = 80, STRIP_GAP = 72;
+    // Sizes in pixels: 300 × 300 photos (square, like on screen)
+    const FRAME_W = 300, FRAME_H = 300, PAD = 18, GAP = 16, MARGIN = 80, STRIP_GAP = 72;
     const stripW = PAD * 2 + half * FRAME_W + (half - 1) * GAP;
     const stripH = PAD + FRAME_H + 50 + 72 + 36 + PAD; // photo, caption, names, date
     const canvas = document.createElement("canvas");
