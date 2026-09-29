@@ -309,13 +309,10 @@ const SITE_DATA = {
   ],
 
   /* ---------- Our Songs ---------- */
-  // `file` must be a local mp3 in assets/music/. `image` can be a local file or a URL.
+  // The mp3 and its square cover image live in assets/songs/ (lowercase names with hyphens).
   songs: [
-    { title: "Lover", artist: "Taylor Swift", image: "https://picsum.photos/seed/artist1/400/400", file: "assets/music/song-01.mp3" }, // image → assets/artists/artist-01.jpg
-    { title: "Until I Found You", artist: "Stephen Sanchez", image: "https://picsum.photos/seed/artist2/400/400", file: "assets/music/song-02.mp3" }, // image → assets/artists/artist-02.jpg
-    { title: "Die With A Smile", artist: "Lady Gaga & Bruno Mars", image: "https://picsum.photos/seed/artist3/400/400", file: "assets/music/song-03.mp3" }, // image → assets/artists/artist-03.jpg
-    { title: "Yellow", artist: "Coldplay", image: "https://picsum.photos/seed/artist4/400/400", file: "assets/music/song-04.mp3" }, // image → assets/artists/artist-04.jpg
-    { title: "Perfect", artist: "Ed Sheeran", image: "https://picsum.photos/seed/artist5/400/400", file: "assets/music/song-05.mp3" }, // image → assets/artists/artist-05.jpg
+    { title: "Chowder Theme Song", artist: "Chowder", image: "assets/songs/chowder-cover.jpg", file: "assets/songs/chowder-theme-song.mp3" },
+    { title: "Dandelions", artist: "Ruth B.", image: "assets/songs/dandelions-cover.jpg", file: "assets/songs/dandelions-ruth-b.mp3" },
   ],
 
   /* ---------- Forever: closing section ---------- */

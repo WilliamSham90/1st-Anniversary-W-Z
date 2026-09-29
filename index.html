@@ -73,6 +73,34 @@
     <span class="letters-fab__count" id="letters-fab-count" aria-hidden="true"></span>
   </button>
 
+  <!-- Mini music player, the same music as Our Songs (main.js part 4). The spinning record shows/hides the
+       controls: open as a bar at the bottom centre on wide screens, closed above the envelope on phones. -->
+  <div class="mini" id="mini" role="region" aria-label="Music player">
+    <button class="mini__disc" type="button" id="mini-toggle" aria-expanded="false" aria-controls="mini-panel">
+      <img class="mini__art" id="mini-art" alt="">
+      <span class="mini__badge" aria-hidden="true">♪</span>
+    </button>
+    <div class="mini__panel" id="mini-panel">
+      <div class="mini__info">
+        <p class="mini__title" id="mini-title"></p>
+        <p class="mini__artist" id="mini-artist"></p>
+        <span class="mini__progress" aria-hidden="true"><span class="mini__bar" id="mini-bar"></span></span>
+      </div>
+      <div class="mini__controls">
+        <button class="icon-btn" type="button" id="mini-prev" aria-label="Previous song">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
+        </button>
+        <button class="icon-btn mini__play" type="button" id="mini-play" aria-label="Play">
+          <svg class="icon-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
+          <svg class="icon-pause" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 19h4V5H6zm8-14v14h4V5z"/></svg>
+        </button>
+        <button class="icon-btn" type="button" id="mini-next" aria-label="Next song">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 18l8.5-6L6 6zM16 6v12h2V6z"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- Hidden letters dialog: a collection panel and a reading panel (content in data.js → letters) -->
   <dialog class="note letters" id="letters" aria-label="Hidden letters">
     <div class="note__paper">

@@ -173,9 +173,10 @@
 
   // Navbar background + back-to-top button (window scroll works with and without ScrollSmoother)
   const toTop = $(".to-top");
+  const isPastHero = () => window.scrollY > window.innerHeight * 0.8; // also used by the mini player (part 4)
   const onScroll = () => {
     nav.classList.toggle("is-scrolled", window.scrollY > 10);
-    const pastHero = window.scrollY > window.innerHeight * 0.8;
+    const pastHero = isPastHero();
     toTop.classList.toggle("is-visible", pastHero);
     // Chowder & Panini peek in once you're past the first screen, and stay until closed
     if (pastHero && !peek.dataset.dismissed) peek.classList.add("is-visible");
@@ -281,9 +282,11 @@
 
   const fmt = (t) => (Number.isFinite(t) ? `${Math.floor(t / 60)}:${String(Math.floor(t % 60)).padStart(2, "0")}` : "0:00");
   const setFill = (range) => range.style.setProperty("--fill", `${(range.value / range.max) * 100 || 0}%`);
+  const mini = $("#mini");
+  const miniToggle = $("#mini-toggle");
   const setPlaying = (on) => {
-    music.classList.toggle("is-playing", on);
-    playBtn.setAttribute("aria-label", on ? "Pause" : "Play");
+    [music, mini].forEach((el) => el.classList.toggle("is-playing", on));
+    [playBtn, $("#mini-play")].forEach((btn) => btn.setAttribute("aria-label", on ? "Pause" : "Play"));
   };
   const play = () => audio.play().catch(() => {}); // a missing file is reported by the "error" listener
   const togglePlay = () => (audio.paused ? play() : audio.pause());
@@ -302,8 +305,11 @@
     current = (i + songs.length) % songs.length;
     const song = songs[current];
     audio.src = song.file;
-    $("#player-title").textContent = song.title;
-    $("#player-artist").textContent = song.artist;
+    $("#player-title").textContent = $("#mini-title").textContent = song.title;
+    $("#player-artist").textContent = $("#mini-artist").textContent = song.artist;
+    $("#mini-art").src = song.image;
+    miniToggle.setAttribute("aria-label", `Music: ${song.title} by ${song.artist}`);
+    $("#mini-bar").style.transform = "scaleX(0)";
     $("#player-current").textContent = $("#player-duration").textContent = "0:00";
     status.textContent = "";
     seek.max = 0;
@@ -358,11 +364,28 @@
   });
   coverflow.addEventListener("pointercancel", () => (startX = null));
 
-  audio.addEventListener("play", () => setPlaying(true));
+  // Any video starting (timeline, letters, Chowder & Panini) pauses the music; when the video ends or
+  // its viewer closes, the music carries on. Media events don't bubble, so listen in the capture phase.
+  let pausedForVideo = false;
+  const resumeAfterVideo = () => {
+    if (!pausedForVideo || $$("dialog[open] video").some((v) => !v.paused)) return; // another video still going
+    pausedForVideo = false;
+    play();
+  };
+  document.addEventListener("play", (e) => {
+    if (!e.target.matches("video") || audio.paused) return;
+    pausedForVideo = true;
+    audio.pause();
+  }, true);
+  document.addEventListener("ended", (e) => e.target.matches("video") && resumeAfterVideo(), true);
+  // "close" fires after the dialog loses [open], so the viewer's own (stopping) video isn't counted
+  document.addEventListener("close", (e) => $("video", e.target) && resumeAfterVideo(), true);
+
+  audio.addEventListener("play", () => {
+    pausedForVideo = false; // playing by hand (or resuming) clears it
+    setPlaying(true);
+  });
   audio.addEventListener("pause", () => setPlaying(false));
-  // Any video starting (timeline or Chowder & Panini) pauses the music, so they don't play over each other.
-  // "play" doesn't bubble, so listen in the capture phase.
-  document.addEventListener("play", (e) => e.target.matches("video") && audio.pause(), true);
   audio.addEventListener("ended", () => loadSong(current + 1, true));
   audio.addEventListener("loadedmetadata", () => {
     seek.max = audio.duration;
@@ -372,6 +395,7 @@
     seek.value = audio.currentTime;
     setFill(seek);
     $("#player-current").textContent = fmt(audio.currentTime);
+    $("#mini-bar").style.transform = `scaleX(${audio.currentTime / audio.duration || 0})`;
   });
   audio.addEventListener("error", () => {
     setPlaying(false);
@@ -382,6 +406,38 @@
     setFill(seek);
   });
   loadSong(Math.floor(songs.length / 2), false); // start in the middle, so covers fan out on both sides
+
+  // Mini player: same controls, same song. Shown once past the first screen, and hidden while the
+  // big player in Our Songs is on screen (no need for two).
+  $("#mini-play").addEventListener("click", togglePlay);
+  $("#mini-prev").addEventListener("click", () => loadSong(current - 1, true));
+  $("#mini-next").addEventListener("click", () => loadSong(current + 1, true));
+
+  const wide = window.matchMedia("(min-width: 900px)"); // matches the CSS: bar in the middle vs. button on the side
+  const setMiniOpen = (open) => {
+    mini.classList.toggle("is-open", open);
+    miniToggle.setAttribute("aria-expanded", open);
+  };
+  setMiniOpen(wide.matches);
+  miniToggle.addEventListener("click", () => setMiniOpen(!mini.classList.contains("is-open")));
+  // On a phone the controls pop up over the page: tapping elsewhere or Esc tucks them away again
+  document.addEventListener("click", (e) => {
+    if (!wide.matches && mini.classList.contains("is-open") && !mini.contains(e.target)) setMiniOpen(false);
+  });
+  mini.addEventListener("keydown", (e) => {
+    if (e.key !== "Escape" || wide.matches || !mini.classList.contains("is-open")) return;
+    setMiniOpen(false);
+    miniToggle.focus();
+  });
+
+  let bigPlayerInView = false;
+  const updateMini = () => mini.classList.toggle("is-visible", isPastHero() && !bigPlayerInView);
+  window.addEventListener("scroll", updateMini, { passive: true });
+  new IntersectionObserver(([entry]) => {
+    bigPlayerInView = entry.isIntersecting;
+    updateMini();
+  }, { threshold: 0.3 }).observe(music);
+  updateMini();
 
   /* ---------- 5. Chowder & Panini peek → video ---------- */
   const videoModal = $("#video-modal");

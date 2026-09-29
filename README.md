@@ -13,8 +13,7 @@ css/style.css       all styling; colours, fonts and spacing are variables at the
 js/data.js          ← ALL your personal content: edit this file
 js/main.js          behaviour (you shouldn't need to touch it)
 assets/images/      your photos: month-01 … month-12 for the timeline (photos and videos), plus moments and the closing photo
-assets/artists/     album covers for the music player
-assets/music/       your mp3 files
+assets/songs/       the songs: each mp3 and its square album cover
 assets/video/       small local videos (the Chowder & Panini one is hosted online, see below)
 ```
 
@@ -53,17 +52,23 @@ Videos only download when they're opened, so they don't slow the page down. Keep
 
 ## Add your songs
 
-1. Put each mp3 in `assets/music/`, named as in `data.js` (`song-01.mp3`, `song-02.mp3`, ...), or use any name you like and update `file`.
-2. Put the album cover in `assets/artists/` and update `image`. Covers are shown square, so a square image looks best.
+1. Put the mp3 in `assets/songs/` and rename it to a short lowercase name with hyphens, e.g. `perfect-ed-sheeran.mp3`. Put that path in `file`.
+2. Put the album cover next to it (e.g. `perfect-cover.jpg`) and put that path in `image`. Covers are shown square, so a square image about 500×500 looks best.
 3. Edit `title` and `artist`.
 
 ```js
-{ title: "Lover", artist: "Taylor Swift", image: "assets/artists/artist-01.jpg", file: "assets/music/song-01.mp3" },
+{ title: "Dandelions", artist: "Ruth B.", image: "assets/songs/dandelions-cover.jpg", file: "assets/songs/dandelions-ruth-b.mp3" },
 ```
 
 Add or remove whole lines to change the playlist. Until an mp3 exists, the player shows a small note saying which file is missing.
 
 The Our Songs section has no heading on screen, just the album covers in a 3D "coverflow" over slowly drifting, blurred colours, with the player underneath. Swipe or drag the covers sideways, click one, or tab to a cover and use the ← → keys to browse. Clicking a side cover plays that song; the round button plays and pauses. Browsing keeps the music going if it was already playing. It starts on the middle song so the covers fan out on both sides. One hidden envelope pops up over the middle cover when you hover over the covers (or tap them on a phone).
+
+### Mini music player
+
+Once you scroll past the first screen, a small spinning record plays the same music as Our Songs, so it can be paused or skipped from anywhere. The two always match: changing the song or pausing in one changes the other. On a computer it's a bar in the bottom centre with the song, a progress line and back / play / next (click the record to shrink it to just the record). On a phone it's a round record above the envelope button; tap it for the controls, tap anywhere else to tuck them away. It hides while the big player in Our Songs is on screen.
+
+Any video (timeline, letters, Chowder & Panini) pauses the music; when the video finishes or its viewer is closed, the music carries on. Music paused by hand stays paused.
 
 ## Chowder & Panini surprise
 
