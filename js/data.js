@@ -23,6 +23,13 @@ const SITE_DATA = {
 
   heroLine: "Congratulations, you survived. 1 year down and only the rest of your life to go.",
 
+  // The two pixel cats in the play area at the bottom of the first screen: their names, and which
+  // drawing each one is ("grey" or "orange", in assets/images/Cats/cats/)
+  cats: [
+    { name: "Coco", look: "grey" },
+    { name: "Moose", look: "orange" },
+  ],
+
   /* ---------- Our Year: one entry per month (Month 1 → Month 12), photos and videos in assets/images/month-01 … month-12 ---------- */
   // Optional `teaser`: the short line on the month's card along the path (otherwise the first phrase of `text`).
   timeline: [

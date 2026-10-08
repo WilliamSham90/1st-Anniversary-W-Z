@@ -32,6 +32,7 @@ Tips:
 - Portrait photos (about 4:5) fit the frames best. Other shapes still work: the small frame shows the middle of the photo, and clicking it opens the whole photo. If the middle is the wrong part (a face cut off, say), add `focus` to choose what the frame keeps: `"top"`, `"bottom"`, `"left"`, `"right"`, or a position like `"50% 20%"` (across, then down).
 - To add or remove a photo, add or delete a `{ src, alt, caption }` line in that month's `images: [ ... ]` list. Any number works: they're pinned all over that month's board, and a month with lots of photos gets a taller board that scrolls.
 - File names are case-sensitive once the site is online, so `Photo.JPG` and `photo.jpg` are different files. Keeping everything lowercase avoids surprises.
+- **Small copies (`thumbs`):** each month folder has a `thumbs` folder with a smaller copy of every photo (720 pixels on the long side, same file name). The boards show those, so phones load and decode a fifth as much and scrolling stays smooth; clicking a photo still opens the full-size one. A new photo works without a small copy (the board then uses the full photo), but for the smoothest scrolling put a copy in `thumbs` too, made with any photo resizer (for example [squoosh.app](https://squoosh.app): resize to 720 on the long side, JPEG quality about 80).
 
 ### Add a video
 
@@ -108,6 +109,16 @@ One of the hidden envelopes sits at the end of the "All 8 snaps, printed ♥" li
 **Sticker backgrounds:** the pink Moments band shows `assets/images/photo-booth-pattern.webp` repeated over the pink, and the pop-up (and the downloaded picture) shows `assets/images/photo-booth-card-pattern.webp` over a light apricot. These are compressed copies of `PhotoBooth_bg.png` and `photobooth_card_bg.png` (about 5 times smaller). To change a pattern, replace the `.webp` file with the same name, or point the `url(...)` in `css/style.css` (section 7) at a new image. Patterns made to tile seamlessly look best.
 
 Edit the photos in `moments` in `js/data.js` (`src`, `alt` and a short, silly `caption`, like "Plot twist!"). The photos live in `assets/images/photo-booth/`; the booth takes them in the order listed. Eight photos fill two strips of four; any number works. The frames are square, like a real photo booth, so landscape and portrait photos both fit; the middle of each photo is shown.
+
+## Coco & Moose (the play area on the first screen)
+
+Along the bottom of the first screen is a little pixel playroom with two cats, Coco (grey) and Moose (orange), plus a food bowl, a bed, two balls and a toy mouse. The cats get on with their day by themselves: they hop about, chase the balls and the mouse, eat, nap in the bed, hide in a box, dance, and come over to each other for a cuddle or a play-fight.
+
+- **Click (or tap) a cat** to open its menu: change its name, see how full, rested, entertained and loved it is, and tell it what to do (Pet, Feed, Play, Nap, Sit, Zoomies, or one of the moods).
+- **Drag** a cat or a toy to move it; let go of a toy while moving it to throw it.
+- **Click a toy** to set it off, **the bowl** to fill it up (it holds 3 servings), **the bed** to send a sleepy cat to bed, or **anywhere on the floor** to call a cat over.
+- Their names and colours are in `cats` in `js/data.js`. The pictures are in `assets/images/Cats/`, and everything about how they behave (speeds, how quickly they get hungry or bored, sizes) is in `CATS_CONFIG` at the top of `js/cats.js`.
+- The cats only move while the first screen is in view, so they don't slow the rest of the site down. With *reduce motion* on, they sit still and only do what their menu tells them.
 
 ## Little extras
 

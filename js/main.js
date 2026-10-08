@@ -1020,8 +1020,14 @@
       smoothTouch: false,
       // ScrollSmoother jumps to any newly focused element. Sections are focused by our
       // nav links while they're already smooth-scrolling there, so skip those. Our Year's
-      // pinned stage scrolls to a focused photo or envelope itself (journey.js).
-      onFocusIn: (self, e) => !e.target.matches("section") && !e.target.closest(".journey__stage"),
+      // pinned stage scrolls to a focused photo or envelope itself (journey.js). The cats in the
+      // hero take focus when clicked; only scroll to one that's actually off screen.
+      onFocusIn: (self, e) => {
+        if (e.target.matches("section") || e.target.closest(".journey__stage")) return false;
+        if (!e.target.closest(".cats")) return true;
+        const r = e.target.getBoundingClientRect();
+        return r.top < 0 || r.bottom > window.innerHeight;
+      },
     });
   }
 

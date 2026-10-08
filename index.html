@@ -11,7 +11,7 @@
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=DM+Sans:wght@400;500;700&family=Great+Vibes&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=DM+Sans:wght@400;500;700&family=Great+Vibes&family=Pixelify+Sans:wght@500;600&display=swap">
 
   <link rel="stylesheet" href="css/style.css">
 
@@ -22,6 +22,7 @@
   <script defer src="js/data.js"></script>
   <script defer src="js/journey.js"></script>
   <script defer src="js/main.js"></script>
+  <script defer src="js/cats.js"></script>
 </head>
 <body>
   <a class="skip-link" href="#moments">Skip to content</a>
@@ -148,6 +149,20 @@
     </button>
   </dialog>
 
+  <!-- Opens beside a cat in the hero's play area (js/cats.js): its name, how it's doing, what to do -->
+  <div class="cat-menu" id="cat-menu" popover role="dialog" aria-label="Cat">
+    <label class="cat-menu__name">
+      <span class="visually-hidden">Name</span>
+      <input id="cat-menu-name" maxlength="16" autocomplete="off" spellcheck="false">
+    </label>
+    <div class="cat-menu__needs" id="cat-menu-needs"></div>
+    <div class="cat-menu__actions" id="cat-menu-actions"></div>
+    <section class="cat-menu__moods-part" aria-labelledby="cat-menu-moods-title">
+      <h2 class="cat-menu__title" id="cat-menu-moods-title">Moods</h2>
+      <div class="cat-menu__moods" id="cat-menu-moods"></div>
+    </section>
+  </div>
+
   <!-- Chowder & Panini surprise (image, text and video are set in data.js → peek) -->
   <div class="peek" id="peek">
     <button class="peek__open" type="button" id="peek-open">
@@ -223,6 +238,10 @@
             <span class="scroll-cue__label" aria-hidden="true">Scroll</span>
             <span class="scroll-cue__mouse" aria-hidden="true"><span class="scroll-cue__dot"></span></span>
           </a>
+          <!-- Coco & Moose's play area (js/cats.js): the cats, bowl, bed and toys are buttons added there -->
+          <div class="cats" id="cats" role="group" aria-label="Coco and Moose's play area">
+            <p class="cats__hint" aria-hidden="true">Tap or drag us!</p>
+          </div>
         </section>
 
         <!-- ===== Moments (photo booth; photos in data.js → moments) ===== -->
