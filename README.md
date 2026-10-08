@@ -19,22 +19,18 @@ assets/video/       small local videos (the Chowder & Panini one is hosted onlin
 
 ## Swap in your photos
 
-Each month has its own folder: `assets/images/month-01/` for Month 1, up to `assets/images/month-12/`. Months 1–11 are done; month 12 still shows placeholder photos.
+Each month has its own folder: `assets/images/month-01/` for Month 1, up to `assets/images/month-12/`. All twelve months have their photos. (Month 12's title and text are placeholders for now.)
 
 1. Put the photo in that month's folder and rename it to a short, lowercase name with hyphens instead of spaces that says what's in it, for example `assets/images/month-12/anniversary-dinner.jpg`. (Photos saved from WhatsApp are named like `WhatsApp Image 2026-09-28 at 21.05.53 (1).jpeg`. Rename those, because the spaces and brackets can break links once the site is online.)
-2. In `js/data.js`, find that month. Each placeholder line ends with a comment naming the folder:
+2. In `js/data.js`, find that month and add a line for it to its `images: [ ... ]` list (or change the `src` of an existing line), with the path to your photo:
    ```js
-   { src: "https://picsum.photos/seed/month12-1/600/750", alt: "Celebrating our first anniversary", caption: "Year one" }, // → assets/images/month-12/
+   { src: "assets/images/month-12/anniversary-dinner.jpg", alt: "Our anniversary dinner table", caption: "Dinner for two" },
    ```
-3. Replace the `src` value with the path to your photo:
-   ```js
-   { src: "assets/images/month-12/anniversary-dinner.jpg", alt: "Celebrating our first anniversary", caption: "Year one" },
-   ```
-4. Update `alt` so it describes the real photo (screen readers read it aloud), and `caption`, the handwritten line under the photo.
+3. Update `alt` so it describes the real photo (screen readers read it aloud), and `caption`, the handwritten line under the photo.
 
 Tips:
 - Portrait photos (about 4:5) fit the frames best. Other shapes still work: the small frame shows the middle of the photo, and clicking it opens the whole photo. If the middle is the wrong part (a face cut off, say), add `focus` to choose what the frame keeps: `"top"`, `"bottom"`, `"left"`, `"right"`, or a position like `"50% 20%"` (across, then down).
-- To add or remove a photo, add or delete a `{ src, alt, caption }` line in that month's `images: [ ... ]` list. Any number works: they sit 3 to a row on wider screens and 2 to a row on phones, and 2 or 4 photos arrange as a neat square.
+- To add or remove a photo, add or delete a `{ src, alt, caption }` line in that month's `images: [ ... ]` list. Any number works: they're pinned all over that month's board, and a month with lots of photos gets a taller board that scrolls.
 - File names are case-sensitive once the site is online, so `Photo.JPG` and `photo.jpg` are different files. Keeping everything lowercase avoids surprises.
 
 ### Add a video
@@ -62,7 +58,7 @@ Videos only download when they're opened, so they don't slow the page down. Keep
 
 Add or remove whole lines to change the playlist. Until an mp3 exists, the player shows a small note saying which file is missing.
 
-The Our Songs section has no heading on screen, just the album covers in a 3D "coverflow" over slowly drifting, blurred colours, with the player underneath. Swipe or drag the covers sideways, click one, or tab to a cover and use the ← → keys to browse. Clicking a side cover plays that song; clicking the middle cover (or the round button) plays and pauses. Browsing keeps the music going if it was already playing. It starts on the middle song so the covers fan out on both sides. Chowder's cover is the exception: instead of play/pause it hides an envelope, which pops up when Chowder's song is in the middle and you hover over it (or tap it on a phone). The letter's `spot` picks the cover by song title, so reordering the songs is fine.
+The Our Songs section has no heading on screen, just the album covers in a 3D "coverflow" over slowly drifting, blurred colours, with the player underneath. Swipe or drag the covers sideways, click one, or tab to a cover and use the ← → keys to browse. Clicking a side cover plays that song; clicking the middle cover (or the round button) plays and pauses. Browsing keeps the music going if it was already playing. It starts on the middle song so the covers fan out on both sides. Chowder's cover is the exception: instead of play/pause it carries an envelope, shown while Chowder's song is in the middle. The letter's `spot` picks the cover by song title, so reordering the songs is fine.
 
 ### Mini music player
 
@@ -84,14 +80,14 @@ Everything is set in `peek` near the bottom of `js/data.js`:
 
 ## Hidden letters
 
-Six envelopes are hidden at the end of lines of text around the site. Hovering over the words makes one pop out; on a phone you tap the words instead. Opening an envelope shows its letter, and after that an open envelope stays in that spot, so it can be read again.
+Six envelopes are tucked away around the site, always visible: at the end of lines of text, on Chowder's album cover, and one beside Our Year's line between Month 7 and Month 8. Opening an envelope shows its letter, and after that it's drawn open, so it can be read again.
 
 The round envelope button at the bottom-right (with the "2/6" badge) opens the collection. Found letters are in colour and can be re-read. Grey ones are still hidden, and tapping one shows a clue.
 
 Edit everything in `letters` in `js/data.js`:
 - `items`: the six letters, each with a `title`, `text` (a blank line starts a new paragraph), a `clue`, and a `spot` saying where it hides
 - A letter can have `images` instead of `text`: then it shows just its title and those photos, which open in the photo viewer (stepping through only that letter's photos). The Chowder & Panini letter, "Love U my Bebe Girllll", works like this. Its envelope hides beside the names under the Chowder & Panini video.
-- `spot` is a CSS selector for a paragraph on the page, for example `".timeline__item:nth-child(7) .timeline__text"` means "the text of Month 7". If a spot doesn't match anything, that envelope isn't shown, and the browser console says which one.
+- `spot` is a CSS selector for a paragraph on the page, for example `"#forever-message p:last-child"` means "the last paragraph of the closing message", and `"#journey-letter"` is the spot beside Our Year's line (`envelopeAfter` in `js/journey.js` picks which month it follows). If a spot doesn't match anything, that envelope isn't shown, and the browser console says which one.
 - `hint`: the general hint at the bottom of the collection
 - `signoff`: the signature under each letter
 
@@ -122,7 +118,7 @@ Edit the photos in `moments` in `js/data.js` (`src`, `alt` and a short, silly `c
 
 Everything personal is in `js/data.js`:
 - `names`, `anniversary` (YYYY-MM-DD) and `heroLine`: the opening screen
-- `timeline`: 12 entries, one per month, each with `date`, `title`, `text` and `images`. The "Month 1–12" labels are added automatically in order. Clicking a photo opens the viewer for that month only ("3 / 12"), and its arrows step through that month's photos and videos.
+- `timeline`: 12 entries, one per month, each with `date`, `title`, `text` and `images` (and an optional `teaser`, the short line on the month's card along the path; without it, the first phrase of `text` is used). The "Month 1–12" labels are added automatically in order. Scrolling rides along one line from month to month, and each month opens into its own pin board. The colours, flourishes, scroll lengths and sway are in `JOURNEY_CONFIG` at the top of `js/journey.js`. Clicking a photo opens the viewer for that month only ("3 / 12"), and its arrows step through that month's photos and videos.
 - `moments`: the photo booth snapshots (`src`, `alt` and `caption` per photo)
 - `songs`: the playlist
 - `closing`: the heading, message paragraphs, final photo, sign-off and footer line
@@ -133,6 +129,6 @@ Section headings and their one-line intros ("Our Year", "Twelve little chapters 
 
 ## Accessibility and motion
 
-If someone's device is set to *reduce motion*, the site automatically turns off smooth scrolling, scroll animations, the drifting colours behind the names and the music, the floating hearts, the cursor trail, the heart bursts and the confetti. The photo booth skips its countdown and flashes and goes straight to the printed strips.
+If someone's device is set to *reduce motion*, the site automatically turns off smooth scrolling, scroll animations, the drifting colours behind the names and the music, the floating hearts, the cursor trail, the heart bursts and the confetti. Our Year shows its whole line drawn on a map you can scroll sideways, with the month boards stacked below it. The photo booth skips its countdown and flashes and goes straight to the printed strips.
 
 The muted text colour is `#7D6D71`, slightly darker than `#8A7B7F` from the original palette, so small text meets WCAG AA contrast on the cream background. You can change it in `css/style.css` under `--color-muted`.

@@ -283,14 +283,22 @@ const SITE_DATA = {
     },
     {
       date: "October 2026",
-      title: "One Whole Year",
-      text: "Three hundred and sixty-five days of you. Here's to every single one still to come.",
+      // Placeholder title and text (to be rewritten)
+      title: "Mud, 4x4s & One Whole Year",
+      text: "The Hekpoort 4x4 event, and we came home wearing most of it: mud on our clothes, our faces, our feet and somehow in our hair. Rock-on signs, muddy kisses and far too much laughing next to the car. Three hundred and sixty-five days of you, and I'd do every single one again, mud and all.",
       images: [
-        { src: "https://picsum.photos/seed/month12-1/600/750", alt: "Celebrating our first anniversary", caption: "Year one" }, // → assets/images/month-12/
-        { src: "https://picsum.photos/seed/month12-2/600/750", alt: "The two of us, one year on", caption: "Still us" }, // → assets/images/month-12/
-        { src: "https://picsum.photos/seed/month12-3/600/750", alt: "Our anniversary dinner table", caption: "Dinner for two" }, // → assets/images/month-12/
-        { src: "https://picsum.photos/seed/month12-4/600/750", alt: "A cake with one candle", caption: "One candle" }, // → assets/images/month-12/
-        { src: "https://picsum.photos/seed/month12-5/600/750", alt: "Holding hands", caption: "Always" }, // → assets/images/month-12/
+        { src: "assets/images/month-12/hekpoort-before-the-mud.jpg", alt: "William in pink rainbow sunglasses under a gazebo at the Hekpoort 4x4 event, still clean", caption: "Before the mud" },
+        { src: "assets/images/month-12/hekpoort-mud-smiles.jpg", alt: "Zané and William smiling side by side in front of the red car, both covered in mud", caption: "Mud suits us" },
+        { src: "assets/images/month-12/hekpoort-double-rock-on.jpg", alt: "Both grinning and throwing rock-on signs with muddy hands", caption: "Rock on, mud on" },
+        { src: "assets/images/month-12/hekpoort-rock-on.jpg", alt: "Zané making a rock-on sign next to William, both splattered with mud from head to toe", caption: "Too cool to clean up" },
+        { src: "assets/images/month-12/hekpoort-shaka.jpg", alt: "Zané pointing a muddy rock-on sign at William's face while William throws a shaka", caption: "Hang loose" },
+        { src: "assets/images/month-12/hekpoort-selfie-excited.jpg", alt: "A muddy selfie by the red car, Zané shouting with excitement and William smiling behind", caption: "Best day ever" },
+        { src: "assets/images/month-12/hekpoort-selfie-tongue-out.jpg", alt: "A muddy selfie with Zané's eyes closed and tongue out, William grinning behind", caption: "Standard face, mud edition" },
+        { src: "assets/images/month-12/hekpoort-selfie-grin.jpg", alt: "A muddy selfie by the car and the ambulances, a tongue out and a big grin", caption: "Worth every splash" },
+        { src: "assets/images/month-12/hekpoort-muddy-kiss.jpg", alt: "A muddy kiss next to the red car", caption: "Muddy kisses" },
+        { src: "assets/images/month-12/hekpoort-william-barefoot.jpg", alt: "William standing barefoot on the grass, mud up to the knees", caption: "Shoes are optional" },
+        { src: "assets/images/month-12/hekpoort-william-mud-smirk.jpg", alt: "A close-up of William smirking, with mud on one cheek and all over the T-shirt", caption: "Mud moustache" },
+        { src: "assets/images/month-12/hekpoort-mud-damage-report.jpg", alt: "Mud-splattered T-shirt, shorts and bare feet, up close", caption: "The damage report" },
       ],
     },
   ],

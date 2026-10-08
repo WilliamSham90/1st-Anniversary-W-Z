@@ -30,8 +30,9 @@
     envelopeAfter: 7,     // a hidden letter's envelope (#journey-letter) sits on the line after this month
     boardColors: ["#F6D6DC", "#F9DFCB", "#F6EBC4", "#D5E6CF", "#CBEADF", "#CFE5EE",
                   "#D6DBF2", "#E2D7F0", "#EFD5E8", "#F2DAD0", "#CFE7E4", "#F3E1E6"],
-    // Drawn into the line between month n and n+1 (11 of them): "heart", "curl", "curl-down" or "none"
-    flourishes: ["heart", "curl", "heart", "curl-down", "heart", "curl", "heart", "curl-down", "heart", "curl", "heart"],
+    // Drawn into the line between month n and n+1 (11 of them): "heart", "curl", "curl-down", "love-you"
+    // (the words, written along the line) or "none"
+    flourishes: ["heart", "curl", "heart", "curl-down", "love-you", "curl", "heart", "curl-down", "heart", "love-you", "heart"],
 
     // The line and the boards per kind of screen. Functions get the stage's width and height in px.
     wide: {
@@ -40,6 +41,7 @@
       leadIn: (w) => w * 0.42,        // line before month 1
       camera: [0.36, 0.56],           // where the head of the line sits on screen (share of width, height)
       heart: 140, curl: 50,           // flourish sizes (px)
+      loveYou: 26,                    // "love you": its x-height (px), smaller if the gap between stations is tight
       envelopeAt: (stepX, stepY) => [stepX * 0.55, stepY * 0.15],   // the envelope, from its month's station (px)
       // Where each month's note card sits on its board (month 1, 2, … then round again); photos fill the rest
       notePlaces: ["left top", "center top", "right top", "center center", "left center", "center center",
@@ -57,10 +59,11 @@
     phone: {
       stepX: (w) => w * 0.72, stepY: (w, h) => h * 0.32, leadIn: (w) => w * 0.5,
       camera: [0.28, 0.52],
-      heart: 96, curl: 34,
+      heart: 96, curl: 34, loveYou: 20,
+      loveYouStep: 1.5,               // the gap between stations is this much wider where "love you" is written
       envelopeAt: (stepX, stepY) => [stepX * 0.65, stepY * 0.15],
       scrub: 0.4,                     // follows the finger more closely than the wheel's 0.8
-      flourishes: ["heart", "none", "curl", "none", "heart", "none", "curl-down", "none", "heart", "none", "curl"],
+      flourishes: ["heart", "none", "curl", "none", "love-you", "none", "curl-down", "none", "heart", "love-you", "curl"],
       // (no notePlaces: the note card goes across the top, photos in rows below it)
       cellWidth: 170, rowHeight: (w) => w * 0.64,
       safe: { top: 76, bottom: 200, side: 18 },          // the round buttons stack up on the right on phones
@@ -69,9 +72,9 @@
     // Reduced motion: no pin. A flat map (scrolls sideways) with the line drawn, then the boards stacked.
     still: {
       stepX: () => 300, stepY: () => 0, leadIn: () => 140,
-      heart: 110, curl: 40,
+      heart: 110, curl: 40, loveYou: 22,
       envelopeAt: (stepX) => [stepX * 0.28, -50],
-      flourishes: ["heart", "curl", "heart", "curl", "heart", "curl", "heart", "curl", "heart", "curl", "heart"],
+      flourishes: ["heart", "curl", "heart", "curl", "love-you", "curl", "heart", "curl", "heart", "love-you", "heart"],
     },
   };
 
@@ -175,9 +178,36 @@
   const CAPTION = 44; // px a card adds to its photo: its padding and a one-line caption
   const GAP = 22;     // px kept clear between cards (they tilt a little)
 
+  // "love you" in joined-up handwriting: cubic Bézier segments [c1x, c1y, c2x, c2y, x, y] in units of the
+  // x-height, starting at (0, 0) on the line and ending back on it at (LOVE_YOU_WIDTH, 0). Loops reach up to
+  // about 2.4 units above the line (the l) and 1.4 below it (the y).
+  const LOVE_YOU = [
+    [0.45, -0.1, 1.05, -1.3, 1.1, -1.95], [1.13, -2.35, 0.75, -2.45, 0.68, -2.0], [0.6, -1.4, 0.62, -0.35, 0.9, -0.08], // l
+    [1.25, 0.12, 1.95, 0.1, 2.12, -0.3], [2.2, -0.62, 2.1, -0.98, 1.84, -0.98], [1.56, -0.98, 1.4, -0.66, 1.44, -0.36], // o
+    [1.48, -0.04, 1.92, -0.02, 2.08, -0.3], [2.18, -0.52, 2.18, -0.9, 2.06, -0.96], [2.24, -0.9, 2.44, -0.92, 2.58, -0.98],
+    [2.74, -0.86, 2.8, -0.35, 2.92, -0.02], [3.05, -0.4, 3.22, -0.82, 3.38, -1.0], [3.46, -1.1, 3.3, -1.16, 3.28, -0.98], // v
+    [3.32, -0.7, 3.55, -0.45, 3.82, -0.45], [4.22, -0.45, 4.36, -0.88, 4.1, -0.98], [3.8, -1.08, 3.58, -0.62, 3.72, -0.26], // e
+    [3.86, 0.06, 4.28, 0.03, 4.5, -0.12],
+    [4.72, -0.26, 5.35, 0, 5.67, 0], // the space, along the line
+    [5.9, 0, 6.05, -0.6, 6.09, -0.98], [6.03, -0.55, 6.01, -0.04, 6.3, -0.04], [6.57, -0.04, 6.65, -0.6, 6.69, -0.98], // y
+    [6.65, -0.4, 6.67, 0.6, 6.5, 1.1], [6.39, 1.46, 6.07, 1.42, 6.17, 1.0], [6.25, 0.6, 6.7, 0.1, 7.15, 0.04],
+    [7.55, 0, 7.71, -0.3, 7.65, -0.6], [7.61, -0.86, 7.49, -0.98, 7.31, -0.98], [7.03, -0.98, 6.87, -0.66, 6.91, -0.36], // o
+    [6.95, -0.04, 7.39, -0.02, 7.55, -0.3], [7.65, -0.52, 7.65, -0.9, 7.53, -0.96], [7.71, -0.9, 7.91, -0.92, 8.07, -0.98],
+    [8.13, -0.6, 8.01, -0.04, 8.31, -0.04], [8.57, -0.04, 8.65, -0.6, 8.71, -0.98], [8.65, -0.6, 8.65, -0.04, 8.91, -0.02], // u
+    [9.13, 0, 9.3, 0, 9.55, 0],
+  ];
+  const LOVE_YOU_WIDTH = 9.55;
+
   // Flourishes are part of the same stroke, so the fill draws through them. SVG y grows downwards.
-  // A heart starts and ends at its tip on the line; a curl is a loop like a joined-up "l".
-  const flourish = (kind, cx, y, m) => {
+  // A heart starts and ends at its tip on the line; a curl is a loop like a joined-up "l"; "love-you" is
+  // the words written along the line, as big as m.loveYou allows within `room` px.
+  const flourish = (kind, cx, y, m, room) => {
+    if (kind === "love-you") {
+      const unit = Math.min(m.loveYou, room / LOVE_YOU_WIDTH);
+      const sx = cx - (LOVE_YOU_WIDTH * unit) / 2;
+      const p = (px, py) => `${(sx + px * unit).toFixed(1)},${(y + py * unit).toFixed(1)}`;
+      return `L${sx.toFixed(1)},${y}` + LOVE_YOU.map((c) => `C${p(c[0], c[1])} ${p(c[2], c[3])} ${p(c[4], c[5])}`).join("");
+    }
     if (kind === "heart") {
       const p = (px, py) => `${cx + px * m.heart},${y + py * m.heart}`;
       return `L${cx},${y}C${p(0.16, -0.1)} ${p(0.5, -0.36)} ${p(0.5, -0.64)}C${p(0.5, -0.9)} ${p(0.24, -1)} ${p(0, -0.8)}` +
@@ -193,13 +223,17 @@
     return "";
   };
 
-  // From one station to the next: a short run, a smooth drop, a flourish, then a run into the station
+  // From one station to the next: a short run, a smooth drop, a flourish, then a run into the station.
+  // Words need more room, so before them the drop comes sooner and they're centred on what's left.
   const segment = (a, b, kind, m) => {
     const dx = b.x - a.x;
-    const x1 = a.x + dx * 0.12;
-    const x2 = a.x + dx * 0.42;
+    const words = kind === "love-you";
+    const x1 = a.x + dx * (words ? 0.06 : 0.12);
+    const x2 = a.x + dx * (words ? 0.3 : 0.42);
     const xm = (x1 + x2) / 2;
-    return `L${x1},${a.y}C${xm},${a.y} ${xm},${b.y} ${x2},${b.y}${flourish(kind, a.x + dx * 0.68, b.y, m)}L${b.x},${b.y}`;
+    const end = b.x - 24; // clear of the station's dot
+    const cx = words ? (x2 + end) / 2 : a.x + dx * 0.68;
+    return `L${x1},${a.y}C${xm},${a.y} ${xm},${b.y} ${x2},${b.y}${flourish(kind, cx, b.y, m, (end - x2) * 0.9)}L${b.x},${b.y}`;
   };
 
   // The whole line, generated from the station positions. pts[0] is where the line starts, pts[n] is
@@ -207,9 +241,12 @@
   function buildPath(m, W, H) {
     const stepX = val(m.stepX, W, H);
     const stepY = val(m.stepY, W, H);
-    const pts = [{ x: 0, y: 0 }, { x: val(m.leadIn, W, H), y: 0 }];
-    for (let i = 1; i < months.length; i++) pts.push({ x: pts[i].x + stepX, y: pts[i].y + stepY });
     const kinds = m.flourishes || JOURNEY_CONFIG.flourishes;
+    const pts = [{ x: 0, y: 0 }, { x: val(m.leadIn, W, H), y: 0 }];
+    for (let i = 1; i < months.length; i++) {
+      const across = stepX * (kinds[i - 1] === "love-you" ? m.loveYouStep ?? 1 : 1);
+      pts.push({ x: pts[i].x + across, y: pts[i].y + stepY });
+    }
     const parts = [`M0,0L${pts[1].x},0`];
     for (let i = 1; i < pts.length - 1; i++) parts.push(segment(pts[i], pts[i + 1], kinds[i - 1], m));
     const dist = [0];
