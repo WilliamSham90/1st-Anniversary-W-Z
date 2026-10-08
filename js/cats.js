@@ -31,20 +31,20 @@
     noStealing: "You can't steal my cat.",   // shown when a cat is dragged to the edge of its play area
   };
   const ART = "assets/images/Cats/";
-  // `walk` and `run`: optional strips of square frames, facing right (cut from RunCatt.png: rows 1 and 3);
-  // a cat without them hops about instead
+  // Each cat has its own folder with one picture per animation: a strip of 32px frames side by side, named
+  // after the animation (idle.png, sleep.png, … see ANIMS) with the cat facing left, plus walk.png and run.png
+  // facing right. A cat without walk.png and run.png hops about instead.
   const LOOKS = {
-    grey: { sheet: `${ART}cats/Grey.png`, colour: "grey", walk: `${ART}cats/grey-cat-walk.png`, run: `${ART}cats/grey-cat-trot.png` },
-    orange: { sheet: `${ART}cats/OrangeCat.png`, colour: "orange" },
+    grey: { dir: `${ART}cats/grey-cat/`, colour: "grey" },
+    orange: { dir: `${ART}cats/orange-cat/`, colour: "orange" },
   };
   const CATS = SITE_DATA.cats?.length ? SITE_DATA.cats.slice(0, 2) : [{ name: "Coco", look: "grey" }, { name: "Moose", look: "orange" }];
 
-  // The cat sheets: 32px frames, one animation per row, the cat facing left. [row, frames, frames per second]
-  const CELL = 32;
+  // The animations in each cat's folder, and how fast they play (frames a second). Their frame counts come
+  // from the pictures. (walk and run play as fast as the cat moves: CATS_CONFIG.stride)
   const ANIMS = {
-    idle: [0, 10, 6], idle2: [1, 10, 6], sleep: [2, 4, 2.5], dance: [3, 4, 6], yawn: [4, 8, 7], shy: [5, 12, 8],
-    loaf: [6, 12, 5], sniff: [7, 9, 6], cry: [8, 4, 6], box1: [9, 12, 7], box2: [10, 4, 6], box3: [11, 4, 7],
-    gasp: [12, 12, 12], eat: [13, 15, 5], sit: [14, 6, 3], blink: [15, 13, 7], hiss: [16, 9, 9], blush: [17, 12, 7],
+    idle: 6, idle2: 6, sleep: 2.5, dance: 6, yawn: 7, shy: 8, loaf: 5, sniff: 6, cry: 6,
+    box1: 7, box2: 6, box3: 7, gasp: 12, eat: 5, sit: 3, blink: 7, hiss: 9, blush: 7,
   };
   const HOP_POSE = { ground: ["idle", 0], air: ["dance", 0], held: ["gasp", 2] };
   const EAT_BOWL_X = 8;   // where the bowl in the "eat" frames sits, in sheet px from the frame's left (in front of the cat)
@@ -72,11 +72,14 @@
   const clamp = (v, lo, hi) => Math.min(Math.max(v, lo), hi);
   const every = (sec, fn) => { let t = sec; return (dt) => { if ((t -= dt) <= 0) { t = sec; fn(); } }; };
 
-  /* ---------- 2. Art: load the sheets, and measure where each picture's feet are ---------- */
-  const load = (src) => new Promise((resolve, reject) => {
+  /* ---------- 2. Art: load the pictures, and measure where each one's feet are ---------- */
+  // A picture, tried again a couple of times if the connection drops it
+  const load = (src, tries = 3) => new Promise((resolve, reject) => {
     const img = new Image();
     img.onload = () => resolve(img);
-    img.onerror = () => reject(new Error(`Couldn't load ${src}`));
+    img.onerror = () => (tries > 1
+      ? setTimeout(() => load(src, tries - 1).then(resolve, reject), 500)
+      : reject(new Error(`Couldn't load ${src}`)));
     img.src = src;
   });
   const pixelsOf = (img) => {
@@ -102,33 +105,31 @@
     return { foot: { x: (left + right + 1) / 2, y: bottom + 1 }, w: right - left + 1, h: bottom - top + 1 };
   }
 
-  // A strip of square frames side by side, and where the feet are across all of them
+  // A strip of square frames side by side: where the feet are across all of them, and the box they fill
   async function loadStrip(src) {
     const img = await load(src);
     const size = img.height, frames = Math.round(img.width / size);
-    return { src, width: img.width, size, frames, foot: measure(pixelsOf(img), [0, 0, size, size], frames).foot };
+    const m = measure(pixelsOf(img), [0, 0, size, size], frames);
+    return { src, width: img.width, size, frames, foot: m.foot, w: m.w, h: m.h };
   }
 
   async function loadArt() {
     const sheets = {};
     for (const look of new Set(CATS.map((c) => c.look))) {
-      const src = (LOOKS[look] ?? LOOKS.grey).sheet;
-      const img = await load(src);
-      const px = pixelsOf(img);
-      const anims = {};
-      let w = 0, h = 0;
-      for (const [name, [row, frames]] of Object.entries(ANIMS)) {
-        anims[name] = measure(px, [0, row * CELL, CELL, CELL], frames);
-        if (!["dance", "box1", "box2", "box3"].includes(name)) {   // the body's box: sitting about, not the odd big pose
-          w = Math.max(w, anims[name].w);
-          h = Math.max(h, anims[name].h);
-        }
-      }
       const def = LOOKS[look] ?? LOOKS.grey;
-      sheets[look] = {
-        src, colour: def.colour, width: img.width, height: img.height, anims, box: { w, h },
-        walk: def.walk && (await loadStrip(def.walk)), run: def.run && (await loadStrip(def.run)),
-      };
+      const strip = (name) => loadStrip(`${def.dir}${name}.png`);
+      const names = Object.keys(ANIMS);
+      const [walk, run, ...all] = await Promise.all(["walk", "run", ...names].map((name) => strip(name).catch(() => null)));
+      if (!all[0]) throw new Error(`Couldn't load ${def.dir}idle.png`);
+      // An animation that won't load: the cat stands idle in its place rather than the play area going missing
+      const anims = Object.fromEntries(names.map((name, i) => {
+        if (!all[i]) console.warn(`Cats: couldn't load ${def.dir}${name}.png, using idle.png instead`);
+        return [name, all[i] ?? all[0]];
+      }));
+      // The body's box: sitting about, not the odd big pose
+      const body = names.filter((name) => !["dance", "box1", "box2", "box3"].includes(name)).map((name) => anims[name]);
+      const box = { w: Math.max(...body.map((a) => a.w)), h: Math.max(...body.map((a) => a.h)) };
+      sheets[look] = { colour: def.colour, anims, box, walk: walk && run ? walk : null, run: walk && run ? run : null };
     }
     const items = {};
     for (const [name, def] of Object.entries(ITEMS)) {
@@ -187,8 +188,7 @@
     Object.assign(e.body.style, { width: `${bw}px`, height: `${bh}px`, left: `${-bw / 2}px`, top: `${-bh}px` });
     e.bw = bw;
     e.bh = bh;
-    const sheetW = e.look ? e.look.width : e.def.width, sheetH = e.look ? e.look.height : e.def.height;
-    e.sprite.style.backgroundSize = `${sheetW * s}px ${sheetH * s}px`;
+    if (!e.look) e.sprite.style.backgroundSize = `${e.def.width * s}px ${e.def.height * s}px`;
     e.pose.style.left = `${bw / 2}px`;
     e.pose.style.top = `${bh}px`;
     if (e.look?.walk && !e.runSprite) {
@@ -201,12 +201,20 @@
     place(e);
   }
 
-  // Puts the sprite so its feet sit on the pose's point, the body's bottom middle (feet differ between animations)
+  // Puts the sprite so its feet sit on the pose's point, the body's bottom middle (feet differ between
+  // animations). A cat shows the picture of the animation it's playing.
   function place(e) {
     const s = e.s;
-    const [fw, fh] = e.look ? [CELL, CELL] : [e.def.frame[2], e.def.frame[3]];
-    const foot = e.look ? e.look.anims[e.anim ?? "idle"].foot : e.def.foot;
-    Object.assign(e.sprite.style, { width: `${fw * s}px`, height: `${fh * s}px`, left: `${-foot.x * s}px`, top: `${-foot.y * s}px` });
+    if (e.look) {
+      const a = e.look.anims[e.anim ?? "idle"];
+      Object.assign(e.sprite.style, {
+        backgroundImage: `url("${a.src}")`, backgroundSize: `${a.width * s}px ${a.size * s}px`,
+        width: `${a.size * s}px`, height: `${a.size * s}px`, left: `${-a.foot.x * s}px`, top: `${-a.foot.y * s}px`,
+      });
+      return;
+    }
+    const [, , fw, fh] = e.def.frame;
+    Object.assign(e.sprite.style, { width: `${fw * s}px`, height: `${fh * s}px`, left: `${-e.def.foot.x * s}px`, top: `${-e.def.foot.y * s}px` });
   }
 
   // The frame to show: [sheet x, sheet y] of its top-left corner
@@ -215,7 +223,7 @@
       const pose = e.held ? HOP_POSE.held : e.mode === "move" && !REDUCED && !e.look.walk ? (e.lift > 2 * unit() ? HOP_POSE.air : HOP_POSE.ground) : null;
       const [name, f] = pose ?? [e.anim, Math.floor(e.frame)];
       if (pose && name !== e.anim) { e.anim = name; place(e); }
-      return [f * CELL, ANIMS[name][0] * CELL];
+      return [f * e.look.anims[name].size, 0];
     }
     const [x, y, , , stride = e.def.frame[2]] = [...e.def.frame, e.def.stride];
     return [x + Math.floor(e.frame) * stride, y];
@@ -379,7 +387,7 @@
     cat.anim = name;
     cat.frame = 0;
     cat.loop = true;
-    cat.fps = ANIMS[name][2];
+    cat.fps = ANIMS[name];
     place(cat);
   }
   function act(cat, anim, time, next = null, tick = null) {
@@ -390,7 +398,7 @@
   function actOnce(cat, anim, time, next = null, tick = null) {
     act(cat, anim, time, next, tick);
     cat.loop = false;
-    cat.fps = ANIMS[anim][1] / time;
+    cat.fps = cat.look.anims[anim].frames / time;
   }
   // Hop to (x, y), or after `follow`, then do `next`. `rush` = faster (chasing, zoomies).
   function goTo(cat, x, y, next = null, follow = null, rush = 1) {
@@ -929,8 +937,9 @@
   const frameIcon = (cat, anim, frame) => {
     const icon = document.createElement("span");
     icon.className = "cat-menu__frame";
-    icon.style.backgroundImage = `url("${cat.look.src}")`;
-    icon.style.backgroundPosition = `${-frame * CELL}px ${-ANIMS[anim][0] * CELL}px`;
+    const a = cat.look.anims[anim];
+    icon.style.backgroundImage = `url("${a.src}")`;
+    icon.style.backgroundPosition = `${-frame * a.size}px 0`;
     return icon;
   };
   const MENU_ACTIONS = [
@@ -1073,7 +1082,8 @@
       if (e.held) continue;
       if (e.falling) fall(e, dt);
       if (e.look) {
-        if (!REDUCED) e.frame = e.loop ? (e.frame + e.fps * dt) % ANIMS[e.anim][1] : Math.min(e.frame + e.fps * dt, ANIMS[e.anim][1] - 1);
+        const n = e.look.anims[e.anim].frames;
+        if (!REDUCED) e.frame = e.loop ? (e.frame + e.fps * dt) % n : Math.min(e.frame + e.fps * dt, n - 1);
         updateCat(e, dt);
       } else if (!REDUCED && e.kind === "ball") updateBall(e, dt);
       else if (e.kind === "mouse") REDUCED ? e.dying !== undefined && fadeOut(e, dt) : updateMouse(e, dt);
@@ -1112,7 +1122,7 @@
     const spots = [[0.13, 0.55], [0.62, 0.45]];
     CATS.forEach((c, i) => {
       const look = art.sheets[c.look] ?? Object.values(art.sheets)[0];
-      const cat = Object.assign(addThing("cat", { src: look.src }, ""), {
+      const cat = Object.assign(addThing("cat", { src: look.anims.idle.src }, ""), {
         look, name: c.name, needs: { hunger: rand(0.2, 0.45), tired: rand(0, 0.3), bored: rand(0.1, 0.35), lonely: rand(0, 0.3) },
         chat: rand(1, 6), dir: i ? -1 : 1,
       });
