@@ -60,8 +60,8 @@
   $("#hero-line").textContent = data.heroLine;
   $(".hero__inner").style.opacity = 1; // hidden in CSS until the names are in
 
-  // Timeline. A photo frame knows its place in its month (data-index); the month is on .timeline__photos,
-  // so the lightbox steps through that month only. Also used for the photos in a photo letter.
+  // Our Year is rendered by js/journey.js. This polaroid frame is for the photos in a photo letter:
+  // it knows its place in the letter (data-index), so the lightbox steps through that letter only.
   // A video shows its still image (`src`) with a play button; `focus` picks which part the frame shows.
   const polaroid = (item, i) => {
     const focus = item.focus ? ` style="object-position: ${esc(item.focus)}"` : "";
@@ -75,19 +75,6 @@
         <span class="polaroid__caption">${esc(item.caption || "♥")}</span>
       </button>`;
   };
-  $("#timeline-list").innerHTML = data.timeline.map((entry, i) => `
-    <li class="timeline__item">
-      <span class="timeline__dot" aria-hidden="true">♥</span>
-      <article class="timeline__card" data-reveal>
-        <p class="timeline__meta">
-          <span class="timeline__month">Month ${i + 1}</span>
-          ${entry.date ? `<span class="timeline__date">${esc(entry.date)}</span>` : ""}
-        </p>
-        <h3 class="timeline__title">${esc(entry.title)}</h3>
-        <p class="timeline__text">${esc(entry.text)}</p>
-        <div class="timeline__photos" data-month="${i}">${entry.images.map(polaroid).join("")}</div>
-      </article>
-    </li>`).join("");
 
   // Moments: the photo booth prints the snapshots as two strips, like a real booth
   const half = Math.ceil(data.moments.length / 2);
@@ -254,8 +241,9 @@
     openDialog(lightbox);
   };
 
-  $("#timeline-list").addEventListener("click", (e) => {
-    const frame = e.target.closest(".polaroid");
+  // Our Year's pinned photos (journey.js): the month is on their list, so the lightbox steps through that month only
+  $("#journey-months").addEventListener("click", (e) => {
+    const frame = e.target.closest(".journey__card");
     if (!frame) return;
     const month = data.timeline[frame.closest("[data-month]").dataset.month];
     openAlbum(month.images, Number(frame.dataset.index), frame);
@@ -303,7 +291,6 @@
     item.style.setProperty("--distance", Math.abs(offset));
     item.inert = Math.abs(offset) > 3; // too far away to see, so not focusable either
     cover.setAttribute("aria-current", offset === 0);
-    if (offset) item.classList.remove("is-peeking"); // a tapped-open envelope tucks away when its cover moves aside
   });
 
   const loadSong = (i, autoplay) => {
@@ -334,7 +321,7 @@
   $("#player-next").addEventListener("click", () => loadSong(current + 1, true));
 
   // Click a side cover to play that song, the middle cover to play/pause. The one cover holding a hidden
-  // envelope (Chowder's) doesn't play/pause from the middle: tapping it reveals the envelope instead.
+  // envelope (Chowder's) doesn't play/pause from the middle: its envelope sits there instead.
   // A swipe that ends on a cover (or on the envelope) is followed by a click; ignore that click.
   // Keyboard clicks (Enter/Space) have detail 0 and always count.
   let lastSwipe = -Infinity;
@@ -343,10 +330,8 @@
     const cover = e.target.closest(".cover");
     if (!cover || isSwipeClick(e)) return;
     const i = Number(cover.dataset.index);
-    if (i !== current) {
-      loadSong(i, true);
-      e.stopPropagation(); // choosing Chowder's cover shouldn't also reveal its envelope; only a tap in the middle does
-    } else if (!cover.parentElement.classList.contains("has-stash")) togglePlay();
+    if (i !== current) loadSong(i, true);
+    else if (!cover.parentElement.classList.contains("has-stash")) togglePlay();
   });
   coverList.addEventListener("keydown", (e) => {
     const step = { ArrowLeft: -1, ArrowRight: 1 }[e.key];
@@ -679,10 +664,7 @@
       saveFound();
       renderLetters();
       openLetters(stash, i);
-      return;
     }
-    // Touch screens can't hover: tapping the words reveals their envelope instead
-    e.target.closest(".has-stash")?.classList.add("is-peeking");
   });
 
   fab.addEventListener("click", () => openLetters(fab));
@@ -707,7 +689,6 @@
     saveFound();
     celebrated = false; // a fresh hunt earns the confetti again
     storage.set(CELEBRATED_KEY, false);
-    $$(".has-stash.is-peeking").forEach((host) => host.classList.remove("is-peeking"));
     showList();
     lettersHint.textContent = "All the envelopes are hidden again. Happy hunting!";
     $("#letters-list-title").focus();
@@ -1036,8 +1017,9 @@
       smooth: 1.1,
       smoothTouch: 0.1,
       // ScrollSmoother jumps to any newly focused element. Sections are focused by our
-      // nav links while they're already smooth-scrolling there, so skip those.
-      onFocusIn: (self, e) => !e.target.matches("section"),
+      // nav links while they're already smooth-scrolling there, so skip those. Our Year's
+      // pinned stage scrolls to a focused photo or envelope itself (journey.js).
+      onFocusIn: (self, e) => !e.target.matches("section") && !e.target.closest(".journey__stage"),
     });
   }
 
@@ -1067,21 +1049,6 @@
     // Hero: gentle staggered fade-and-rise
     gsap.from(".hero__inner > *", { y: 30, opacity: 0, duration: 1.1, ease: "power3.out", stagger: 0.15, delay: 0.2 });
     gsap.from(".scroll-cue", { y: -10, opacity: 0, duration: 1, delay: 1.1 });
-
-    // Timeline line draws itself as you scroll
-    gsap.fromTo(".timeline__progress", { scaleY: 0 }, {
-      scaleY: 1,
-      ease: "none",
-      scrollTrigger: { trigger: ".timeline", start: "top 65%", end: "bottom 65%", scrub: true },
-    });
-
-    // Heart dots pop in as each month arrives
-    $$(".timeline__dot").forEach((dot) => gsap.from(dot, {
-      scale: 0,
-      duration: 0.6,
-      ease: "back.out(2)",
-      scrollTrigger: { trigger: dot, start: "top 80%" },
-    }));
 
     // Anything marked data-reveal fades up as it enters the viewport.
     // Opacity only (not visibility) so keyboard users can still tab to hidden content.

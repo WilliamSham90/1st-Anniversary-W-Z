@@ -24,6 +24,7 @@ const SITE_DATA = {
   heroLine: "Congratulations, you survived. 1 year down and only the rest of your life to go.",
 
   /* ---------- Our Year: one entry per month (Month 1 → Month 12), photos and videos in assets/images/month-01 … month-12 ---------- */
+  // Optional `teaser`: the short line on the month's card along the path (otherwise the first phrase of `text`).
   timeline: [
     {
       date: "November 2025",
@@ -335,16 +336,16 @@ const SITE_DATA = {
   },
 
   /* ---------- Hidden letters ---------- */
-  // Six envelopes hidden around the site. Hovering over (or tapping) the words in `spot`
-  // makes the envelope pop out at the end of that text. The envelope button at the
-  // bottom-right shows which ones have been found.
-  //   spot:  where it hides (a CSS selector for a paragraph on the page)
+  // Six envelopes tucked away around the site, each at the end of the text in `spot`.
+  // The envelope button at the bottom-right shows which ones have been found.
+  //   spot:  where it sits (a CSS selector for a paragraph on the page, or #journey-letter:
+  //          beside Our Year's line; which month it follows is envelopeAfter in js/journey.js)
   //   clue:  shown when you tap an envelope that hasn't been found yet
   //   text:  the letter itself; a blank line starts a new paragraph
   //   images: instead of `text`, a photo letter: just the title and these photos (they open in the viewer);
   //           an item with `video` (and its still image as `src`) is a video, like in the timeline
   letters: {
-    hint: "Six envelopes are hiding around the site. Hover over the words (or tap them on a phone) to find them. Stuck? Tap a grey envelope for a clue.",
+    hint: "Six envelopes are tucked away around the site. Spot them all and open them. Stuck? Tap a grey envelope for a clue.",
     complete: "You found every single letter, and every word is true. ♥",   // shown once all are found
     signoff: "— W",
     items: [
@@ -355,8 +356,8 @@ const SITE_DATA = {
         text: "Haha kan jy glo ons is nou al een jaar saam dis crazy bbg. Ek is super baie lief vir jou en dankie dat jy vir n volle jaar met my kak op sit.",
       },
       {
-        spot: ".timeline__item:nth-child(7) .timeline__text",
-        clue: "Month 7 has a picnic, a chess game and a parrot dance in it.",
+        spot: "#journey-letter",   // beside Our Year's line, between Month 7 and Month 8
+        clue: "Ride the line from Month 7 towards Month 8 and look beside it.",
         title: "Die is my gunsteling maande",
         text: "Ek bedoel, check die cool kk's en ek kon jou ry soos n paret haha.",
       },
@@ -379,7 +380,7 @@ const SITE_DATA = {
       },
       {
         spot: '#covers [data-song="Chowder Theme Song"]',   // on Chowder's album cover (by song title)
-        clue: "In Our Songs, bring Chowder's song to the middle and hover over its cover (or tap it on a phone).",
+        clue: "In Our Songs, bring Chowder's song to the middle.",
         title: "lieg jy vir my?",
         images: [
           { src: "assets/images/worsie-meme.png", alt: "A sausage with the words Sê Worsie !!!" },

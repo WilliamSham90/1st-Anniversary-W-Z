@@ -7,7 +7,7 @@
     3. Buttons               11. Back to top + mini player
     4. Navbar                12. Chowder & Panini peek + return button
     5. Hero + sections       13. Note card (dialog)
-    6. Timeline + polaroids  14. Hidden letters
+    6. Our Year + polaroids  14. Hidden letters
     7. Moments (photo booth) 15. Cursor trail
     8. Music player          16. Reduced motion
    ========================================================= */
@@ -459,124 +459,335 @@ svg { fill: currentColor; }
   font-size: 1.05rem;
 }
 
-/* ---------- 6. Timeline ---------- */
-.timeline {
-  --line-x: 1.1rem;           /* horizontal position of the line (mobile) */
+/* ---------- 6. Our Year (journey) ----------
+   js/journey.js pins the stage and moves the "world" (the line, its stations, the heart riding it) like a
+   camera; each month's pin board opens over it full-screen. Board colours, frame and dot pitch come from
+   JOURNEY_CONFIG as --board-1 … --board-12, --board-inset and --dot-pitch.
+   .journey--still (reduced motion): a flat map that scrolls sideways, then the boards stacked. */
+.journey { padding: 0; }
+.journey__stage {
   position: relative;
-  max-width: 70rem;
-  margin-inline: auto;
+  height: 100vh;
+  height: 100lvh;   /* the tallest the screen gets, so no strip shows below a board when a phone's toolbar hides */
+  overflow: clip;   /* clip, not hidden: focusing a photo mustn't scroll the stage */
+}
+.journey__header {
+  position: absolute;
+  inset: calc(var(--nav-h) + 3svh) 0 auto;
+  z-index: 1;
+  padding-inline: var(--gutter);
+  pointer-events: none;
 }
 
-.timeline__line {
+/* The world: line, stations, head */
+.journey__map { position: absolute; inset: 0; }
+.journey__world {
   position: absolute;
   top: 0;
-  bottom: 0;
-  left: var(--line-x);
-  width: 2px;
-  margin-left: -1px;
-  border-radius: 2px;
-  background: var(--color-accent);
+  left: 0;
+  transform-origin: 0 0;
+  will-change: transform;
 }
-.timeline__progress {
-  height: 100%;
-  border-radius: inherit;
-  background: linear-gradient(var(--color-primary), var(--color-primary-deep));
-  transform-origin: top;
+.journey__path { position: absolute; overflow: visible; }
+.journey__track,
+.journey__fill {
+  fill: none;
+  stroke-width: 5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
+.journey__track { stroke: var(--color-accent); }
+.journey__fill { stroke: var(--color-primary-deep); }
 
-.timeline__list { margin: 0; padding: 0; list-style: none; }
-
-.timeline__item {
-  position: relative;
-  padding: 0 0 var(--space-l) 3rem;
-}
-
-.timeline__dot {
+/* Dark tone of the month's colour, for small text on it */
+.journey__station,
+.journey__month { --ink: color-mix(in oklab, var(--board), #000 62%); }
+.journey__station { position: absolute; top: var(--y); left: var(--x); }
+.journey__dot {
   position: absolute;
-  top: 1.6rem;
-  left: var(--line-x);
-  z-index: 1;
-  display: grid;
-  place-items: center;
-  width: 2rem;
-  height: 2rem;
-  margin-left: -1rem;
-  border: 2px solid var(--color-primary);
+  top: -12px;
+  left: -12px;
+  width: 24px;
+  height: 24px;
+  border: 3px solid var(--color-primary-deep);
   border-radius: 50%;
   background: var(--color-surface);
-  box-shadow: 0 0 0 6px var(--color-bg);
-  color: var(--color-primary-deep);
-  font-size: 0.75rem;
+  box-shadow: 0 0 0 5px var(--color-bg);
 }
-
-.timeline__card {
-  padding: clamp(1.25rem, 3vw, 2rem);
-  border-radius: var(--radius-l);
-  background: var(--color-surface);
+.journey__dot-core {
+  position: absolute;
+  inset: 3px;
+  border-radius: 50%;
+  background: var(--color-primary-deep);
+  opacity: 0;
+}
+/* The month's card along the line, in its board colour */
+.journey__label {
+  position: absolute;
+  bottom: 1.9rem;
+  left: -1.75rem;
+  width: 17rem;
+  padding: 0.8rem 1.1rem 0.95rem;
+  border: 1.5px solid color-mix(in oklab, var(--board), #000 14%);
+  border-radius: var(--radius-s);
+  background: var(--board);
   box-shadow: var(--shadow-soft);
 }
-
-.timeline__meta {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.25rem 0.75rem;
-  margin-bottom: 0.5rem;
-  font-size: 0.75rem;
+.journey__meta {
+  margin: 0 0 0.35rem;
+  color: var(--ink);
+  font-size: 0.72rem;
   font-weight: 700;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.16em;
+  line-height: 1.4;
   text-transform: uppercase;
 }
-.timeline__month { color: var(--color-primary-deep); }
-.timeline__date { color: var(--color-muted); font-weight: 500; }
-.timeline__date::before { content: "·"; margin-right: 0.75rem; }
-
-.timeline__title {
-  margin-bottom: 0.5rem;
-  font-size: clamp(1.7rem, 3.2vw, 2.1rem);
+.journey__teaser {
+  margin: 0;
+  color: var(--color-text);
+  font-family: var(--font-heading);
+  font-size: 1.2rem;
+  font-style: italic;
+  line-height: 1.25;
 }
 
-/* Photos: a wrapping grid of polaroids, sized by the card (container query) rather than the
-   screen, because cards are full-width on phones but half-width on desktop. */
-.timeline__photos {
-  --gap: 0.9rem;
-  container-type: inline-size;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 1.4rem var(--gap);
-  margin-top: 1.75rem;
-  padding: 0.75rem 0.25rem 0.25rem;
+.journey__head {
+  position: absolute;
+  top: -14px;
+  left: -16px;
+  width: 32px;
+  color: var(--color-primary-deep);
+  filter: drop-shadow(0 3px 4px rgba(58, 46, 50, 0.3));
 }
-/* Narrow cards: 2 per row */
-.timeline__photos > .polaroid {
-  flex: 0 0 calc((100% - var(--gap)) / 2);
-  min-width: 0;
-  padding: 0.45rem 0.45rem 0;
+.journey__head svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+  stroke: #fff;
+  stroke-width: 10;
+  paint-order: stroke;
 }
-.timeline__photos > .polaroid:only-child { flex-basis: min(16rem, 100%); padding: 0.6rem 0.6rem 0; }
-/* Wider cards: 3 per row. Exactly 2 or 4 photos look tidier as a centred 2 × 2. */
-@container (min-width: 24rem) {
-  .timeline__photos > .polaroid { flex-basis: calc((100% - 2 * var(--gap)) / 3); }
-  .timeline__photos:has(> :nth-child(2):last-child) > .polaroid,
-  .timeline__photos:has(> :nth-child(4):last-child) > .polaroid { flex-basis: min(11rem, calc((100% - var(--gap)) / 2)); }
+/* A hidden letter's envelope beside the line (main.js puts it in this spot), bobbing gently */
+.journey__letter {
+  position: absolute;
+  top: var(--y);
+  left: var(--x);
+  visibility: visible;   /* stays reachable while an open board hides the rest of the map */
+  animation: bob 3s ease-in-out infinite;
 }
-/* Smaller tape and captions on the small frames; tape on some of them only, so it's not too busy */
-.timeline__photos > .polaroid:not(:only-child)::before { top: -0.55rem; width: 3.75rem; height: 1.1rem; margin-left: -1.875rem; }
-.timeline__photos > .polaroid:nth-child(3n + 2):not(:only-child)::before { display: none; }
-.timeline__photos > .polaroid:not(:only-child) .polaroid__caption { padding: 0.4rem 0.15rem 0.55rem; font-size: 0.95rem; }
-
-@media (min-width: 860px) {
-  .timeline { --line-x: 50%; }
-  .timeline__item { width: 50%; padding: 0 3.5rem var(--space-l) 0; }
-  .timeline__item:nth-child(even) { margin-left: 50%; padding: 0 0 var(--space-l) 3.5rem; }
-  /* Overlap alternating entries a little so the zig-zag reads as one path */
-  .timeline__item + .timeline__item { margin-top: -8rem; }
-  .timeline__item:nth-child(odd) .timeline__dot { left: 100%; }
-  .timeline__item:nth-child(even) .timeline__dot { left: 0; }
+.journey__letter .stash {
+  width: 3.2rem;
+  height: 2.95rem;
+  margin: -1.475rem 0 0 -1.6rem;
+  filter: drop-shadow(0 6px 10px rgba(58, 46, 50, 0.25));
 }
 
-/* Polaroid frame (used in the timeline and the closing section) */
+.journey__spark {
+  position: absolute;
+  top: -0.5em;
+  left: -0.4em;
+  color: var(--color-primary);
+  font-size: 0.8rem;
+  line-height: 1;
+  opacity: 0;
+}
+.journey__spark--dot {
+  top: -3px;
+  left: -3px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-primary);
+}
+
+/* The boards: one per month, stacked in the stage, opened by journey.js like an iris (clip-path) */
+.journey__months {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  pointer-events: none;   /* the envelope on the line stays clickable; a board's iris (clip-path) sets its own hit area */
+}
+.journey__month {
+  position: absolute;
+  inset: 0;
+  overflow: clip;
+  clip-path: circle(0);
+  pointer-events: auto;
+}
+.journey__board {
+  position: relative;
+  height: var(--board-h, 100%);
+  background: color-mix(in oklab, var(--board), #000 20%);   /* the frame */
+}
+.journey__month.is-open .journey__board { will-change: transform; }
+/* Soft colour with a fine, perforated dot grid, inset from the frame */
+.journey__face {
+  position: absolute;
+  inset: var(--board-inset, 12px);
+  border-radius: 6px;
+  background:
+    radial-gradient(circle, color-mix(in oklab, var(--board), #000 14%) 1.2px, transparent 1.7px) 0 0 / var(--dot-pitch, 11px) var(--dot-pitch, 11px),
+    var(--board);
+  box-shadow: inset 0 2px 12px rgba(58, 46, 50, 0.18);
+}
+.journey__strings {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.journey__string {
+  fill: none;
+  stroke: color-mix(in oklab, var(--board), #000 40%);
+  stroke-width: 1.2;
+  stroke-dasharray: 1;   /* with pathLength="1": journey.js draws it by moving the offset from 1 to 0 */
+  opacity: 0.6;
+}
+
+/* The note card: paper taped at both top corners, with the month's pin at the bottom left
+   (the strings start there, and the card tilts around it) */
+.journey__note {
+  position: absolute;
+  top: var(--y);
+  left: var(--x);
+  z-index: 1;
+  width: var(--w);
+  padding: 1.75rem 1.75rem 3rem;
+  border-radius: 3px;
+  background: #FFFDF9;
+  box-shadow: 0 16px 30px -14px rgba(58, 46, 50, 0.45), 0 1px 2px rgba(58, 46, 50, 0.08);
+  color: var(--color-text);
+  transform-origin: 1.925rem calc(100% - 1.925rem);
+}
+.journey__note::before,
+.journey__note::after {
+  content: "";
+  position: absolute;
+  top: -0.45rem;
+  width: 6rem;
+  height: 1.55rem;
+  background: repeating-linear-gradient(45deg, color-mix(in oklab, var(--board), #000 10%) 0 6px, rgba(255, 255, 255, 0.6) 6px 12px);
+  box-shadow: 0 1px 2px rgba(58, 46, 50, 0.12);
+  opacity: 0.92;
+}
+.journey__note::before { left: -1.7rem; rotate: -36deg; }
+.journey__note::after { right: -1.7rem; rotate: 36deg; }
+.journey__title {
+  margin-bottom: 0.6rem;
+  font-size: clamp(1.6rem, 2.3vw, 2.2rem);
+}
+.journey__text { margin: 0; font-size: 0.98rem; line-height: 1.6; }
+.journey__pin {
+  position: absolute;
+  bottom: 1.35rem;
+  left: 1.35rem;
+  width: 1.15rem;
+  height: 1.15rem;
+  border-radius: 50%;
+  background: var(--color-primary-deep);
+  box-shadow: inset -0.12rem -0.12rem 0.3rem 0.02rem rgba(0, 0, 0, 0.45);
+  filter: drop-shadow(0.25rem 0.15rem 0.2rem rgba(0, 0, 0, 0.4));
+}
+
+/* Pinned photos, after the swaying gallery: ghost-white card, coloured pin, caption underneath.
+   A card hangs from its pin (--x, --y) and fits its photo, at the photo's own shape (--ratio, set
+   as it loads), into the slot journey.js gave it (--bw × --bh). */
+.journey__photos { margin: 0; padding: 0; list-style: none; }
+.journey__photo {
+  --fw: min(var(--bw), var(--bh) * var(--ratio, 1));
+  --pin: crimson;
+  position: absolute;
+  top: var(--y);
+  left: var(--x);
+  z-index: 2;
+  width: calc(var(--fw) + 1rem);
+  margin-left: calc(var(--fw) / -2 - 0.5rem);
+  transform-origin: 50% 0.57rem;
+}
+.journey__photo:nth-child(7n + 1) { --pin: hotpink; }
+.journey__photo:nth-child(7n + 2) { --pin: magenta; }
+.journey__photo:nth-child(7n + 3) { --pin: orangered; }
+.journey__photo:nth-child(7n + 4) { --pin: darkorchid; }
+.journey__photo:nth-child(7n + 5) { --pin: deeppink; }
+.journey__photo:nth-child(7n + 6) { --pin: mediumvioletred; }
+
+.journey__card {
+  position: relative;
+  display: block;
+  width: 100%;
+  padding: 0.5rem 0.5rem 0;
+  border: 0;
+  border-radius: 5px;
+  background: ghostwhite;
+  box-shadow: 0 7px 8px rgba(0, 0, 0, 0.4);
+  color: var(--color-text);
+  text-align: center;
+  cursor: zoom-in;
+  transform-origin: 50% 0.57rem;   /* swings from its pin */
+}
+.journey__month.is-open .journey__card { will-change: transform; }   /* only the open month sways */
+.journey__card:focus-visible { outline-offset: 5px; }
+/* The pin: a domed head with a soft shadow */
+.journey__card::after {
+  content: "";
+  position: absolute;
+  top: 0.22rem;
+  left: 50%;
+  z-index: 1;
+  width: 0.7rem;
+  height: 0.7rem;
+  margin-left: -0.35rem;
+  border-radius: 50%;
+  background: var(--pin);
+  box-shadow: inset -0.1rem -0.1rem 0.3rem 0.02rem rgba(0, 0, 0, 0.5);
+  filter: drop-shadow(0.3rem 0.15rem 0.2rem rgba(0, 0, 0, 0.5));
+}
+.journey__frame { position: relative; display: block; }
+.journey__frame img {
+  width: 100%;
+  aspect-ratio: var(--ratio, 1);
+  object-fit: cover;
+  border-radius: 5px;
+  background: color-mix(in oklab, var(--board), #fff 35%);   /* shows while the photo loads */
+}
+.journey__caption {
+  display: block;
+  padding: 0.4rem 0.2rem 0.5rem;
+  color: #4A3B40;
+  font-family: var(--font-heading);
+  font-size: 1.05rem;
+  font-style: italic;
+  line-height: 1.2;
+}
+
+@media (max-width: 767.98px) {
+  .journey__label { width: 13rem; }
+  .journey__teaser { font-size: 1.05rem; }
+  .journey__note { padding: 1.4rem 1.3rem 2.8rem; }
+  .journey__text { font-size: 0.92rem; line-height: 1.55; }
+  .journey__caption { font-size: 0.95rem; }
+}
+
+/* Reduced motion: no pin. The whole line on a map that scrolls sideways, then the boards stacked */
+.journey--still .journey__stage { height: auto; overflow: visible; }
+.journey--still .journey__header { position: static; padding: var(--section-pad) var(--gutter) 0; }
+.journey--still .journey__map {
+  position: relative;
+  height: var(--map-h, 16rem);
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+}
+.journey--still .journey__world { will-change: auto; }
+.journey--still .journey__label { top: 1.9rem; bottom: auto; }   /* below the line, clear of the hearts above it */
+.journey--still .journey__head { display: none; }
+.journey--still .journey__months,
+.journey--still .journey__month { position: relative; inset: auto; clip-path: none; }
+
+/* Polaroid frame (used in the photo letters and the closing section) */
 .polaroid {
   --tilt: -2.5deg;
   position: relative;
@@ -593,8 +804,6 @@ svg { fill: currentColor; }
   transition: rotate 0.5s var(--ease-out), scale 0.5s var(--ease-out);
 }
 .polaroid:nth-child(2n) { --tilt: 2deg; }
-.timeline__item:nth-child(even) .polaroid:nth-child(odd) { --tilt: 1.75deg; }
-.timeline__item:nth-child(even) .polaroid:nth-child(even) { --tilt: -2deg; }
 .polaroid:hover,
 .polaroid:focus-visible { z-index: 2; rotate: 0deg; scale: 1.05; } /* z-index: lift above neighbours */
 
@@ -915,9 +1124,8 @@ svg { fill: currentColor; }
 }
 @media (min-width: 700px) { .covers { --step: 105%; } }
 
-/* One cover (Chowder's) holds a hidden envelope instead of the play/pause button. While that cover is
-   in the middle, the envelope pops up when you hover or tap it (or tab to it); once found it tucks away
-   again so the art shows. As a side cover it's hidden and can't be clicked, so a click there plays the song. */
+/* One cover (Chowder's) holds a hidden-letter envelope instead of the play/pause button, shown while that
+   cover is in the middle. As a side cover it's hidden and can't be clicked, so a click there plays the song. */
 .covers__item > .stash {
   position: absolute;
   top: calc(var(--cover) / 2);
@@ -928,8 +1136,6 @@ svg { fill: currentColor; }
   margin: -1.625rem 0 0 -1.75rem;
   filter: drop-shadow(0 4px 10px rgba(58, 46, 50, 0.35));
 }
-.covers__item > .stash.is-found:not(:focus-visible) { opacity: 0; transform: translateY(4px) scale(0.5); }
-.covers__item.has-stash:is(:hover, .is-peeking) > .stash { opacity: 1; transform: none; }
 .covers__item.has-stash > .stash:hover { transform: scale(1.15) rotate(-6deg); }
 .covers__item:not(:has(> .cover[aria-current="true"])) > .stash { visibility: hidden; }
 
@@ -1628,8 +1834,7 @@ svg { fill: currentColor; }
 
 /* ---------- 14. Hidden letters ---------- */
 
-/* Envelope hidden at the end of a line of text. Invisible until you hover the text,
-   tap it (.is-peeking, set in JS) or tab to it. Once found it stays, drawn open. */
+/* Envelope at the end of a line of text (or beside Our Year's line). Drawn open once found. */
 .stash {
   display: inline-grid;
   place-items: center;
@@ -1641,18 +1846,9 @@ svg { fill: currentColor; }
   border: 0;
   background: none;
   cursor: pointer;
-  opacity: 0;
-  transform: translateY(4px) scale(0.5);
-  transition: opacity 0.3s, transform 0.45s var(--ease-spring);
+  transition: transform 0.45s var(--ease-spring);
 }
 .stash svg { width: 100%; height: 100%; overflow: visible; }
-.has-stash:hover .stash,
-.has-stash.is-peeking .stash,
-.stash:focus-visible,
-.stash.is-found {
-  opacity: 1;
-  transform: none;
-}
 .has-stash:hover .stash:not(.is-found) svg { animation: wiggle 0.9s ease-in-out infinite; }
 .has-stash .stash:hover { transform: scale(1.2) rotate(-6deg); }
 

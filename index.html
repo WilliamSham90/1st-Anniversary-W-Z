@@ -20,6 +20,7 @@
   <script defer src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/ScrollTrigger.min.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/ScrollSmoother.min.js"></script>
   <script defer src="js/data.js"></script>
+  <script defer src="js/journey.js"></script>
   <script defer src="js/main.js"></script>
 </head>
 <body>
@@ -279,16 +280,31 @@
           </div>
         </section>
 
-        <!-- ===== Timeline ===== -->
-        <section class="section" id="our-year" tabindex="-1" aria-labelledby="our-year-title">
-          <header class="section__header" data-reveal>
-            <p class="section__eyebrow">Month by month</p>
-            <h2 class="section__title" id="our-year-title">Our Year</h2>
-            <p class="section__intro">Twelve little chapters of us.</p>
-          </header>
-          <div class="timeline">
-            <div class="timeline__line" aria-hidden="true"><div class="timeline__progress"></div></div>
-            <ol class="timeline__list" id="timeline-list"></ol>
+        <!-- ===== Our Year: a pinned journey along one line, each month opening into a pin board (js/journey.js) ===== -->
+        <section class="section journey" id="our-year" tabindex="-1" aria-labelledby="our-year-title">
+          <div class="journey__stage">
+            <header class="section__header journey__header">
+              <p class="section__eyebrow">Month by month</p>
+              <h2 class="section__title" id="our-year-title">Our Year</h2>
+              <p class="section__intro">Twelve little chapters of us.</p>
+            </header>
+            <!-- The line, its stations and the heart riding it: the "world" the camera moves across.
+                 A hidden-letter envelope sits beside the line in #journey-letter (data.js → letters). -->
+            <div class="journey__map">
+              <div class="journey__world">
+                <svg class="journey__path" width="1" height="1" aria-hidden="true" focusable="false">
+                  <path class="journey__track"/>
+                  <path class="journey__fill"/>
+                </svg>
+                <div id="journey-stations" aria-hidden="true"></div>
+                <span class="journey__letter" id="journey-letter"></span>
+                <span class="journey__head" aria-hidden="true">
+                  <svg viewBox="20 25 110 95"><path d="M75 40C75 37 70 25 50 25C20 25 20 62.5 20 62.5C20 80 40 102 75 120C110 102 130 80 130 62.5C130 62.5 130 25 100 25C85 25 75 37 75 40Z"/></svg>
+                </span>
+                <div class="journey__sparks" aria-hidden="true"></div>
+              </div>
+            </div>
+            <ol class="journey__months" id="journey-months"></ol>
           </div>
         </section>
 
