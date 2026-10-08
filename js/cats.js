@@ -22,26 +22,31 @@
     keepLeft: 58,                       // px the bowl and the cats' spots keep clear of Chowder & Panini's button (bottom left)
     keepRight: 72,                      // px at the right end the floor stops short of, under the envelope button
     hop: { length: 20, height: 8, perSecond: 3.2 },   // sprite px per hop, sprite px high, hops a second
+    runStride: 42,                      // a cat with a run animation: sprite px covered per run cycle (legs keep pace)
     needRate: { hunger: 1 / 90, tired: 1 / 130, bored: 1 / 35, lonely: 1 / 60 },   // per second, 0 → 1
     servings: 3,                        // a full bowl
     chatter: [7, 16],                   // seconds between a cat's remarks
+    noStealing: "You can't steal my cat.",   // shown when a cat is dragged to the edge of its play area
   };
   const ART = "assets/images/Cats/";
+  // `run`: an optional strip of running frames (any widths, side by side, facing right, feet on one line);
+  // a cat without one hops about instead
   const LOOKS = {
-    grey: { sheet: `${ART}cats/Grey.png`, colour: "grey" },
+    grey: { sheet: `${ART}cats/Grey.png`, colour: "grey", run: `${ART}cats/grey-cat-run.png` },
     orange: { sheet: `${ART}cats/OrangeCat.png`, colour: "orange" },
   };
   const CATS = SITE_DATA.cats?.length ? SITE_DATA.cats.slice(0, 2) : [{ name: "Coco", look: "grey" }, { name: "Moose", look: "orange" }];
 
-  // The cat sheets: 32px frames, one animation per row. [row, frames, frames per second]
+  // The cat sheets: 32px frames, one animation per row, the cat facing left. [row, frames, frames per second]
   const CELL = 32;
+  const NOSE = 12;   // run frames are lined up by the nose, this many sheet px ahead of the cat's middle
   const ANIMS = {
     idle: [0, 10, 6], idle2: [1, 10, 6], sleep: [2, 4, 2.5], dance: [3, 4, 6], yawn: [4, 8, 7], shy: [5, 12, 8],
     loaf: [6, 12, 5], sniff: [7, 9, 6], cry: [8, 4, 6], box1: [9, 12, 7], box2: [10, 4, 6], box3: [11, 4, 7],
     gasp: [12, 12, 12], eat: [13, 15, 5], sit: [14, 6, 3], blink: [15, 13, 7], hiss: [16, 9, 9], blush: [17, 12, 7],
   };
   const HOP_POSE = { ground: ["idle", 0], air: ["dance", 0], held: ["gasp", 2] };
-  const EAT_BOWL_X = 8;   // where the bowl in the "eat" frames sits, in sheet px from the frame's left
+  const EAT_BOWL_X = 8;   // where the bowl in the "eat" frames sits, in sheet px from the frame's left (in front of the cat)
 
   const ITEMS = {
     bowl: { src: `${ART}food/bowls.png`, frame: [16, 0, 16, 16] },   // the blue one: like the bowl in the eat frames
@@ -96,6 +101,28 @@
     return { foot: { x: (left + right + 1) / 2, y: bottom + 1 }, w: right - left + 1, h: bottom - top + 1 };
   }
 
+  // A strip of frames packed side by side: each frame is a run of columns with something in them
+  // (a sliver under 6px, like a stray tail tip, joins the frame next to it)
+  async function loadRun(src) {
+    const img = await load(src);
+    const px = pixelsOf(img);
+    const filled = (x) => { for (let y = 0; y < img.height; y++) if (px.data[(y * img.width + x) * 4 + 3]) return true; return false; };
+    const frames = [];
+    let bottom = 0;
+    for (let x = 0, start = -1; x <= img.width; x++) {
+      const on = x < img.width && filled(x);
+      if (on && start < 0) start = x;
+      if (!on && start >= 0) {
+        const last = frames[frames.length - 1];
+        if (last && (x - start < 6 || start - (last.x + last.w) < 2)) last.w = x - last.x;
+        else frames.push({ x: start, w: x - start });
+        start = -1;
+      }
+    }
+    for (let y = 0; y < img.height; y++) for (let x = 0; x < img.width; x++) if (px.data[(y * img.width + x) * 4 + 3]) bottom = y + 1;
+    return { src, width: img.width, height: img.height, frames, footY: bottom };
+  }
+
   async function loadArt() {
     const sheets = {};
     for (const look of new Set(CATS.map((c) => c.look))) {
@@ -111,7 +138,8 @@
           h = Math.max(h, anims[name].h);
         }
       }
-      sheets[look] = { src, colour: (LOOKS[look] ?? LOOKS.grey).colour, width: img.width, height: img.height, anims, box: { w, h } };
+      const def = LOOKS[look] ?? LOOKS.grey;
+      sheets[look] = { src, colour: def.colour, width: img.width, height: img.height, anims, box: { w, h }, run: def.run && (await loadRun(def.run)) };
     }
     const items = {};
     for (const [name, def] of Object.entries(ITEMS)) {
@@ -143,15 +171,17 @@
     body.type = "button";
     body.className = "cats__body";
     body.setAttribute("aria-label", label);
+    const pose = Object.assign(document.createElement("span"), { className: "cats__pose" });   // at the feet: turns and squashes
     const sprite = Object.assign(document.createElement("span"), { className: "cats__sprite" });
     sprite.style.backgroundImage = `url("${def.src}")`;
-    body.append(sprite);
+    pose.append(sprite);
+    body.append(pose);
     el.append(shadow, body);
     room.append(el);
-    const e = { kind, def, el, body, sprite, shadow, x: 0, y: 0, lift: 0, vx: 0, vy: 0, dir: 1, squash: 0, frame: 0, drawn: {} };
+    const e = { kind, def, el, body, pose, sprite, shadow, x: 0, y: 0, lift: 0, vx: 0, vy: 0, dir: 1, squash: 0, frame: 0, drawn: {} };
     body.addEventListener("pointerdown", (ev) => startDrag(e, ev));
-    body.addEventListener("click", () => {
-      if (e.dragged) { e.dragged = false; return; }   // the click that ends a drag
+    body.addEventListener("click", (ev) => {
+      if (ev.detail && performance.now() - (e.dragEnd ?? -1e9) < 400) return;   // the click that ends a drag (keyboard clicks always count)
       activate(e);
     });
     things.push(e);
@@ -170,30 +200,35 @@
     e.bh = bh;
     const sheetW = e.look ? e.look.width : e.def.width, sheetH = e.look ? e.look.height : e.def.height;
     e.sprite.style.backgroundSize = `${sheetW * s}px ${sheetH * s}px`;
+    e.pose.style.left = `${bw / 2}px`;
+    e.pose.style.top = `${bh}px`;
+    if (e.look?.run) {
+      const run = e.look.run;
+      if (!e.runSprite) {
+        e.runSprite = Object.assign(document.createElement("span"), { className: "cats__sprite cats__sprite--run" });
+        e.runSprite.style.backgroundImage = `url("${run.src}")`;
+        e.pose.append(e.runSprite);
+      }
+      Object.assign(e.runSprite.style, { backgroundSize: `${run.width * s}px ${run.height * s}px`, height: `${run.height * s}px`, top: `${-run.footY * s}px` });
+    }
     const sw = Math.max(18, box.w * s * 0.75);
     Object.assign(e.shadow.style, { width: `${sw}px`, height: `${sw * 0.28}px`, left: `${-sw / 2}px`, top: `${-sw * 0.14}px` });
     e.drawn = {};
     place(e);
   }
 
-  // Puts the sprite so its feet sit on the body's bottom middle (feet differ from one animation to the next)
+  // Puts the sprite so its feet sit on the pose's point, the body's bottom middle (feet differ between animations)
   function place(e) {
     const s = e.s;
     const [fw, fh] = e.look ? [CELL, CELL] : [e.def.frame[2], e.def.frame[3]];
     const foot = e.look ? e.look.anims[e.anim ?? "idle"].foot : e.def.foot;
-    Object.assign(e.sprite.style, {
-      width: `${fw * s}px`,
-      height: `${fh * s}px`,
-      left: `${e.bw / 2 - foot.x * s}px`,
-      top: `${e.bh - foot.y * s}px`,
-      transformOrigin: `${foot.x * s}px ${foot.y * s}px`,
-    });
+    Object.assign(e.sprite.style, { width: `${fw * s}px`, height: `${fh * s}px`, left: `${-foot.x * s}px`, top: `${-foot.y * s}px` });
   }
 
   // The frame to show: [sheet x, sheet y] of its top-left corner
   function frameAt(e) {
     if (e.look) {
-      const pose = e.held ? HOP_POSE.held : e.mode === "move" && !REDUCED ? (e.lift > 2 * unit() ? HOP_POSE.air : HOP_POSE.ground) : null;
+      const pose = e.held ? HOP_POSE.held : e.mode === "move" && !REDUCED && !e.look.run ? (e.lift > 2 * unit() ? HOP_POSE.air : HOP_POSE.ground) : null;
       const [name, f] = pose ?? [e.anim, Math.floor(e.frame)];
       if (pose && name !== e.anim) { e.anim = name; place(e); }
       return [f * CELL, ANIMS[name][0] * CELL];
@@ -201,6 +236,8 @@
     const [x, y, , , stride = e.def.frame[2]] = [...e.def.frame, e.def.stride];
     return [x + Math.floor(e.frame) * stride, y];
   }
+
+  const isRunning = (e) => !!e.look?.run && e.mode === "move" && !e.held && !REDUCED;
 
   // Writes only what changed since the last frame
   function draw(e) {
@@ -217,8 +254,13 @@
       e.shadow.style.opacity = (0.35 + k * 0.65).toFixed(2);
       d.lift = lift;
     }
+    const running = isRunning(e);
+    if (running !== d.running) {
+      e.el.classList.toggle("is-running", running);
+      d.running = running;
+    }
     let sx = 1, sy = 1;
-    if (e.mode === "move" && e.look && !REDUCED) {   // hopping: squashed on the ground, stretched in the air
+    if (e.mode === "move" && e.look && !REDUCED && !running) {   // hopping: squashed on the ground, stretched in the air
       const c = Math.cos(e.hop * Math.PI * 2);
       sx = 1 + 0.08 * c;
       sy = 1 - 0.08 * c;
@@ -226,8 +268,18 @@
       sx = 1 + 0.14 * e.squash;
       sy = 1 - 0.14 * e.squash;
     }
-    const look = `scale(${(e.dir * sx).toFixed(3)}, ${sy.toFixed(3)})`;
-    if (look !== d.look) e.sprite.style.transform = d.look = look;
+    // The cat sheets face left, the run strips and toys right: `dir` is the way it should face
+    const facing = e.look && !running ? -1 : 1;
+    const look = `scale(${(e.dir * facing * sx).toFixed(3)}, ${sy.toFixed(3)})`;
+    if (look !== d.look) e.pose.style.transform = d.look = look;
+    if (running) {
+      const run = e.look.run, f = run.frames[Math.floor(e.runFrame) % run.frames.length];
+      if (f !== d.runFrame) {
+        Object.assign(e.runSprite.style, { width: `${f.w * e.s}px`, left: `${(NOSE - f.w) * e.s}px`, backgroundPosition: `${-f.x * e.s}px 0` });
+        d.runFrame = f;
+      }
+      return;
+    }
     const [fx, fy] = frameAt(e);
     const bg = `${-fx * e.s}px ${-fy * e.s}px`;
     if (bg !== d.bg) e.sprite.style.backgroundPosition = d.bg = bg;
@@ -446,7 +498,7 @@
 
   function eat(cat) {
     if (bowl.food <= 0) { settle(cat); say(cat, "Empty…"); return act(cat, "cry", 2); }
-    cat.dir = 1;
+    cat.dir = -1;   // facing left, as drawn: the bowl in its frames lines up with the real one
     cat.x = bowl.x + (cat.look.anims.eat.foot.x - EAT_BOWL_X) * cat.s;
     cat.y = bowl.y;
     bowl.el.style.visibility = "hidden";   // the cat's frames have the bowl in them
@@ -600,6 +652,12 @@
     cat.x += (dx / dist) * step;
     cat.y += (dy / dist) * step;
     if (Math.abs(dx) > 1) cat.dir = Math.sign(dx);
+    if (cat.look.run) {
+      cat.runFrame = ((cat.runFrame ?? 0) + (step / (CATS_CONFIG.runStride * view.s)) * cat.look.run.frames.length) % cat.look.run.frames.length;
+      cat.lift = cat.leaping ? Math.sin(Math.min(1, cat.hop * 3) * Math.PI) * height * view.s : 0;   // only a pounce leaves the ground
+      cat.hop = (cat.hop + step / len) % 1;
+      return true;
+    }
     cat.hop = (cat.hop + step / len) % 1;
     cat.lift = Math.sin(cat.hop * Math.PI) * height * view.s * (cat.leaping ? 1.8 : 1);
     return true;
@@ -730,9 +788,12 @@
       drag.ox = e.x - (drag.sx - drag.box.left);
       drag.oy = e.y - e.lift - (drag.sy - drag.box.top);
     }
+    if (drag.caught) return;
     const px = ev.clientX - drag.box.left, py = ev.clientY - drag.box.top;
-    e.x = px + drag.ox;
-    const want = py + drag.oy;   // where its feet would be, if it could float
+    const wantX = px + drag.ox, want = py + drag.oy;   // where its feet would be, if it could float
+    // A cat carried to the edge of the play area (any side) is put down right there, inside it
+    if (e.look && (wantX - e.half < 0 || wantX + e.half > view.w || want - e.tall < 0 || want > view.h)) return caught(e);
+    e.x = wantX;
     e.y = want;
     keepIn(e);
     e.lift = clamp(e.y - want, 0, Math.max(0, e.y - e.tall));   // held up above the floor
@@ -754,14 +815,30 @@
   }
   function endDrag(ev) {
     if (!drag || ev.pointerId !== drag.id) return;
-    const { e, moved, trail } = drag;
+    const { e, moved, caught: wasCaught, trail } = drag;
     drag = null;
     e.body.removeEventListener("pointermove", onDragMove);
     e.body.removeEventListener("pointerup", endDrag);
     e.body.removeEventListener("pointercancel", endDrag);
     room.classList.remove("is-dragging");
-    if (!moved) return;
-    e.dragged = true;   // so the click that follows is ignored
+    if (!moved) return;   // a plain click
+    e.dragEnd = performance.now();   // so the click that follows the drag is ignored
+    if (!wasCaught) letGo(e, trail);
+  }
+  // Carried to the edge: alert, put down on the spot, and a word from the owner
+  function caught(e) {
+    drag.caught = true;
+    room.classList.remove("is-dragging");
+    e.caught = true;
+    e.bubble?.el.remove();   // the popup does the talking
+    e.bubble = null;
+    letGo(e, []);
+    effect("alert", e);
+    warn(e, CATS_CONFIG.noStealing);
+  }
+  // Let go of a carried thing: it drops from where it is, and a toy flies on the way it was moving
+  function letGo(e, trail) {
+    e.dragEnd = performance.now();
     e.held = false;
     e.lift += 10 * unit();
     e.falling = !REDUCED;
@@ -779,6 +856,7 @@
   function landed(e) {
     e.squash = 1;
     if (!e.look) return;
+    if (e.caught) { e.caught = false; return act(e, "gasp", 1.2, () => act(e, "sit", 1)); }   // the warning does the talking
     say(e, pick(["Mrrp!", "Again!", "Hmph."]), 1.6);
     act(e, "sit", 1);
   }
@@ -942,6 +1020,20 @@
   // The little sign in the corner, until the cats have been played with
   const hint = room.querySelector(".cats__hint");
   function hideHint() { hint?.classList.add("is-hidden"); }
+
+  // A name-plate popup over a cat (like the hint); role="status", so screen readers say it too
+  const warning = room.querySelector(".cats__warning");
+  let warningTimer;
+  function warn(e, text) {
+    warning.textContent = text;
+    warning.classList.add("is-shown");
+    const w = warning.offsetWidth, h = warning.offsetHeight;
+    const x = clamp(e.x - w / 2, 4, view.w - w - 4), y = clamp(e.y - e.lift - e.tall - h - 14, -h - 8, view.h - h);
+    warning.style.left = `${Math.round(x)}px`;
+    warning.style.top = `${Math.round(y)}px`;
+    clearTimeout(warningTimer);
+    warningTimer = setTimeout(() => warning.classList.remove("is-shown"), 2800);
+  }
 
   /* ---------- 9. Start, and the loop (only while the play area is on screen) ---------- */
   let bowl, bed, last = 0, running = false, raf = 0;

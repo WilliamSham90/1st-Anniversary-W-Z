@@ -2075,15 +2075,7 @@ svg { fill: currentColor; }
   right: max(0.75rem, env(safe-area-inset-right));
   bottom: 0.75rem;
   height: var(--play-h);
-  /* The cat playground's play area: a soft lilac floor with a pale back wall of checks above it */
-  border: 2px solid #A9A4CC;
-  border-radius: 14px;
-  background:
-    linear-gradient(transparent calc(var(--wall) - 2px), #E4E1F2 calc(var(--wall) - 2px) var(--wall), transparent var(--wall)),
-    linear-gradient(#D9D5EE, #CAC6E3) 0 100% / 100% calc(100% - var(--wall)) no-repeat,
-    repeating-conic-gradient(#D7E3F6 0 25%, #E6EEFA 0 50%) 0 0 / 24px 24px;
-  box-shadow: 0 10px 26px -18px rgba(58, 46, 50, 0.5), inset 0 2px 0 rgba(255, 255, 255, 0.55);
-  --wall: 32%;   /* the floor starts here (cats.js: back = 0.4, so their feet stay on it) */
+  /* No floor drawn: they play right on the page, and only their shadows show where the ground is */
   text-align: left;
   font-family: "Pixelify Sans", var(--font-body);
   -webkit-tap-highlight-color: transparent;
@@ -2117,12 +2109,18 @@ svg { fill: currentColor; }
 .cats__thing--bowl .cats__body,
 .cats__thing--bed .cats__body { cursor: pointer; touch-action: manipulation; }
 .cats__body:focus-visible { outline: 3px solid var(--color-primary-deep); outline-offset: 2px; }
+/* At the feet: the sprites hang off this point, and it turns (flips) and squashes them */
+.cats__pose { position: absolute; width: 0; height: 0; pointer-events: none; }
 .cats__sprite {
   position: absolute;
   background-repeat: no-repeat;
   image-rendering: pixelated;
   pointer-events: none;
 }
+/* A cat with a run strip shows it while it runs, instead of its sheet */
+.cats__sprite--run,
+.cats__thing.is-running .cats__sprite { display: none; }
+.cats__thing.is-running .cats__sprite--run { display: block; }
 .cats__thing--bowl.is-empty .cats__sprite { filter: grayscale(0.7) brightness(0.8); }   /* empty: click to refill */
 .cats__tag {
   position: absolute;
@@ -2191,6 +2189,11 @@ svg { fill: currentColor; }
   transition: opacity 0.6s, transform 0.6s var(--ease-out);
 }
 .cats__hint.is-hidden { opacity: 0; transform: translateY(-6px); }
+/* "You can't steal my cat.": the same name plate, popping up over a cat carried to the edge */
+.cats__warning { opacity: 0; transition: opacity 0.3s; }
+.cats__warning:empty { display: none; }
+.cats__warning.is-shown { opacity: 1; animation: cats-pop 0.35s var(--ease-spring); }
+@keyframes cats-pop { from { transform: scale(0.6); } }
 
 /* The cat menu: the cream panel with cat ears, beside the cat */
 .cat-menu {
