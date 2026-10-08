@@ -25,7 +25,7 @@
     boardInset: 12,       // px: the frame around each board
     dotPitch: 11,         // px between the dots on a board
     strings: false,       // true: strings from the note's pin out to every photo's pin, like a tree
-    swayStrength: 1,      // photos swing gently on their pins while their board is open (0 = still)
+    swayStrength: 1,      // photos swing gently on their pins while their board is open (0 = still). CSS, off the main thread.
     sparkles: 24,         // tiny hearts and dots thrown by the head of the line (pooled, 30 at most)
     envelopeAfter: 7,     // a hidden letter's envelope (#journey-letter) sits on the line after this month
     boardColors: ["#F6D6DC", "#F9DFCB", "#F6EBC4", "#D5E6CF", "#CBEADF", "#CFE5EE",
@@ -61,6 +61,7 @@
       camera: [0.28, 0.52],
       heart: 96, curl: 34, loveYou: 20,
       loveYouStep: 1.5,               // the gap between stations is this much wider where "love you" is written
+      sparkles: 12,                   // fewer on phones
       envelopeAt: (stepX, stepY) => [stepX * 0.65, stepY * 0.15],
       scrub: 0.4,                     // follows the finger more closely than the wheel's 0.8
       flourishes: ["heart", "none", "curl", "none", "love-you", "none", "curl-down", "none", "heart", "love-you", "curl"],
@@ -95,13 +96,17 @@
   const meta = (entry, i) => `Month ${i + 1}${entry.date ? ` <span aria-hidden="true">·</span> ${esc(entry.date)}` : ""}`;
   const colour = (i) => `--board: var(--board-${(i % 12) + 1})`;
 
+  // The board shows a small copy of each photo from the `thumbs` folder beside it (720px on the long side,
+  // about a fifth of the memory once decoded); the lightbox opens the full photo. No copy there → the full one.
+  const thumbOf = (src) => (/^(https?:|data:|\/)/.test(src) ? src : src.replace(/[^/]+$/, "thumbs/$&"));
+
   // A pinned photo. Its place in the month (data-index) and the month on the list (data-month) are what
   // main.js hands the lightbox. The image gets its src when the journey comes near (loadMonth).
   const photo = (item, i) => `
     <li class="journey__photo">
       <button class="journey__card" type="button" data-index="${i}" aria-label="${item.video ? "Play video" : "View larger"}: ${esc(item.alt)}">
         <span class="journey__frame">
-          <img data-src="${esc(item.src)}" alt="${esc(item.alt)}" decoding="async"${item.focus ? ` style="object-position: ${esc(item.focus)}"` : ""}>
+          <img data-src="${esc(thumbOf(item.src))}" data-full="${esc(item.src)}" alt="${esc(item.alt)}" decoding="async"${item.focus ? ` style="object-position: ${esc(item.focus)}"` : ""}>
           ${item.video ? PLAY : ""}
         </span>
         <span class="journey__caption">${esc(item.caption || "♥")}</span>
@@ -119,6 +124,7 @@
 
   $("#journey-months").innerHTML = months.map((entry, i) => `
     <li class="journey__month" style="${colour(i)}">
+      <div class="journey__iris">
       <article class="journey__board" aria-labelledby="journey-title-${i + 1}">
         <span class="journey__face" aria-hidden="true"></span>
         <svg class="journey__strings" aria-hidden="true" focusable="false"></svg>
@@ -130,11 +136,13 @@
         </div>
         <ul class="journey__photos" data-month="${i}" aria-label="Photos">${entry.images.map(photo).join("")}</ul>
       </article>
+      </div>
     </li>`).join("");
 
   JOURNEY_CONFIG.boardColors.forEach((c, i) => root.style.setProperty(`--board-${i + 1}`, c));
   root.style.setProperty("--board-inset", `${JOURNEY_CONFIG.boardInset}px`);
   root.style.setProperty("--dot-pitch", `${JOURNEY_CONFIG.dotPitch}px`);
+  root.style.setProperty("--sway-strength", JOURNEY_CONFIG.swayStrength);
 
   // A photo takes its own shape once it has loaded (square until then; it is still hidden at that point),
   // between 2:3 portrait and 8:5 landscape
@@ -143,6 +151,11 @@
     if (img.tagName !== "IMG" || !img.naturalWidth) return;
     const ratio = Math.min(1.6, Math.max(0.66, img.naturalWidth / img.naturalHeight)); // tall phone shots are cropped to 2:3 (`focus` picks the part)
     img.closest(".journey__photo").style.setProperty("--ratio", ratio.toFixed(3));
+  }, true);
+  // No small copy for this photo (one added later, say): use the full one
+  root.addEventListener("error", (e) => {
+    const img = e.target;
+    if (img.tagName === "IMG" && img.dataset.full && img.getAttribute("src") !== img.dataset.full) img.src = img.dataset.full;
   }, true);
 
   const stage = $(".journey__stage");
@@ -157,7 +170,9 @@
   const dots = $$(".journey__dot");
   const dotCores = $$(".journey__dot-core");
   const lis = $$(".journey__month");
+  const monthsEl = $("#journey-months");
   const boardEls = $$(".journey__board");
+  const irisEls = $$(".journey__iris");
 
   const loaded = new Set();
   const loadMonth = (i) => {
@@ -236,8 +251,12 @@
     return `L${x1},${a.y}C${xm},${a.y} ${xm},${b.y} ${x2},${b.y}${flourish(kind, cx, b.y, m, (end - x2) * 0.9)}L${b.x},${b.y}`;
   };
 
+  const LUT_STEP = 4; // px between the points looked up along the line
+
   // The whole line, generated from the station positions. pts[0] is where the line starts, pts[n] is
-  // month n; dist[n] is how far along the line month n is.
+  // month n; dist[n] is how far along the line month n is. The faint track is one path; the fill is one
+  // path per stretch (parts[k] runs from pts[k] to pts[k + 1]), so drawing it only repaints that stretch.
+  // Points along each stretch are measured once here (pointAt), never while scrolling.
   function buildPath(m, W, H) {
     const stepX = val(m.stepX, W, H);
     const stepY = val(m.stepY, W, H);
@@ -248,15 +267,34 @@
       pts.push({ x: pts[i].x + across, y: pts[i].y + stepY });
     }
     const parts = [`M0,0L${pts[1].x},0`];
-    for (let i = 1; i < pts.length - 1; i++) parts.push(segment(pts[i], pts[i + 1], kinds[i - 1], m));
+    for (let i = 1; i < pts.length - 1; i++) parts.push(`M${pts[i].x},${pts[i].y}${segment(pts[i], pts[i + 1], kinds[i - 1], m)}`);
+    track.setAttribute("d", parts.join(""));
+    fill.innerHTML = parts.map((part) => `<path d="${part}"/>`).join("");
+    const els = [...fill.children];
+    const lens = els.map((el) => el.getTotalLength());
     const dist = [0];
-    let d = "";
-    parts.forEach((part) => {
-      d += part;
-      track.setAttribute("d", d);
-      dist.push(track.getTotalLength());
+    lens.forEach((len) => dist.push(dist[dist.length - 1] + len));
+    els.forEach((el, k) => {
+      el.style.strokeDasharray = `${lens[k]} ${lens[k] + 2}`;
+      el.style.strokeDashoffset = lens[k]; // hidden until the head draws it
     });
-    fill.setAttribute("d", d);
+    const luts = els.map((el, k) => {
+      const n = Math.max(2, Math.ceil(lens[k] / LUT_STEP) + 1);
+      const lut = new Float32Array(n * 2);
+      for (let j = 0; j < n; j++) {
+        const p = el.getPointAtLength((lens[k] * j) / (n - 1));
+        lut[j * 2] = p.x;
+        lut[j * 2 + 1] = p.y;
+      }
+      return lut;
+    });
+    const pointAt = (k, along) => {
+      const lut = luts[k];
+      const f = Math.min(1, Math.max(0, along / lens[k])) * (lut.length / 2 - 1);
+      const j = Math.min(lut.length / 2 - 2, Math.floor(f));
+      const t = f - j;
+      return { x: lut[j * 2] + (lut[j * 2 + 2] - lut[j * 2]) * t, y: lut[j * 2 + 1] + (lut[j * 2 + 3] - lut[j * 2 + 1]) * t };
+    };
     pts.slice(1).forEach(({ x, y }, i) => {
       stations[i].style.setProperty("--x", `${x}px`);
       stations[i].style.setProperty("--y", `${y}px`);
@@ -265,7 +303,7 @@
     const after = pts[JOURNEY_CONFIG.envelopeAfter];
     letter.style.setProperty("--x", `${after.x + ex}px`);
     letter.style.setProperty("--y", `${after.y + ey}px`);
-    return { pts, dist, total: dist[dist.length - 1] };
+    return { pts, dist, els, lens, pointAt };
   }
 
   // The camera rides a calmer version of the line (no loops): straight across, easing down at the drop
@@ -508,44 +546,12 @@
     return list[i][1] + frac * (next - list[i][1]);
   };
 
-  // Photos swing gently on their pins the whole time their board is open, like the swaying gallery:
-  // each card its own angle, duration and direction. One ticker drives the open month's cards and eases
-  // the swing in when a board opens.
-  function buildSway(boards) {
-    const strength = JOURNEY_CONFIG.swayStrength;
-    const durations = [1, 1.8, 1.3, 1.5, 1.1, 1.6, 1.2];
-    const angles = [3, -3.3, 2.4];
-    const cards = boards.map((b) => b.items.map((el, j) => ({
-      set: gsap.quickSetter(el.firstElementChild, "rotation", "deg"),
-      amp: angles[j % 3] * strength,
-      speed: Math.PI / durations[j % 7],
-      phase: j % 2 ? Math.PI : 0,
-    })));
-    const sway = { month: -1 };
-    let shown = -1;
-    let energy = 0;
-    const tick = (time, ms) => {
-      if (sway.month !== shown) {
-        cards[shown]?.forEach((c) => c.set(0));
-        shown = sway.month;
-        energy = 0;
-      }
-      if (!cards[shown] || !strength) return;
-      energy += (1 - energy) * (1 - Math.exp(-ms / 400));
-      cards[shown].forEach((c) => c.set(energy * c.amp * Math.sin(time * c.speed + c.phase)));
-    };
-    gsap.ticker.add(tick);
-    sway.kill = () => {
-      gsap.ticker.remove(tick);
-      cards.flat().forEach((c) => c.set(0));
-    };
-    return sway;
-  }
+  // (The photos' sway is a CSS animation, running only on the open board: .journey__card in style.css)
 
   // Tiny hearts and dots thrown off by the head as it travels (a fixed pool, reused)
-  function buildSparks() {
+  function buildSparks(count) {
     const box = $(".journey__sparks");
-    const pool = Array.from({ length: Math.min(30, JOURNEY_CONFIG.sparkles) }, (_, i) => {
+    const pool = Array.from({ length: Math.min(30, count) }, (_, i) => {
       const el = document.createElement("span");
       el.className = i % 3 ? "journey__spark" : "journey__spark journey__spark--dot";
       if (i % 3) el.textContent = "♥";
@@ -586,25 +592,41 @@
     const S = cfg.scroll;
     const ax = W * m.camera[0];
     const ay = H * m.camera[1];
-    const radius = Math.hypot(Math.max(ax, W - ax), Math.max(ay, H - ay));
+    const radius = Math.hypot(Math.max(ax, W - ax), Math.max(ay, H - ay)); // reaches the farthest corner
+    Object.entries({ "--iris-x": ax, "--iris-y": ay, "--iris-r": radius, "--stage-w": W })
+      .forEach(([name, px]) => monthsEl.style.setProperty(name, `${px}px`));
     const state = { pos: 0, push: 0 };
     const open = boards.map(() => ({ iris: 0, scroll: 0 }));
     const times = new Map(); // focusable photo → timeline time when it's on screen
-    const sway = buildSway(boards);
-    const sparks = buildSparks();
+    const sparks = buildSparks(m.sparkles ?? cfg.sparkles);
     const last = geo.pts.length - 2;
+    const offsets = geo.lens.slice(); // each stretch's dash offset as drawn (all hidden to start)
     let shown = -1;
+    let drawnPos = NaN;
+    let drawnPush = NaN;
 
+    // Writes only what changed: the line and camera move while travelling and pushing in, a board while
+    // it opens, closes or scrolls. Nothing on the line is measured here (see pointAt).
     const render = () => {
       const i = Math.min(Math.floor(state.pos), last);
       const u = state.pos - i;
-      const d = geo.dist[i] + (geo.dist[i + 1] - geo.dist[i]) * u;
-      fill.style.strokeDashoffset = geo.total - d;
-      const h = track.getPointAtLength(d);
-      head.style.transform = `translate(${h.x}px, ${h.y}px)`;
-      const cam = cameraAt(geo.pts, i, u);
-      const z = 1 + state.push * cfg.cameraPush;
-      world.style.transform = `translate(${ax - cam.x * z}px, ${ay - cam.y * z}px) scale(${z})`;
+      if (state.pos !== drawnPos || state.push !== drawnPush) {
+        drawnPos = state.pos;
+        drawnPush = state.push;
+        const along = (geo.dist[i + 1] - geo.dist[i]) * u;
+        geo.lens.forEach((len, k) => {
+          const offset = k < i ? 0 : k > i ? len : len - along;
+          if (offset === offsets[k]) return;
+          offsets[k] = offset;
+          geo.els[k].style.strokeDashoffset = offset;
+        });
+        const h = geo.pointAt(i, along);
+        head.style.transform = `translate(${h.x}px, ${h.y}px)`;
+        const cam = cameraAt(geo.pts, i, u);
+        const z = 1 + state.push * cfg.cameraPush;
+        world.style.transform = `translate(${ax - cam.x * z}px, ${ay - cam.y * z}px) scale(${z})`;
+        sparks.throw(h, state.push > 0.01);
+      }
 
       let showing = -1;
       let covered = false;
@@ -614,20 +636,26 @@
         if (o.iris === o.drawnIris && o.scroll === o.drawnScroll) return;
         o.drawnIris = o.iris;
         o.drawnScroll = o.scroll;
-        lis[j].style.clipPath = o.iris >= 1 ? "none" : `circle(${(o.iris * radius).toFixed(1)}px at ${ax}px ${ay}px)`;
-        boardEls[j].style.transform = `translate3d(0, ${(-o.scroll * boards[j].extra).toFixed(1)}px, 0)`;
+        // The iris: the circle grows (scale) while the board inside shrinks by as much, so the board itself
+        // never changes size. Transforms only, so the compositor does it without repainting anything.
+        // Fully open (.is-full), the circle and its rounded clip are dropped altogether.
+        const s = Math.min(1, o.iris);
+        const full = s >= 1;
+        if (full !== o.full) lis[j].classList.toggle("is-full", (o.full = full));
+        const scroll = `translate3d(0, ${(-o.scroll * boards[j].extra).toFixed(1)}px, 0)`;
+        irisEls[j].style.transform = full ? "" : `scale(${s.toFixed(4)})`;
+        if (s > 0.001) boardEls[j].style.transform = full ? scroll : `scale(${(1 / s).toFixed(4)}) ${scroll}`;
       });
       map.style.visibility = covered ? "hidden" : ""; // nothing to paint under a full board
       if (showing !== shown) {
         lis[shown]?.classList.remove("is-open");
         lis[showing]?.classList.add("is-open");
-        shown = sway.month = showing;
+        shown = showing;
       }
       if (state.pos > 0) {
         loadMonth(i);
         loadMonth(i + 1);
       }
-      sparks.throw(h, state.push > 0.01);
     };
 
     const irises = []; // [start, end] of every board opening or closing
@@ -637,6 +665,9 @@
       scrollTrigger: {
         trigger: stage,
         pin: true,
+        // Touch-only devices scroll natively (smoothTouch: false in main.js), so pin with position: fixed
+        // there: a transform pin would be corrected a frame behind the scroll and jitter
+        pinType: ScrollTrigger.isTouch === 1 ? "fixed" : "transform",
         start: "top top",
         end: () => `+=${Math.round(tl.duration() * stage.clientHeight)}`,
         scrub: m.scrub ?? cfg.scrub,
@@ -728,22 +759,20 @@
     return () => {
       document.removeEventListener("focusin", onFocus);
       ScrollTrigger.removeEventListener("scrollEnd", settle);
-      sway.kill();
       sparks.kill();
       current = null;
-      fill.style.strokeDashoffset = head.style.transform = world.style.transform = map.style.visibility = "";
-      lis.forEach((li) => {
-        li.style.clipPath = "";
-        li.classList.remove("is-open");
-      });
+      head.style.transform = world.style.transform = map.style.visibility = "";
+      lis.forEach((li) => li.classList.remove("is-open", "is-full"));
+      irisEls.forEach((el) => (el.style.transform = ""));
       boardEls.forEach((el) => (el.style.transform = ""));
+      ["--iris-x", "--iris-y", "--iris-r", "--stage-w"].forEach((name) => monthsEl.style.removeProperty(name));
     };
   }
 
   // Reduced motion: no pin, scrub or sway. The map shows the whole line drawn (scrolls sideways),
   // the boards stack below it and their cards simply fade in.
-  function buildStill(boards) {
-    fill.style.strokeDashoffset = 0;
+  function buildStill(boards, geo) {
+    geo.els.forEach((el) => (el.style.strokeDashoffset = 0));
     gsap.set(dotCores, { opacity: 1 });
     const box = track.getBBox();
     const labelH = Math.max(...$$(".journey__label").map((el) => el.offsetHeight));
@@ -765,7 +794,7 @@
     ScrollTrigger.batch(cards, { start: "top 95%", onEnter: show, onLeave: show });
 
     return () => {
-      fill.style.strokeDashoffset = world.style.transform = "";
+      world.style.transform = "";
       map.style.removeProperty("--map-h");
     };
   }
@@ -777,9 +806,8 @@
     const W = stage.clientWidth;
     const H = still ? document.documentElement.clientHeight : stage.clientHeight;
     const geo = buildPath(m, W, H);
-    fill.style.strokeDasharray = geo.total;
     const boards = lis.map((li, i) => layoutBoard(li, i, m, W, H));
-    return still ? buildStill(boards) : buildPinned(m, geo, boards, W, H);
+    return still ? buildStill(boards, geo) : buildPinned(m, geo, boards, W, H);
   }
 
   /* ---------- 5. Start (after main.js has set up ScrollSmoother, and the fonts are in for measuring) ---------- */

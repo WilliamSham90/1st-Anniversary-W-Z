@@ -203,6 +203,15 @@ svg { fill: currentColor; }
 }
 .nav.is-scrolled::before,
 .nav.is-open::before { opacity: 1; }
+/* Touch screens: a near-solid bar instead of the blur, which is redone every frame while the page
+   scrolls under it and is heavy work for older phones' GPUs */
+@media (pointer: coarse) {
+  .nav::before {
+    background: rgba(255, 248, 243, 0.96);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
 
 .nav__inner {
   display: flex;
@@ -489,6 +498,7 @@ svg { fill: currentColor; }
   will-change: transform;
 }
 .journey__path { position: absolute; overflow: visible; }
+.journey__path--fill { will-change: transform; }   /* its own layer: drawing the line doesn't repaint the labels */
 .journey__track,
 .journey__fill {
   fill: none;
@@ -557,6 +567,7 @@ svg { fill: currentColor; }
   left: -16px;
   width: 32px;
   color: var(--color-primary-deep);
+  will-change: transform;   /* moves every frame: a layer of its own, so nothing under it repaints */
   filter: drop-shadow(0 3px 4px rgba(58, 46, 50, 0.3));
 }
 .journey__head svg {
@@ -591,6 +602,7 @@ svg { fill: currentColor; }
   font-size: 0.8rem;
   line-height: 1;
   opacity: 0;
+  will-change: transform, opacity;   /* pooled: layers made once, not on every throw */
 }
 .journey__spark--dot {
   top: -3px;
@@ -601,25 +613,46 @@ svg { fill: currentColor; }
   background: var(--color-primary);
 }
 
-/* The boards: one per month, stacked in the stage, opened by journey.js like an iris (clip-path) */
+/* The boards: one per month, stacked in the stage. Each opens like an iris: a circle centred on the
+   station's dot (--iris-x/y, radius --iris-r reaching the farthest corner) that journey.js grows with
+   transform: scale() while counter-scaling the board inside, so it all runs on the compositor. */
 .journey__months {
   position: absolute;
   inset: 0;
   margin: 0;
   padding: 0;
   list-style: none;
-  pointer-events: none;   /* the envelope on the line stays clickable; a board's iris (clip-path) sets its own hit area */
+  pointer-events: none;   /* the envelope on the line stays clickable; only the circles take clicks */
 }
 .journey__month {
   position: absolute;
   inset: 0;
-  overflow: clip;
-  clip-path: circle(0);
-  pointer-events: auto;
+  overflow: hidden;
+  overflow: clip;   /* clip where supported: never scrolled by focus */
+  clip-path: circle(0);   /* closed: nothing inside is painted at all (but its photos can still take focus) */
 }
+.journey__month.is-open { clip-path: none; }
+.journey__iris {
+  position: absolute;
+  left: calc(var(--iris-x) - var(--iris-r));
+  top: calc(var(--iris-y) - var(--iris-r));
+  width: calc(var(--iris-r) * 2);
+  height: calc(var(--iris-r) * 2);
+  overflow: hidden;
+  overflow: clip;
+  border-radius: 50%;
+  pointer-events: auto;
+  transform: scale(0);
+}
+.journey__month.is-open .journey__iris { will-change: transform; }   /* a layer only while it's in use */
+.journey__month.is-full .journey__iris { overflow: visible; border-radius: 0; transform: none; }   /* no rounded clip to keep up */
 .journey__board {
-  position: relative;
+  position: absolute;
+  left: calc(var(--iris-r) - var(--iris-x));   /* the board's top-left at the stage's */
+  top: calc(var(--iris-r) - var(--iris-y));
+  width: var(--stage-w);
   height: var(--board-h, 100%);
+  transform-origin: var(--iris-x) var(--iris-y);   /* counter-scaled about the circle's centre */
   background: color-mix(in oklab, var(--board), #000 20%);   /* the frame */
 }
 .journey__month.is-open .journey__board { will-change: transform; }
@@ -700,6 +733,8 @@ svg { fill: currentColor; }
 .journey__photo {
   --fw: min(var(--bw), var(--bh) * var(--ratio, 1));
   --pin: crimson;
+  --sway: 3deg;
+  --sway-time: 1s;
   position: absolute;
   top: var(--y);
   left: var(--x);
@@ -708,12 +743,15 @@ svg { fill: currentColor; }
   margin-left: calc(var(--fw) / -2 - 0.5rem);
   transform-origin: 50% 0.57rem;
 }
-.journey__photo:nth-child(7n + 1) { --pin: hotpink; }
-.journey__photo:nth-child(7n + 2) { --pin: magenta; }
-.journey__photo:nth-child(7n + 3) { --pin: orangered; }
-.journey__photo:nth-child(7n + 4) { --pin: darkorchid; }
-.journey__photo:nth-child(7n + 5) { --pin: deeppink; }
-.journey__photo:nth-child(7n + 6) { --pin: mediumvioletred; }
+/* Each card its own pin colour, sway time (7n) and swing (3n), like the swaying gallery */
+.journey__photo:nth-child(7n + 1) { --pin: hotpink; --sway-time: 1.8s; }
+.journey__photo:nth-child(7n + 2) { --pin: magenta; --sway-time: 1.3s; }
+.journey__photo:nth-child(7n + 3) { --pin: orangered; --sway-time: 1.5s; }
+.journey__photo:nth-child(7n + 4) { --pin: darkorchid; --sway-time: 1.1s; }
+.journey__photo:nth-child(7n + 5) { --pin: deeppink; --sway-time: 1.6s; }
+.journey__photo:nth-child(7n + 6) { --pin: mediumvioletred; --sway-time: 1.2s; }
+.journey__photo:nth-child(3n + 1) { --sway: -3.3deg; }
+.journey__photo:nth-child(3n + 2) { --sway: 2.4deg; }
 
 .journey__card {
   position: relative;
@@ -728,8 +766,16 @@ svg { fill: currentColor; }
   text-align: center;
   cursor: zoom-in;
   transform-origin: 50% 0.57rem;   /* swings from its pin */
+  /* The sway: a CSS animation of transform only, so the compositor runs it without the main thread.
+     Paused except on the open board. */
+  animation: journey-sway var(--sway-time) ease-in-out calc(var(--sway-time) * -0.5) infinite alternate paused;
 }
-.journey__month.is-open .journey__card { will-change: transform; }   /* only the open month sways */
+.journey__photo:nth-child(even) .journey__card { animation-direction: alternate-reverse; }
+.journey__month.is-open .journey__card { will-change: transform; animation-play-state: running; }
+@keyframes journey-sway {
+  from { transform: rotate(calc(var(--sway) * var(--sway-strength, 1) * -1)); }
+  to { transform: rotate(calc(var(--sway) * var(--sway-strength, 1))); }
+}
 .journey__card:focus-visible { outline-offset: 5px; }
 /* The pin: a domed head with a soft shadow */
 .journey__card::after {
@@ -784,8 +830,19 @@ svg { fill: currentColor; }
 .journey--still .journey__world { will-change: auto; }
 .journey--still .journey__label { top: 1.9rem; bottom: auto; }   /* below the line, clear of the hearts above it */
 .journey--still .journey__head { display: none; }
+.journey--still .journey__card { animation: none; }
 .journey--still .journey__months,
-.journey--still .journey__month { position: relative; inset: auto; clip-path: none; }
+.journey--still .journey__month { position: relative; inset: auto; pointer-events: auto; clip-path: none; }
+.journey--still .journey__iris {
+  position: static;
+  width: auto;
+  height: auto;
+  overflow: visible;
+  border-radius: 0;
+  transform: none;
+  will-change: auto;
+}
+.journey--still .journey__board { position: relative; left: auto; top: auto; width: auto; }
 
 /* Polaroid frame (used in the photo letters and the closing section) */
 .polaroid {

@@ -294,7 +294,10 @@
               <div class="journey__world">
                 <svg class="journey__path" width="1" height="1" aria-hidden="true" focusable="false">
                   <path class="journey__track"/>
-                  <path class="journey__fill"/>
+                </svg>
+                <!-- The fill: one path per stretch of the line, on a layer of its own, so drawing it only repaints that stretch -->
+                <svg class="journey__path journey__path--fill" width="1" height="1" aria-hidden="true" focusable="false">
+                  <g class="journey__fill"></g>
                 </svg>
                 <div id="journey-stations" aria-hidden="true"></div>
                 <span class="journey__letter" id="journey-letter"></span>

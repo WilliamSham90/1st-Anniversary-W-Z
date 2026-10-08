@@ -1015,7 +1015,9 @@
       wrapper: "#smooth-wrapper",
       content: "#smooth-content",
       smooth: 1.1,
-      smoothTouch: 0.1,
+      // Phones scroll natively (GSAP's default): smoothing touch moves the whole page with JS on every
+      // frame, which stutters on slower phones. journey.js pins with position: fixed there to match.
+      smoothTouch: false,
       // ScrollSmoother jumps to any newly focused element. Sections are focused by our
       // nav links while they're already smooth-scrolling there, so skip those. Our Year's
       // pinned stage scrolls to a focused photo or envelope itself (journey.js).
