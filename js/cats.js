@@ -21,25 +21,26 @@
     back: 0.4,                          // the floor's back edge, as a share of the play area's height
     keepLeft: 58,                       // px the bowl and the cats' spots keep clear of Chowder & Panini's button (bottom left)
     keepRight: 72,                      // px at the right end the floor stops short of, under the envelope button
-    hop: { length: 20, height: 8, perSecond: 3.2 },   // sprite px per hop, sprite px high, hops a second
-    runStride: 42,                      // a cat with a run animation: sprite px covered per run cycle (legs keep pace)
-    needRate: { hunger: 1 / 90, tired: 1 / 130, bored: 1 / 35, lonely: 1 / 60 },   // per second, 0 → 1
+    hop: { length: 20, height: 8, perSecond: 2.4 },   // sprite px per hop, sprite px high, hops a second
+    stride: { walk: 30, run: 44 },      // a cat with walk/run strips: sprite px covered per cycle (legs keep pace)
+    hurry: 1.3,                         // moving at least this much faster than usual, it runs instead of walking
+    needRate: { hunger: 1 / 110, tired: 1 / 130, bored: 1 / 75, lonely: 1 / 90 },   // per second, 0 → 1 (slower = calmer)
     servings: 3,                        // a full bowl
     chatter: [7, 16],                   // seconds between a cat's remarks
+    potter: 260,                        // px (at scale 3) a content cat wanders from where it is
     noStealing: "You can't steal my cat.",   // shown when a cat is dragged to the edge of its play area
   };
   const ART = "assets/images/Cats/";
-  // `run`: an optional strip of running frames (any widths, side by side, facing right, feet on one line);
-  // a cat without one hops about instead
+  // `walk` and `run`: optional strips of square frames, facing right (cut from RunCatt.png: rows 1 and 3);
+  // a cat without them hops about instead
   const LOOKS = {
-    grey: { sheet: `${ART}cats/Grey.png`, colour: "grey", run: `${ART}cats/grey-cat-run.png` },
+    grey: { sheet: `${ART}cats/Grey.png`, colour: "grey", walk: `${ART}cats/grey-cat-walk.png`, run: `${ART}cats/grey-cat-trot.png` },
     orange: { sheet: `${ART}cats/OrangeCat.png`, colour: "orange" },
   };
   const CATS = SITE_DATA.cats?.length ? SITE_DATA.cats.slice(0, 2) : [{ name: "Coco", look: "grey" }, { name: "Moose", look: "orange" }];
 
   // The cat sheets: 32px frames, one animation per row, the cat facing left. [row, frames, frames per second]
   const CELL = 32;
-  const NOSE = 12;   // run frames are lined up by the nose, this many sheet px ahead of the cat's middle
   const ANIMS = {
     idle: [0, 10, 6], idle2: [1, 10, 6], sleep: [2, 4, 2.5], dance: [3, 4, 6], yawn: [4, 8, 7], shy: [5, 12, 8],
     loaf: [6, 12, 5], sniff: [7, 9, 6], cry: [8, 4, 6], box1: [9, 12, 7], box2: [10, 4, 6], box3: [11, 4, 7],
@@ -101,26 +102,11 @@
     return { foot: { x: (left + right + 1) / 2, y: bottom + 1 }, w: right - left + 1, h: bottom - top + 1 };
   }
 
-  // A strip of frames packed side by side: each frame is a run of columns with something in them
-  // (a sliver under 6px, like a stray tail tip, joins the frame next to it)
-  async function loadRun(src) {
+  // A strip of square frames side by side, and where the feet are across all of them
+  async function loadStrip(src) {
     const img = await load(src);
-    const px = pixelsOf(img);
-    const filled = (x) => { for (let y = 0; y < img.height; y++) if (px.data[(y * img.width + x) * 4 + 3]) return true; return false; };
-    const frames = [];
-    let bottom = 0;
-    for (let x = 0, start = -1; x <= img.width; x++) {
-      const on = x < img.width && filled(x);
-      if (on && start < 0) start = x;
-      if (!on && start >= 0) {
-        const last = frames[frames.length - 1];
-        if (last && (x - start < 6 || start - (last.x + last.w) < 2)) last.w = x - last.x;
-        else frames.push({ x: start, w: x - start });
-        start = -1;
-      }
-    }
-    for (let y = 0; y < img.height; y++) for (let x = 0; x < img.width; x++) if (px.data[(y * img.width + x) * 4 + 3]) bottom = y + 1;
-    return { src, width: img.width, height: img.height, frames, footY: bottom };
+    const size = img.height, frames = Math.round(img.width / size);
+    return { src, width: img.width, size, frames, foot: measure(pixelsOf(img), [0, 0, size, size], frames).foot };
   }
 
   async function loadArt() {
@@ -139,7 +125,10 @@
         }
       }
       const def = LOOKS[look] ?? LOOKS.grey;
-      sheets[look] = { src, colour: def.colour, width: img.width, height: img.height, anims, box: { w, h }, run: def.run && (await loadRun(def.run)) };
+      sheets[look] = {
+        src, colour: def.colour, width: img.width, height: img.height, anims, box: { w, h },
+        walk: def.walk && (await loadStrip(def.walk)), run: def.run && (await loadStrip(def.run)),
+      };
     }
     const items = {};
     for (const [name, def] of Object.entries(ITEMS)) {
@@ -202,14 +191,9 @@
     e.sprite.style.backgroundSize = `${sheetW * s}px ${sheetH * s}px`;
     e.pose.style.left = `${bw / 2}px`;
     e.pose.style.top = `${bh}px`;
-    if (e.look?.run) {
-      const run = e.look.run;
-      if (!e.runSprite) {
-        e.runSprite = Object.assign(document.createElement("span"), { className: "cats__sprite cats__sprite--run" });
-        e.runSprite.style.backgroundImage = `url("${run.src}")`;
-        e.pose.append(e.runSprite);
-      }
-      Object.assign(e.runSprite.style, { backgroundSize: `${run.width * s}px ${run.height * s}px`, height: `${run.height * s}px`, top: `${-run.footY * s}px` });
+    if (e.look?.walk && !e.runSprite) {
+      e.runSprite = Object.assign(document.createElement("span"), { className: "cats__sprite cats__sprite--run" });
+      e.pose.append(e.runSprite);
     }
     const sw = Math.max(18, box.w * s * 0.75);
     Object.assign(e.shadow.style, { width: `${sw}px`, height: `${sw * 0.28}px`, left: `${-sw / 2}px`, top: `${-sw * 0.14}px` });
@@ -228,7 +212,7 @@
   // The frame to show: [sheet x, sheet y] of its top-left corner
   function frameAt(e) {
     if (e.look) {
-      const pose = e.held ? HOP_POSE.held : e.mode === "move" && !REDUCED && !e.look.run ? (e.lift > 2 * unit() ? HOP_POSE.air : HOP_POSE.ground) : null;
+      const pose = e.held ? HOP_POSE.held : e.mode === "move" && !REDUCED && !e.look.walk ? (e.lift > 2 * unit() ? HOP_POSE.air : HOP_POSE.ground) : null;
       const [name, f] = pose ?? [e.anim, Math.floor(e.frame)];
       if (pose && name !== e.anim) { e.anim = name; place(e); }
       return [f * CELL, ANIMS[name][0] * CELL];
@@ -237,7 +221,9 @@
     return [x + Math.floor(e.frame) * stride, y];
   }
 
-  const isRunning = (e) => !!e.look?.run && e.mode === "move" && !e.held && !REDUCED;
+  // On the move, a cat with strips walks (or runs, in a hurry) instead of hopping
+  const isRunning = (e) => !!e.look?.walk && e.mode === "move" && !e.held && !REDUCED;
+  const stripFor = (cat) => (cat.rush >= CATS_CONFIG.hurry && cat.look.run ? "run" : "walk");
 
   // Writes only what changed since the last frame
   function draw(e) {
@@ -273,9 +259,19 @@
     const look = `scale(${(e.dir * facing * sx).toFixed(3)}, ${sy.toFixed(3)})`;
     if (look !== d.look) e.pose.style.transform = d.look = look;
     if (running) {
-      const run = e.look.run, f = run.frames[Math.floor(e.runFrame) % run.frames.length];
+      const name = stripFor(e), strip = e.look[name], s = e.s;
+      if (name !== d.strip || s !== d.stripScale) {
+        Object.assign(e.runSprite.style, {
+          backgroundImage: `url("${strip.src}")`, backgroundSize: `${strip.width * s}px ${strip.size * s}px`,
+          width: `${strip.size * s}px`, height: `${strip.size * s}px`, left: `${-strip.foot.x * s}px`, top: `${-strip.foot.y * s}px`,
+        });
+        d.strip = name;
+        d.stripScale = s;
+        d.runFrame = -1;
+      }
+      const f = Math.floor(e.runFrame ?? 0) % strip.frames;
       if (f !== d.runFrame) {
-        Object.assign(e.runSprite.style, { width: `${f.w * e.s}px`, left: `${(NOSE - f.w) * e.s}px`, backgroundPosition: `${-f.x * e.s}px 0` });
+        e.runSprite.style.backgroundPosition = `${-f * strip.size * s}px 0`;
         d.runFrame = f;
       }
       return;
@@ -318,6 +314,11 @@
     return hit;
   }
   const spotOnFloor = (e) => ({ x: rand(view.x0 + CATS_CONFIG.keepLeft + e.half, view.x1 - e.half), y: rand(view.y0, view.y1) });
+  // Somewhere not far off: a content cat potters about rather than crossing the whole floor
+  const spotNearby = (e) => {
+    const r = CATS_CONFIG.potter * unit();
+    return { x: clamp(e.x + rand(-r, r), view.x0 + CATS_CONFIG.keepLeft + e.half, view.x1 - e.half), y: rand(view.y0, view.y1) };
+  };
   const nearest = (from, list) => list.reduce((best, e) => (!best || Math.hypot(e.x - from.x, e.y - from.y) < Math.hypot(best.x - from.x, best.y - from.y) ? e : best), null);
   const face = (a, b) => { if (Math.abs(b.x - a.x) > 1) a.dir = Math.sign(b.x - a.x); };
   const besideX = (cat, item) => item.x + (cat.x < item.x ? -1 : 1) * (item.half + cat.half * 0.5);
@@ -421,14 +422,14 @@
   // What a content cat does next, and how likely each is
   const rest = () => pick(["idle", "idle", "idle2", "blink", "sit", "loaf"]);
   const PASTIMES = [
-    [5, (cat) => { const to = spotOnFloor(cat); goTo(cat, to.x, to.y, () => act(cat, rest(), rand(1, 2.5))); }],
-    [3, (cat) => act(cat, rest(), rand(1.5, 3.5))],
-    [2, sniff],
-    [(cat) => 0.6 + cat.needs.bored * 3, zoomies],
-    [(cat) => (cats().some((c) => c !== cat && free(c)) ? 1.5 : 0), tag],
-    [0.8, (cat) => { say(cat, "*yawn*"); actOnce(cat, "yawn", 1.4); }],
-    [1, boxTime],
-    [0.5, dance],
+    [3, (cat) => { const to = spotNearby(cat); goTo(cat, to.x, to.y, () => act(cat, rest(), rand(2.5, 5))); }],
+    [6, (cat) => act(cat, rest(), rand(3, 7))],
+    [1.5, sniff],
+    [(cat) => 0.15 + cat.needs.bored * 0.8, zoomies],
+    [(cat) => (cats().some((c) => c !== cat && free(c)) ? 0.7 : 0), tag],
+    [1, (cat) => { say(cat, "*yawn*"); actOnce(cat, "yawn", 1.4); }],
+    [0.8, boxTime],
+    [0.4, dance],
   ];
   function pickWeighted(list, cat) {
     const weights = list.map(([w]) => (typeof w === "function" ? w(cat) : w));
@@ -438,12 +439,13 @@
   }
 
   function sniff(cat) {
-    const thing = pick(things.filter((e) => e !== cat && !e.held));
+    const near = (e) => Math.abs(e.x - cat.x) < CATS_CONFIG.potter * 1.5 * unit();
+    const thing = pick(things.filter((e) => e !== cat && !e.held && e.dying === undefined && near(e)));
     if (!thing) return act(cat, "sit", 1.5);
     goTo(cat, besideX(cat, thing), thing.y + 1, () => { face(cat, thing); act(cat, "sniff", rand(1.2, 2)); });
   }
   function zoomies(cat) {
-    let laps = 2 + Math.floor(Math.random() * 3);
+    let laps = 1 + Math.floor(Math.random() * 2);
     const lap = () => {
       if (laps-- <= 0) return act(cat, "sit", rand(1, 2));
       const to = spotOnFloor(cat);
@@ -455,7 +457,7 @@
   function tag(cat) {
     const friend = pick(cats().filter((c) => c !== cat && free(c)));
     if (!friend) return act(cat, "sit", 1);
-    goTo(cat, friend.x, friend.y, () => greet(cat, friend), friend, 1.3);
+    goTo(cat, friend.x, friend.y, () => greet(cat, friend), friend);
   }
 
   function pursue(cat, need) {
@@ -467,6 +469,8 @@
     }
     if (need === "hunger") {
       if (bowl.food > 0 && !bowl.user) return use(cat, bowl), true;
+      const prey = toys().find((t) => t.kind === "mouse" && !t.held);
+      if (prey && Math.random() < 0.5) { say(cat, pick(["Snack!", "Mouse!"])); return use(cat, prey), true; }   // empty bowl: hunt
       if (Math.random() < 0.5) return false;   // empty: sometimes begs by the bowl, sometimes gets on with things
       goTo(cat, besideX(cat, bowl), bowl.y + 1, () => { face(cat, bowl); say(cat, "Feed me!"); act(cat, "cry", 3); });
       return true;
@@ -477,7 +481,7 @@
       return true;
     }
     if (need === "bored") {
-      const toy = nearest(cat, toys().filter((t) => !t.held && !t.stun));
+      const toy = nearest(cat, toys().filter((t) => !t.held));
       if (!toy) return false;
       use(cat, toy);
       return true;
@@ -485,11 +489,11 @@
     return false;
   }
 
-  const toys = () => things.filter((e) => e.kind === "ball" || e.kind === "mouse");
+  const toys = () => things.filter((e) => e.kind === "ball" || (e.kind === "mouse" && e.dying === undefined));
   function use(cat, item) {
     settle(cat);
-    if (item.kind === "ball") return goTo(cat, item.x, item.y, () => kick(cat, item), item, 1.3);
-    if (item.kind === "mouse") return goTo(cat, item.x, item.y, () => pounce(cat, item), item, 1.3);
+    if (item.kind === "ball") return goTo(cat, item.x, item.y, () => kick(cat, item), item);
+    if (item.kind === "mouse") return goTo(cat, item.x, item.y, () => pounce(cat, item), item, 1.4);   // a hunt: it runs
     item.user = cat;
     cat.using = item;
     if (item.kind === "bowl") return goTo(cat, bowl.x + (cat.look.anims.eat.foot.x - EAT_BOWL_X) * cat.s, bowl.y, () => eat(cat));
@@ -537,20 +541,45 @@
     ball.vy = Math.sin(a) * v * 0.5;
     relieve(cat, "bored", 0.2);
     actOnce(cat, "dance", 0.5, () => {
-      if (cat.needs.bored > 0.25 && Math.random() < 0.65) use(cat, ball);   // after it again!
+      if (cat.needs.bored > 0.35 && Math.random() < 0.3) use(cat, ball);   // after it again, now and then
     });
   }
+  // Caught: the mouse squeaks and goes still, the cat eats it (it fades away) and is very pleased with itself
+  const MOUSE_GONE = 1.2;   // seconds from caught to gone
   function pounce(cat, mouse) {
     face(cat, mouse);
-    if (mouse.held || mouse.stun > 0) return actOnce(cat, "dance", 0.6);
-    mouse.stun = 1.6;
+    if (mouse.held || mouse.dying !== undefined) return actOnce(cat, "dance", 0.6);
+    mouse.dying = MOUSE_GONE;
     mouse.vx = mouse.vy = 0;
     mouse.squash = 1;
+    mouse.body.disabled = true;   // no more clicking or tabbing to it
     effect("alert", mouse);
-    say(mouse, "Eek!", 1.2);
-    relieve(cat, "bored", 0.6);
+    say(mouse, "Eek!", 1);
+    relieve(cat, "bored", 0.5);
+    relieve(cat, "hunger", 0.35);
+    cat.using = mouse;   // busy eating: the other cat leaves it be
     say(cat, pick(["Gotcha!", "Mine!", "Caught it!"]));
-    act(cat, "gasp", 0.6, () => act(cat, "blush", 1.6));
+    actOnce(cat, "gasp", 0.5, () => act(cat, "sniff", 2, () => {   // head down: munch
+      settle(cat);
+      effect("music", cat);
+      say(cat, pick(["Yum!", "Nom nom", "Tasty!"]));
+      act(cat, "loaf", rand(2.5, 4));
+    }, every(0.6, () => (cat.squash = 0.5))));
+  }
+  // The mouse fading out while it's eaten; then it's gone for good
+  function fadeOut(m, dt) {
+    m.dying -= dt;
+    m.el.style.opacity = clamp(m.dying / (MOUSE_GONE * 0.6), 0, 1).toFixed(2);
+    if (m.dying <= 0) m.gone = true;
+  }
+  function removeGone() {
+    for (let i = things.length - 1; i >= 0; i--) {
+      const e = things[i];
+      if (!e.gone) continue;
+      e.bubble?.el.remove();
+      e.el.remove();
+      things.splice(i, 1);
+    }
   }
 
   function greet(cat, friend) {
@@ -629,7 +658,7 @@
       if (cat.time > 0) return;
     } else if (cat.mode === "move") {
       const t = cat.follow;
-      if (t?.held || cat.time <= 0 || (t?.stun > 0 && t.kind === "mouse")) return think(cat);   // target gone, or gave up
+      if (t?.held || cat.time <= 0 || t?.dying !== undefined) return think(cat);   // target gone (or eaten), or gave up
       const gx = t ? t.x : cat.tx, gy = t ? t.y : cat.ty;
       const reach = t ? t.half + cat.half * 0.5 : 0;
       if (t?.kind === "mouse") cat.leaping = Math.hypot(gx - cat.x, gy - cat.y) < 110 * unit();   // a big pounce from close by
@@ -647,13 +676,14 @@
     const dx = tx - cat.x, dy = ty - cat.y, dist = Math.hypot(dx, dy), left = dist - reach;
     if (left <= 1.5) return false;
     const { length, height, perSecond } = CATS_CONFIG.hop;
-    const len = length * view.s * (cat.leaping ? 1.6 : 1);
+    const len = length * view.s * (cat.leaping ? 2 : 1);   // the last leap at the mouse is quick
     const step = Math.min(left, len * perSecond * cat.rush * dt);
     cat.x += (dx / dist) * step;
     cat.y += (dy / dist) * step;
     if (Math.abs(dx) > 1) cat.dir = Math.sign(dx);
-    if (cat.look.run) {
-      cat.runFrame = ((cat.runFrame ?? 0) + (step / (CATS_CONFIG.runStride * view.s)) * cat.look.run.frames.length) % cat.look.run.frames.length;
+    if (cat.look.walk) {
+      const name = stripFor(cat), frames = cat.look[name].frames;
+      cat.runFrame = ((cat.runFrame ?? 0) + (step / (CATS_CONFIG.stride[name] * view.s)) * frames) % frames;
       cat.lift = cat.leaping ? Math.sin(Math.min(1, cat.hop * 3) * Math.PI) * height * view.s : 0;   // only a pounce leaves the ground
       cat.hop = (cat.hop + step / len) % 1;
       return true;
@@ -688,14 +718,12 @@
 
   // The mouse darts about in short dashes with pauses in between. When an awake cat comes close it
   // bolts, zig-zagging away and steering clear of the ends it could be trapped in.
-  const MOUSE = { dash: 190, flee: 300, scare: 190 };
+  const MOUSE = { dash: 150, flee: 240, scare: 170 };   // px a second at scale 3, and how close a cat scares it
   function updateMouse(m, dt) {
+    if (m.dying !== undefined) return fadeOut(m, dt);
     const u = unit();
     let speed = 0;
-    if (m.stun > 0) {
-      m.stun -= dt;
-      if (m.stun <= 0) { m.fleeing = false; m.time = 0; }   // caught, let go: off it runs
-    } else {
+    {
       const cat = nearest(m, cats().filter((c) => !c.held && c.anim !== "sleep"));
       const d = cat ? Math.hypot(m.x - cat.x, m.y - cat.y) : Infinity;
       m.time -= dt;
@@ -720,7 +748,7 @@
     const k = Math.min(1, 14 * dt);
     m.vx += (Math.cos(m.heading ?? 0) * speed * u - m.vx) * k;
     m.vy += (Math.sin(m.heading ?? 0) * speed * 0.5 * u - m.vy) * k;
-    if (slide(m, dt, m.stun > 0 ? 6 : 0)) m.heading = Math.atan2(m.vy / 0.5, m.vx);
+    if (slide(m, dt, 0)) m.heading = Math.atan2(m.vy / 0.5, m.vx);
     const v = Math.hypot(m.vx, m.vy);
     if (v > 5 * u) m.frame = (m.frame + dt * 15 * clamp(v / (200 * u), 0.6, 1.8)) % m.def.frames;
     if (Math.abs(m.vx) > 5) m.dir = Math.sign(m.vx);
@@ -752,7 +780,7 @@
       }
     } else if (e.kind === "mouse") {
       say(e, "Squeak!", 1.4);
-      if (!REDUCED) { e.stun = 0; e.heading = rand(0, Math.PI * 2); e.dashing = true; e.time = 1; }
+      if (!REDUCED) { e.heading = rand(0, Math.PI * 2); e.dashing = true; e.time = 1; }
     } else if (e.kind === "bowl") {
       if (bowl.food < CATS_CONFIG.servings) { setFood(CATS_CONFIG.servings); say(bowl, "Full!", 1.4); }
       const hungry = cats().filter(free).sort((a, b) => b.needs.hunger - a.needs.hunger)[0];
@@ -878,7 +906,7 @@
     const cat = nearest({ x, y }, cats().filter(free));
     if (!cat) return;
     settle(cat);
-    goTo(cat, x, Math.max(y, view.y0), () => act(cat, "sniff", 1.6), null, 1.2);
+    goTo(cat, x, Math.max(y, view.y0), () => act(cat, "sniff", 1.6));
   });
 
   /* ---------- 8. Cat menu: name the cat, see how it's doing, tell it what to do ---------- */
@@ -1039,7 +1067,7 @@
   let bowl, bed, last = 0, running = false, raf = 0;
 
   function step(now) {
-    const dt = Math.min(0.1, (now - last) / 1000 || 0);
+    const dt = Math.min(REDUCED ? 0.3 : 0.1, (now - last) / 1000 || 0);   // (reduced motion ticks 4 times a second)
     last = now;
     for (const e of things) {
       if (e.held) continue;
@@ -1048,9 +1076,10 @@
         if (!REDUCED) e.frame = e.loop ? (e.frame + e.fps * dt) % ANIMS[e.anim][1] : Math.min(e.frame + e.fps * dt, ANIMS[e.anim][1] - 1);
         updateCat(e, dt);
       } else if (!REDUCED && e.kind === "ball") updateBall(e, dt);
-      else if (!REDUCED && e.kind === "mouse") updateMouse(e, dt);
+      else if (e.kind === "mouse") REDUCED ? e.dying !== undefined && fadeOut(e, dt) : updateMouse(e, dt);
       if (e.squash > 0) e.squash = Math.max(0, e.squash - dt * 5);
     }
+    removeGone();
     for (const e of things) draw(e);
     updateBubbles(dt);
     updateMenu(dt);
@@ -1084,7 +1113,7 @@
     CATS.forEach((c, i) => {
       const look = art.sheets[c.look] ?? Object.values(art.sheets)[0];
       const cat = Object.assign(addThing("cat", { src: look.src }, ""), {
-        look, name: c.name, needs: { hunger: rand(0.2, 0.45), tired: rand(0, 0.3), bored: rand(0.4, 0.7), lonely: rand(0, 0.3) },
+        look, name: c.name, needs: { hunger: rand(0.2, 0.45), tired: rand(0, 0.3), bored: rand(0.1, 0.35), lonely: rand(0, 0.3) },
         chat: rand(1, 6), dir: i ? -1 : 1,
       });
       cat.body.setAttribute("aria-haspopup", "dialog");
@@ -1099,7 +1128,7 @@
       act(cat, "idle", rand(1, 2.5));
     });
     const balls = [addThing("ball", art.items.ballBlue, "Blue ball: give it a kick"), addThing("ball", art.items.ballPink, "Pink ball: give it a kick")];
-    const mouse = Object.assign(addThing("mouse", art.items.mouse, "Toy mouse: make it squeak"), { stun: 0, time: 0 });
+    const mouse = Object.assign(addThing("mouse", art.items.mouse, "Toy mouse: make it squeak"), { time: 0 });
     for (const e of [bowl, bed, ...balls, mouse]) fit(e);
     Object.assign(bowl, at(0, 0.62));
     bowl.x = view.x0 + CATS_CONFIG.keepLeft + bowl.half;
