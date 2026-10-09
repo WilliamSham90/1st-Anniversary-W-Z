@@ -169,9 +169,15 @@
     el.append(shadow, body);
     room.append(el);
     const e = { kind, def, el, body, pose, sprite, shadow, x: 0, y: 0, lift: 0, vx: 0, vy: 0, dir: 1, squash: 0, frame: 0, drawn: {} };
-    body.addEventListener("pointerdown", (ev) => startDrag(e, ev));
+    body.addEventListener("pointerdown", (ev) => {
+      e.touched = ev.pointerType === "touch";
+      startDrag(e, ev);
+    });
     body.addEventListener("click", (ev) => {
       if (ev.detail && performance.now() - (e.dragEnd ?? -1e9) < 400) return;   // the click that ends a drag (keyboard clicks always count)
+      // With a finger, a cat's menu opens on a double tap (so a stray tap while scrolling doesn't open it)
+      if (e.look && e.touched && ev.detail && performance.now() - (e.tapped ?? -1e9) > 400) { e.tapped = performance.now(); return; }
+      e.tapped = null;
       activate(e);
     });
     things.push(e);
@@ -1057,6 +1063,7 @@
 
   // The little sign in the corner, until the cats have been played with
   const hint = room.querySelector(".cats__hint");
+  if (hint && matchMedia("(pointer: coarse)").matches) hint.textContent = "Double-tap or drag us!";
   function hideHint() { hint?.classList.add("is-hidden"); }
 
   // A name-plate popup over a cat (like the hint); role="status", so screen readers say it too
