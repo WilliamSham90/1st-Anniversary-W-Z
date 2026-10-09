@@ -144,13 +144,28 @@
   root.style.setProperty("--dot-pitch", `${JOURNEY_CONFIG.dotPitch}px`);
   root.style.setProperty("--sway-strength", JOURNEY_CONFIG.swayStrength);
 
+  // A photo card's size: its photo fits the box its slot allows (bw × bh), at the photo's own shape. Plain
+  // styles on the card, not custom properties: those are inherited, so changing one makes the browser restyle
+  // everything inside every card (with 190 cards, most of a second on a slower phone).
+  const shapes = new WeakMap();   // card → { bw, bh, ratio }
+  let REM = 16;
+  function sizePhoto(li) {
+    const { bw, bh, ratio = 1 } = shapes.get(li) ?? {};
+    if (!bw) return;
+    const fw = Math.min(bw, bh * ratio);
+    li.style.width = `${(fw + REM).toFixed(1)}px`;          // the photo plus the card's padding
+    li.style.marginLeft = `${(-fw / 2 - REM / 2).toFixed(1)}px`;
+  }
   // A photo takes its own shape once it has loaded (square until then; it is still hidden at that point),
   // between 2:3 portrait and 8:5 landscape
   root.addEventListener("load", (e) => {
     const img = e.target;
     if (img.tagName !== "IMG" || !img.naturalWidth) return;
     const ratio = Math.min(1.6, Math.max(0.66, img.naturalWidth / img.naturalHeight)); // tall phone shots are cropped to 2:3 (`focus` picks the part)
-    img.closest(".journey__photo").style.setProperty("--ratio", ratio.toFixed(3));
+    const li = img.closest(".journey__photo");
+    shapes.set(li, { ...shapes.get(li), ratio });
+    img.style.aspectRatio = ratio.toFixed(3);
+    sizePhoto(li);
   }, true);
   // No small copy for this photo (one added later, say): use the full one
   root.addEventListener("error", (e) => {
@@ -175,10 +190,15 @@
   const irisEls = $$(".journey__iris");
 
   const loaded = new Set();
+  // A month's photos are fetched while the line travels towards it, and decoded in the background as they
+  // arrive (img.decode), so when its board opens they're ready to draw and the opening stays smooth
   const loadMonth = (i) => {
     if (i < 0 || i >= lis.length || loaded.has(i)) return;
     loaded.add(i);
-    $$("img[data-src]", lis[i]).forEach((img) => { img.src = img.dataset.src; });
+    $$("img[data-src]", lis[i]).forEach((img) => {
+      img.src = img.dataset.src;
+      img.decode?.().catch(() => {});   // (a photo that fails is handled by the error listener above)
+    });
   };
 
   /* ---------- 3. Geometry ---------- */
@@ -253,6 +273,42 @@
 
   const LUT_STEP = 4; // px between the points looked up along the line
 
+  // Points evenly spaced (about LUT_STEP px apart) along a path of absolute M, L and C commands, like the
+  // ones built here. Worked out from the curves themselves: asking the browser (getPointAtLength) for
+  // hundreds of points along a long, curly path takes over a second on a slower phone.
+  function lutOf(d) {
+    const tokens = d.match(/[MLC]|-?(?:\d+\.?\d*|\.\d+)(?:e[-+]?\d+)?/gi);
+    const line = [];   // the path as a fine polyline: x, y, x, y, …
+    let cmd = "M", x = 0, y = 0;
+    for (let i = 0; i < tokens.length;) {
+      if (/^[MLC]$/i.test(tokens[i])) cmd = tokens[i++].toUpperCase();
+      if (cmd === "C") {
+        const [x1, y1, x2, y2, x3, y3] = tokens.slice(i, (i += 6)).map(Number);
+        for (let k = 1; k <= 24; k++) {
+          const t = k / 24, u = 1 - t, a = u * u * u, b = 3 * u * u * t, c = 3 * u * t * t, e = t * t * t;
+          line.push(a * x + b * x1 + c * x2 + e * x3, a * y + b * y1 + c * y2 + e * y3);
+        }
+        [x, y] = [x3, y3];
+      } else {
+        [x, y] = [Number(tokens[i]), Number(tokens[i + 1])];
+        i += 2;
+        line.push(x, y);
+      }
+    }
+    const along = [0];   // distance to each polyline point
+    for (let j = 2; j < line.length; j += 2) along.push(along[along.length - 1] + Math.hypot(line[j] - line[j - 2], line[j + 1] - line[j - 1]));
+    const total = along[along.length - 1], n = Math.max(2, Math.ceil(total / LUT_STEP) + 1);
+    const lut = new Float32Array(n * 2);
+    for (let j = 0, seg = 0; j < n; j++) {
+      const want = (total * j) / (n - 1);
+      while (seg < along.length - 2 && along[seg + 1] < want) seg++;
+      const t = along[seg + 1] > along[seg] ? (want - along[seg]) / (along[seg + 1] - along[seg]) : 0;
+      lut[j * 2] = line[seg * 2] + (line[seg * 2 + 2] - line[seg * 2]) * t;
+      lut[j * 2 + 1] = line[seg * 2 + 1] + (line[seg * 2 + 3] - line[seg * 2 + 1]) * t;
+    }
+    return lut;
+  }
+
   // The whole line, generated from the station positions. pts[0] is where the line starts, pts[n] is
   // month n; dist[n] is how far along the line month n is. The faint track is one path; the fill is one
   // path per stretch (parts[k] runs from pts[k] to pts[k + 1]), so drawing it only repaints that stretch.
@@ -278,16 +334,7 @@
       el.style.strokeDasharray = `${lens[k]} ${lens[k] + 2}`;
       el.style.strokeDashoffset = lens[k]; // hidden until the head draws it
     });
-    const luts = els.map((el, k) => {
-      const n = Math.max(2, Math.ceil(lens[k] / LUT_STEP) + 1);
-      const lut = new Float32Array(n * 2);
-      for (let j = 0; j < n; j++) {
-        const p = el.getPointAtLength((lens[k] * j) / (n - 1));
-        lut[j * 2] = p.x;
-        lut[j * 2 + 1] = p.y;
-      }
-      return lut;
-    });
+    const luts = parts.map(lutOf);
     const pointAt = (k, along) => {
       const lut = luts[k];
       const f = Math.min(1, Math.max(0, along / lens[k])) * (lut.length / 2 - 1);
@@ -445,7 +492,7 @@
 
   // One month's board: the note card and photos spread over the whole board, which grows taller
   // (and scrolls) when the month has many photos. Positions go into CSS variables.
-  function layoutBoard(li, i, m, W, H) {
+  function layoutBoard(li, i, m, W, H, noteH) {
     const rnd = random(i + 7);
     const note = $(".journey__note", li);
     const items = $$(".journey__photo", li);
@@ -456,8 +503,7 @@
     let end;
     if (m.notePlaces) {
       const w = val(m.noteWidth, W, H);
-      note.style.setProperty("--w", `${w}px`);
-      const h = note.offsetHeight;
+      const h = noteH;
       const [across, down] = m.notePlaces[i % m.notePlaces.length].split(" ");
       const x = { left: side + 8, center: (W - w) / 2, right: W - side - w - 8 }[across];
       // At the bottom it sits just above whatever fixed thing is below it
@@ -480,8 +526,7 @@
     } else {
       // Phones: the note across the top, the photos in rows below it
       const w = W - 2 * side;
-      note.style.setProperty("--w", `${Math.min(w, 560)}px`);
-      box = { x: side, y: top, w, h: note.offsetHeight };
+      box = { x: side, y: top, w, h: noteH };
       const below = rowsBelow(box.y + box.h + 30, n, Math.max(2, Math.round(w / val(m.cellWidth, W, H))), val(m.rowHeight, W, H), m, W);
       cells = below.cells;
       end = below.end;
@@ -493,10 +538,10 @@
     const slots = cells.map((cell, j) => slotIn(cell, rnd, CAPTION + ($(".journey__caption", items[j]).textContent.length > 20 ? 20 : 0)));
     slots.forEach((slot, j) => {
       const style = items[j].style;
-      style.setProperty("--x", `${slot.x.toFixed(1)}px`);
-      style.setProperty("--y", `${slot.y.toFixed(1)}px`);
-      style.setProperty("--bw", `${slot.bw.toFixed(1)}px`);
-      style.setProperty("--bh", `${slot.bh.toFixed(1)}px`);
+      style.left = `${slot.x.toFixed(1)}px`;
+      style.top = `${slot.y.toFixed(1)}px`;
+      shapes.set(items[j], { ...shapes.get(items[j]), bw: slot.bw, bh: slot.bh });
+      sizePhoto(items[j]);
     });
     const height = Math.ceil(Math.max(H, box.y + box.h + bottom, end + bottom));
     boardEls[i].style.setProperty("--board-h", `${height}px`);
@@ -672,11 +717,15 @@
         end: () => `+=${Math.round(tl.duration() * stage.clientHeight)}`,
         scrub: m.scrub ?? cfg.scrub,
         anticipatePin: 1,
-        invalidateOnRefresh: true,
+        // No invalidateOnRefresh: the tweens' values never depend on the page's size (a new size rebuilds
+        // the whole journey), and re-recording ~250 of them on every refresh froze slower phones for a second
         refreshPriority: 1, // main.js made its triggers first; this pin sits above Forever's, so it measures first
       },
     });
 
+    // Read each animated element's transform once, before anything is written: GSAP keeps it, so building the
+    // timeline below only writes (a read after every write would make the browser restyle ~250 times over)
+    for (const el of [header, ...dots, ...boards.flatMap((b) => [b.note, ...b.items])]) gsap.getProperty(el, "x");
     boards.forEach((b, i) => {
       const n = i + 1;
       // TRAVEL
@@ -800,13 +849,20 @@
   }
 
   function build(mode, wide) {
+    REM = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;   // read before anything's written
     const still = mode === "still";
     const m = still ? { ...JOURNEY_CONFIG[wide ? "wide" : "phone"], ...JOURNEY_CONFIG.still } : JOURNEY_CONFIG[mode];
     root.classList.toggle("journey--still", still);
     const W = stage.clientWidth;
     const H = still ? document.documentElement.clientHeight : stage.clientHeight;
     const geo = buildPath(m, W, H);
-    const boards = lis.map((li, i) => layoutBoard(li, i, m, W, H));
+    // Every note's width first, then all their heights in one go (measuring after each width change would
+    // make the browser lay the page out twelve times)
+    const notes = lis.map((li) => $(".journey__note", li));
+    const noteW = m.notePlaces ? val(m.noteWidth, W, H) : Math.min(W - 2 * m.safe.side, 560);
+    notes.forEach((note) => note.style.setProperty("--w", `${noteW}px`));
+    const noteHs = notes.map((note) => note.offsetHeight);
+    const boards = lis.map((li, i) => layoutBoard(li, i, m, W, H, noteHs[i]));
     return still ? buildStill(boards, geo) : buildPinned(m, geo, boards, W, H);
   }
 
@@ -814,7 +870,11 @@
   function start() {
     gsap.registerPlugin(ScrollTrigger);
     // Month 1's photos start loading as the journey comes up the screen
-    ScrollTrigger.create({ trigger: root, start: "top bottom", once: true, onEnter: () => [0, 1].forEach(loadMonth) });
+    new IntersectionObserver(([entry], io) => {
+      if (!entry.isIntersecting) return;
+      [0, 1].forEach(loadMonth);
+      io.disconnect();
+    }).observe(root);
 
     // (matchMedia only runs this while one of them matches, hence `phone` even though it's just "not wide")
     const media = { wide: "(min-width: 768px)", phone: "(max-width: 767.98px)", reduce: "(prefers-reduced-motion: reduce)" };
@@ -850,10 +910,19 @@
         journey.revert();
       };
     });
-    ScrollTrigger.refresh();
+    // Measure the page again now Our Year is in. ScrollSmoother does that by itself when the page's height
+    // changes; without it (reduced motion) it's done here, in a task of its own so the browser can draw a
+    // frame in between. (Each re-measure covers the whole page, so there's only ever the one.)
+    if (!window.ScrollSmoother?.get()) requestAnimationFrame(() => setTimeout(() => ScrollTrigger.refresh()));
   }
 
   document.addEventListener("DOMContentLoaded", () => {
-    Promise.race([document.fonts?.ready, new Promise((resolve) => setTimeout(resolve, 1500))]).then(start);
+    let fontsIn = false;
+    const fonts = document.fonts?.ready.then(() => (fontsIn = true));
+    Promise.race([fonts, new Promise((resolve) => setTimeout(resolve, 1500))]).then(() => {
+      start();
+      // Fonts still on their way (slow connection): measure again once, when they're in
+      if (!fontsIn) fonts?.then(() => ScrollTrigger.refresh());
+    });
   });
 })();

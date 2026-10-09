@@ -65,6 +65,9 @@
 /* ---------- 2. Base ---------- */
 *, *::before, *::after { box-sizing: border-box; }
 
+/* Room for the scrollbar from the start, so the page doesn't shift sideways when it appears */
+html { scrollbar-gutter: stable; }
+
 body {
   margin: 0;
   background: var(--color-bg);
@@ -328,7 +331,8 @@ svg { fill: currentColor; }
 .hero::before {
   content: "";
   position: absolute;
-  inset: -20%;
+  inset: -20svh -20vw auto;   /* sized by the screen, not the hero, so it stays put if the hero grows */
+  height: 140svh;
   z-index: -1;
   background:
     radial-gradient(27% 23% at 34% 37%, rgba(246, 214, 220, 0.95), transparent 70%),
@@ -346,7 +350,32 @@ svg { fill: currentColor; }
   to { transform: translate3d(8%, 5%, 0) scale(1) rotate(6deg); }
 }
 
-.hero__inner { max-width: 44rem; opacity: 0; } /* shown by JS once the names are rendered */
+.hero__inner { max-width: 44rem; }
+/* Kept out of the layout until main.js has put the names in and their fonts have loaded: taking up room
+   in a stand-in font, it would make the hero taller, then shrink (moving everything) when the real one came.
+   What hangs off the hero's edges waits too: on a screen too short for it all, the hero grows when the
+   names come in, and they'd move. */
+.hero:not(.is-ready) .hero__inner { display: none; }
+.hero:not(.is-ready) :is(.scroll-cue, .hero__sparkle, .cats) { visibility: hidden; }
+/* The opening: the names and lines fade up one after another, then the scroll cue drops in. CSS
+   animations of opacity and transform, so they stay smooth while the page is still setting up.
+   (.is-ready is added by main.js once the names are in.) */
+.hero.is-ready .hero__inner > * { animation: rise-in 1.1s cubic-bezier(0.215, 0.61, 0.355, 1) 0.2s both; }
+.hero.is-ready .hero__inner > :nth-child(2) { animation-delay: 0.35s; }
+.hero.is-ready .hero__inner > :nth-child(3) { animation-delay: 0.5s; }
+.hero.is-ready .hero__inner > :nth-child(4) { animation-delay: 0.65s; }
+.hero.is-ready .scroll-cue { animation: drop-in 1s ease-out 1.1s both; }
+@keyframes rise-in { from { opacity: 0; transform: translateY(30px); } }
+@keyframes drop-in { from { opacity: 0; transform: translateY(-10px); } }
+/* Sections marked data-reveal fade up as they come into view (main.js adds .is-revealed) */
+.can-reveal [data-reveal] {
+  opacity: 0;
+  transform: translateY(50px);
+  transition: opacity 1s var(--ease-out), transform 1s var(--ease-out);
+}
+.can-reveal [data-reveal].is-revealed { opacity: 1; transform: none; }
+/* Invisible markers main.js watches to tell how far the page has scrolled */
+.hero__marker { position: absolute; left: 0; width: 1px; height: 1px; pointer-events: none; visibility: hidden; }
 
 .hero__eyebrow,
 .section__eyebrow {
@@ -729,20 +758,15 @@ svg { fill: currentColor; }
 }
 
 /* Pinned photos, after the swaying gallery: ghost-white card, coloured pin, caption underneath.
-   A card hangs from its pin (--x, --y) and fits its photo, at the photo's own shape (--ratio, set
-   as it loads), into the slot journey.js gave it (--bw × --bh). */
+   A card hangs from its pin and fits its photo, at the photo's own shape, into the slot journey.js
+   gave it (journey.js sets its position and size). */
 .journey__photos { margin: 0; padding: 0; list-style: none; }
 .journey__photo {
-  --fw: min(var(--bw), var(--bh) * var(--ratio, 1));
   --pin: crimson;
   --sway: 3deg;
   --sway-time: 1s;
-  position: absolute;
-  top: var(--y);
-  left: var(--x);
+  position: absolute;   /* left, top, width and margin are set by journey.js */
   z-index: 2;
-  width: calc(var(--fw) + 1rem);
-  margin-left: calc(var(--fw) / -2 - 0.5rem);
   transform-origin: 50% 0.57rem;
 }
 /* Each card its own pin colour, sway time (7n) and swing (3n), like the swaying gallery */
@@ -797,7 +821,7 @@ svg { fill: currentColor; }
 .journey__frame { position: relative; display: block; }
 .journey__frame img {
   width: 100%;
-  aspect-ratio: var(--ratio, 1);
+  aspect-ratio: 1;   /* journey.js sets each photo's own shape once it has loaded */
   object-fit: cover;
   border-radius: 5px;
   background: color-mix(in oklab, var(--board), #fff 35%);   /* shows while the photo loads */
@@ -2090,7 +2114,7 @@ svg { fill: currentColor; }
   will-change: transform;
   visibility: hidden;   /* until the art is in and everything is placed */
 }
-.cats.is-ready .cats__thing { visibility: visible; }
+.hero.is-ready .cats.is-ready .cats__thing { visibility: visible; }
 .cats__shadow {
   position: absolute;
   border-radius: 50%;

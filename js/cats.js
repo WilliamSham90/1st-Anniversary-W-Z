@@ -207,14 +207,15 @@
     const s = e.s;
     if (e.look) {
       const a = e.look.anims[e.anim ?? "idle"];
+      // (moved with `translate`, not left/top: no layout each time the animation changes)
       Object.assign(e.sprite.style, {
         backgroundImage: `url("${a.src}")`, backgroundSize: `${a.width * s}px ${a.size * s}px`,
-        width: `${a.size * s}px`, height: `${a.size * s}px`, left: `${-a.foot.x * s}px`, top: `${-a.foot.y * s}px`,
+        width: `${a.size * s}px`, height: `${a.size * s}px`, translate: `${-a.foot.x * s}px ${-a.foot.y * s}px`,
       });
       return;
     }
     const [, , fw, fh] = e.def.frame;
-    Object.assign(e.sprite.style, { width: `${fw * s}px`, height: `${fh * s}px`, left: `${-e.def.foot.x * s}px`, top: `${-e.def.foot.y * s}px` });
+    Object.assign(e.sprite.style, { width: `${fw * s}px`, height: `${fh * s}px`, translate: `${-e.def.foot.x * s}px ${-e.def.foot.y * s}px` });
   }
 
   // The frame to show: [sheet x, sheet y] of its top-left corner
@@ -271,7 +272,7 @@
       if (name !== d.strip || s !== d.stripScale) {
         Object.assign(e.runSprite.style, {
           backgroundImage: `url("${strip.src}")`, backgroundSize: `${strip.width * s}px ${strip.size * s}px`,
-          width: `${strip.size * s}px`, height: `${strip.size * s}px`, left: `${-strip.foot.x * s}px`, top: `${-strip.foot.y * s}px`,
+          width: `${strip.size * s}px`, height: `${strip.size * s}px`, translate: `${-strip.foot.x * s}px ${-strip.foot.y * s}px`,
         });
         d.strip = name;
         d.stripScale = s;

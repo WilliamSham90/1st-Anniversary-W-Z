@@ -414,7 +414,7 @@ const SITE_DATA = {
   // Peeks in at the bottom-left once you scroll past the first screen.
   // Clicking it opens a video player.
   peek: {
-    image: "assets/images/chowder and panini 1.png", // a transparent PNG looks best. Set to "" for the 🐱 🐰 placeholder.
+    image: "assets/images/chowder-and-panini.webp", // a transparent PNG or WebP (this is a 22 KB copy of "chowder and panini 1.png"). "" for the 🐱 🐰 placeholder.
     alt: "Chowder and Panini",
     bubble: "Psst… click us!",
     // Hosted elsewhere because it's too big for GitHub (226 MB). It streams, so it starts playing

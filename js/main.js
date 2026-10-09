@@ -10,7 +10,7 @@
    7. Photo booth (Moments)
    8. Cursor trail + click hearts
    9. ScrollSmoother, active nav link, scroll animations
-  10. Keep ScrollTrigger accurate as images/fonts load
+  10. Trigger positions (kept to as few re-measures as possible)
    Parts 1–8 don't need GSAP, so they still work if the CDN is slow or down.
    ========================================================= */
 (() => {
@@ -58,7 +58,14 @@
   heroDate.textContent = new Date(year, month - 1, day)
     .toLocaleDateString(undefined, { day: "numeric", month: "long", year: "numeric" });
   $("#hero-line").textContent = data.heroLine;
-  $(".hero__inner").style.opacity = 1; // hidden in CSS until the names are in
+  // The names stay hidden (CSS) until they're in, and their fonts too (or 1.5 seconds, whichever comes
+  // first): shown in a stand-in font first, they'd jump when the real one arrived. .is-ready shows them
+  // and starts the opening fade-up (a CSS animation, style.css section 5).
+  const heroFonts = ['400 1em "Great Vibes"', 'italic 500 1em "Cormorant Garamond"', '500 1em "DM Sans"'];
+  Promise.race([
+    document.fonts ? Promise.all(heroFonts.map((font) => document.fonts.load(font))) : null,
+    new Promise((resolve) => setTimeout(resolve, 1500)),
+  ]).catch(() => {}).then(() => $("#home").classList.add("is-ready"));
 
   // Our Year is rendered by js/journey.js. This polaroid frame is for the photos in a photo letter:
   // it knows its place in the letter (data-index), so the lightbox steps through that letter only.
@@ -162,18 +169,38 @@
     setMenu(false);
   });
 
-  // Navbar background + back-to-top button (window scroll works with and without ScrollSmoother)
+  // Navbar background, back-to-top button, Chowder & Panini and the mini player (part 4) depend on how far
+  // the page has scrolled. Two invisible markers in the hero, watched by an IntersectionObserver, say so:
+  // reading the scroll position on every scroll event would make the browser lay out the page each time.
   const toTop = $(".to-top");
-  const isPastHero = () => window.scrollY > window.innerHeight * 0.8; // also used by the mini player (part 4)
-  const onScroll = () => {
-    nav.classList.toggle("is-scrolled", window.scrollY > 10);
-    const pastHero = isPastHero();
-    toTop.classList.toggle("is-visible", pastHero);
-    // Chowder & Panini peek in once you're past the first screen, and stay until closed
-    if (pastHero && !peek.dataset.dismissed) peek.classList.add("is-visible");
+  const marker = (top) => {
+    const el = Object.assign(document.createElement("span"), { className: "hero__marker" });
+    el.style.top = top;
+    el.setAttribute("aria-hidden", "true");
+    $("#home").append(el);
+    return el;
   };
-  window.addEventListener("scroll", onScroll, { passive: true });
-  onScroll();
+  const scrolledMarker = marker("10px");   // gone off the top: the page has scrolled
+  const pastMarker = marker("80svh");      // gone off the top: most of the first screen is behind us
+  let pastHero = false;
+  const isPastHero = () => pastHero;
+  const watchMarkers = new IntersectionObserver((entries) => {
+    for (const entry of entries) {
+      const above = !entry.isIntersecting && entry.boundingClientRect.top < 0;
+      if (entry.target === scrolledMarker) {
+        nav.classList.toggle("is-scrolled", above);
+        continue;
+      }
+      pastHero = above;
+      toTop.classList.toggle("is-visible", above);
+      // Chowder & Panini peek in once you're past the first screen, and stay until closed
+      if (above && !peek.dataset.dismissed) peek.classList.add("is-visible");
+      updateMini();
+    }
+  });
+  watchMarkers.observe(scrolledMarker);
+  watchMarkers.observe(pastMarker);
+
 
   const lockScroll = (locked) => {
     if (smoother) smoother.paused(locked);
@@ -424,8 +451,7 @@
   });
 
   let bigPlayerInView = false;
-  const updateMini = () => mini.classList.toggle("is-visible", isPastHero() && !bigPlayerInView);
-  window.addEventListener("scroll", updateMini, { passive: true });
+  const updateMini = () => mini.classList.toggle("is-visible", isPastHero() && !bigPlayerInView);   // (part 2's markers call it too)
   new IntersectionObserver(([entry]) => {
     bigPlayerInView = entry.isIntersecting;
     updateMini();
@@ -499,10 +525,10 @@
   let celebrated = storage.get(CELEBRATED_KEY) === true;
 
   // Confetti rain. The canvas lives inside the dialog so it falls over the modal (which sits
-  // in the browser's top layer, above everything else on the page).
-  const confettiCtx = reduceMotion ? null : createCanvas("confetti", lettersDialog);
+  // in the browser's top layer, above everything else on the page). Made the first time it rains.
+  let confettiCtx = null;
   const rainConfetti = () => {
-    const ctx = confettiCtx;
+    const ctx = (confettiCtx ??= createCanvas("confetti", lettersDialog));
     const colors = ["#D98B9A", "#B5586B", "#F6D6DC", "#A8BFA3", "#F2C57C"];
     const perFrame = Math.max(2, Math.round(window.innerWidth / 300)); // fewer pieces on small screens
     const pieces = [];
@@ -623,7 +649,7 @@
     if (allFound() && !celebrated) {
       celebrated = true;
       storage.set(CELEBRATED_KEY, true);
-      if (confettiCtx) rainConfetti();
+      if (!reduceMotion) rainConfetti();
     }
   };
 
@@ -916,9 +942,9 @@
     }
   });
 
-  /* ---------- 8. Cursor trail + click hearts (one decorative canvas) ---------- */
+  /* ---------- 8. Cursor trail + click hearts (one decorative canvas, made on the first mouse move or tap) ---------- */
   if (!reduceMotion) {
-    const ctx = createCanvas("cursor-trail", document.body);
+    let ctx = null;
     const colors = ["#D98B9A", "#B5586B", "#F2B6C1", "#A8BFA3"];
     const particles = [];
     let running = false;
@@ -963,6 +989,7 @@
 
     const spawn = (x, y, burst) => {
       if (particles.length > 300) return;
+      ctx ??= createCanvas("cursor-trail", document.body);
       const angle = Math.random() * Math.PI * 2;
       const speed = burst ? 2 + Math.random() * 3 : Math.random() * 0.8;
       particles.push({
@@ -1009,6 +1036,10 @@
 
   /* ---------- 9. ScrollSmoother, active nav link, scroll animations ---------- */
   gsap.registerPlugin(ScrollTrigger, ScrollSmoother);
+  // Re-measure on resize and on coming back to the tab, not on DOMContentLoaded or load: every image has a
+  // set size, journey.js measures once it has built Our Year (and again if the fonts come in late), and each
+  // re-measure covers the whole 40,000px journey, so the extra ones only cost time
+  ScrollTrigger.config({ autoRefreshEvents: "visibilitychange,resize" });
 
   if (!reduceMotion) {
     smoother = ScrollSmoother.create({
@@ -1031,51 +1062,45 @@
     });
   }
 
-  // Highlight the nav link for whichever section crosses the middle of the screen
+  // Highlight the nav link for whichever section crosses the middle of the screen, and run the floating
+  // hearts and drifting colours (hero, music, Forever) only while they're on screen. IntersectionObservers
+  // rather than ScrollTriggers: these only need to know what's in view, which costs the browser no layout.
   const links = $$(".nav__link");
-  $$("main > section").forEach((section) => {
-    ScrollTrigger.create({
-      trigger: section,
-      start: "top center",
-      end: "bottom center",
-      onToggle: (self) => {
-        if (!self.isActive) return;
-        links.forEach((a) => {
-          const on = a.hash === `#${section.id}`;
-          a.classList.toggle("is-active", on);
-          on ? a.setAttribute("aria-current", "true") : a.removeAttribute("aria-current");
-        });
-      },
-    });
+  const middle = new IntersectionObserver((entries) => {
+    for (const entry of entries) {
+      if (!entry.isIntersecting) continue;
+      links.forEach((a) => {
+        const on = a.hash === `#${entry.target.id}`;
+        a.classList.toggle("is-active", on);
+        on ? a.setAttribute("aria-current", "true") : a.removeAttribute("aria-current");
+      });
+    }
+  }, { rootMargin: "-50% 0px -50% 0px" });   // a line across the middle of the screen
+  $$("main > section").forEach((section) => middle.observe(section));
+  const onScreen = new IntersectionObserver((entries) => {
+    for (const entry of entries) entry.target.classList.toggle("is-in-view", entry.isIntersecting);
   });
+  ["#home", "#songs", "#forever"].forEach((sel) => onScreen.observe($(sel)));
 
-  // Floating hearts and the drifting colours (hero, music) only animate while on screen
-  ["#home", "#songs", "#forever"].forEach((trigger) =>
-    ScrollTrigger.create({ trigger, start: "top bottom", end: "bottom top", toggleClass: "is-in-view" }));
-
+  // Anything marked data-reveal fades up as it comes into view: a CSS transition (style.css, section 5),
+  // started by an IntersectionObserver. Like the hero's opening, it runs on the compositor, needs no
+  // measuring, and stays smooth while the page is busy. Opacity only (not visibility), so keyboard users
+  // can still tab to it.
   if (!reduceMotion) {
-    // Hero: gentle staggered fade-and-rise
-    gsap.from(".hero__inner > *", { y: 30, opacity: 0, duration: 1.1, ease: "power3.out", stagger: 0.15, delay: 0.2 });
-    gsap.from(".scroll-cue", { y: -10, opacity: 0, duration: 1, delay: 1.1 });
-
-    // Anything marked data-reveal fades up as it enters the viewport.
-    // Opacity only (not visibility) so keyboard users can still tab to hidden content.
-    $$("[data-reveal]").forEach((el) => gsap.from(el, {
-      y: 50,
-      opacity: 0,
-      duration: 1,
-      ease: "power3.out",
-      scrollTrigger: { trigger: el, start: "top 88%" },
-    }));
+    document.documentElement.classList.add("can-reveal");
+    const reveal = new IntersectionObserver((entries) => {
+      for (const entry of entries) {
+        if (!entry.isIntersecting) continue;
+        entry.target.classList.add("is-revealed");
+        reveal.unobserve(entry.target);
+      }
+    }, { rootMargin: "0px 0px -12% 0px" });   // once its top is 88% of the way down the screen
+    $$("[data-reveal]").forEach((el) => reveal.observe(el));
   }
 
-  /* ---------- 10. Keep trigger positions accurate as images and fonts load ---------- */
-  let refreshTimer;
-  const queueRefresh = () => {
-    clearTimeout(refreshTimer);
-    refreshTimer = setTimeout(() => ScrollTrigger.refresh(), 200);
-  };
-  $$("img").forEach((img) => img.complete || img.addEventListener("load", queueRefresh, { once: true }));
-  window.addEventListener("load", queueRefresh);
-  document.fonts?.ready.then(queueRefresh);
+  /* ---------- 10. Trigger positions ----------
+     Every image has a set size (CSS aspect-ratio), so one loading never moves anything: no need to
+     re-measure for each. ScrollTrigger measures again by itself once the page has loaded, and journey.js
+     once more if the fonts come in late. (Each re-measure covers the whole 40,000px journey, so they're
+     kept to a minimum.) */
 })();
