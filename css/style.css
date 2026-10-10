@@ -2076,6 +2076,8 @@ svg { fill: currentColor; }
 }
 /* Just one (e.g. a video letter): a single, slightly larger frame in the middle */
 .letters__photos:has(> :only-child) { grid-template-columns: min(14rem, 100%); justify-content: center; }
+/* An odd one out at the end (e.g. three photos): centred under the pair, the same size as the rest */
+.letters__photos > :last-child:nth-child(odd):not(:only-child) { grid-column: 1 / -1; justify-self: center; width: calc(50% - 0.625rem); }
 
 @keyframes panel-in { from { opacity: 0; transform: translateY(10px); } }
 

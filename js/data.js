@@ -341,12 +341,14 @@ const SITE_DATA = {
   closing: {
     heading: "Here's to Forever",
     message: [
-      "A year ago I didn't know how much one person could change the shape of my days. Now I can't picture them without you.",
-      "Thank you for the laughter, the patience, the terrible puns and the quiet moments in between. You make ordinary things feel like something worth remembering.",
-      "This is only chapter one. I can't wait to write the rest with you.",
+      "Hey my Babe Girl,",
+      "Ek wil net sê baie dankie dat jy so ‘n amazing mens is. Ek is so trots op jou. Ek is so so so bly dat jy my girlfriend is, even though ek jou gekidnap het (okay jy het my gekidnap).",
+      "Jy het my hart heeltemal gesteel, so jy better mooi daarna kyk. Liefie, ek is so bly dat ons Here Jesus jou vir my gegee het en dat Hy ons verhouding geseën het. Ek voel sonder jou sal die lewe nogal boring wees, en ek sal sekerlik nog ‘n suur druif wees.",
+      "Dankie dat jy altyd so vol lewe is, even in jou slegte dae. Ek is so so so baie lief vir jou, en ek dink jy lyk super sexy in jou swart toppie. Mhhh, great success.",
+      "Dankie vir die jaar en ‘n bietjie(want ek vat lank om uit te vra. oupsie) wat ek so ver met jou spandeer het. Ek weet net die res van ons lewens saam gaan so lekker wees, vol lewe liefde en sexy tyd...",
     ],
     image: { src: "https://picsum.photos/seed/forever/600/750", alt: "The two of us together", caption: "Chapter one of many" }, // → assets/images/forever.jpg
-    signoff: "All my love, William",
+    signoff: "I love you, William",
     footer: "Made with love by William, for Zané",
   },
 
@@ -373,8 +375,8 @@ const SITE_DATA = {
       {
         spot: "#journey-letter",   // beside Our Year's line, between Month 7 and Month 8
         clue: "Ride the line from Month 7 towards Month 8 and look beside it.",
-        title: "Die is my gunsteling maande",
-        text: "Ek bedoel, check die cool kk's en ek kon jou ry soos n paret haha.",
+        title: "Die 7de maand is my gunsteling.",
+        text: "Mhh Food. En check die cool kk's en jy het my parrot mating dance gekry ;)",
       },
       {
         spot: "#video-title",   // next to the names under the Chowder & Panini video
@@ -404,8 +406,12 @@ const SITE_DATA = {
       {
         spot: "#forever-message p:last-child",
         clue: "Look in the last few words before the goodbye.",
-        title: "Open when you need a reminder",
-        text: "You are loved. Loudly, quietly, on the easy days and the hard ones.\n\nThat won't change. Not in a year, not in fifty.",
+        title: "Our new Cow Daisy.",
+        images: [   // animated WebP copies of the GIFs in assets/images/Cow (the calf one was a 63 MB GIF)
+          { src: "assets/images/Cow/calf-flower-crown.webp", alt: "A black and white calf wearing a flower crown, looking into the camera in a barn" },
+          { src: "assets/images/Cow/dancing-cow.webp", alt: "A pixelated black and white cow spinning round and round" },
+          { src: "assets/images/Cow/cow-hair-flip.webp", alt: "A cow with long blonde hair blowing in the wind" },
+        ],
       },
     ],
   },
