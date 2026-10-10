@@ -926,7 +926,6 @@ svg { fill: currentColor; }
   font-style: italic;
   line-height: 1.3;
 }
-.polaroid--static { cursor: default; }
 
 /* Video frames: the still image with a play button over it */
 .polaroid--video { cursor: pointer; }
@@ -1390,10 +1389,13 @@ svg { fill: currentColor; }
 .forever__inner { position: relative; z-index: 1; max-width: 42rem; margin-inline: auto; }
 
 .forever__photo {
-  --tilt: -3deg;
   width: min(17rem, 72vw);
   margin: var(--space-l) auto;
 }
+.forever__photo .polaroid { --tilt: -3deg; width: 100%; }
+/* A video is landscape: a wider frame that shows the whole picture */
+.forever__photo:has(.polaroid--video) { width: min(30rem, 86vw); }
+.forever__photo .polaroid--video img { aspect-ratio: 16 / 9; }
 
 .forever__message p {
   font-family: var(--font-heading);

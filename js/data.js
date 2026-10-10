@@ -292,7 +292,7 @@ const SITE_DATA = {
       date: "October 2026",
       // Placeholder title and text (to be rewritten)
       title: "Mud, 4x4s & One Whole Year",
-      text: "The Hekpoort 4x4 event, and we came home wearing most of it: mud on our clothes, our faces, our feet and somehow in our hair. Rock-on signs, muddy kisses and far too much laughing next to the car. Three hundred and sixty-five days of you, and I'd do every single one again, mud and all.",
+      text: "The Hekpoort 4x4 event, and we came home wearing most of it: mud on our clothes, our faces, our feet and somehow in our hair. Rock-on signs, muddy kisses and far too much laughing next to the car. Then a cosy date night on the couch, where you showed off your new nails by checking my teeth with them and going full claws-out on me. Three hundred and sixty-five days of you, and I'd do every single one again, mud and all.",
       images: [
         { src: "assets/images/month-12/hekpoort-before-the-mud.jpg", alt: "William in pink rainbow sunglasses under a gazebo at the Hekpoort 4x4 event, still clean", caption: "Before the mud" },
         { src: "assets/images/month-12/hekpoort-mud-smiles.jpg", alt: "Zané and William smiling side by side in front of the red car, both covered in mud", caption: "Mud suits us" },
@@ -306,6 +306,10 @@ const SITE_DATA = {
         { src: "assets/images/month-12/hekpoort-william-barefoot.jpg", alt: "William standing barefoot on the grass, mud up to the knees", caption: "Shoes are optional" },
         { src: "assets/images/month-12/hekpoort-william-mud-smirk.jpg", alt: "A close-up of William smirking, with mud on one cheek and all over the T-shirt", caption: "Mud moustache" },
         { src: "assets/images/month-12/hekpoort-mud-damage-report.jpg", alt: "Mud-splattered T-shirt, shorts and bare feet, up close", caption: "The damage report" },
+        { src: "assets/images/month-12/date-night-nail-teeth-check.jpg", alt: "Date night on the couch: Zané reaching over to check William's teeth with her new nails", caption: "Teeth check" },
+        { src: "assets/images/month-12/date-night-nail-poke.jpg", alt: "Zané giving William's big grin a poke with her blue-painted nails", caption: "Showing off the nails" },
+        { src: "assets/images/month-12/date-night-claws-out.jpg", alt: "Zané holding up a clawed hand while William stares wide-eyed at the camera", caption: "Claws out" },
+        { src: "assets/images/month-12/date-night-new-nails.jpg", alt: "A close-up of Zané's hand reaching for the camera, each nail a different bright colour", caption: "The new nails" },
       ],
     },
   ],
@@ -345,9 +349,11 @@ const SITE_DATA = {
       "Ek wil net sê baie dankie dat jy so ‘n amazing mens is. Ek is so trots op jou. Ek is so so so bly dat jy my girlfriend is, even though ek jou gekidnap het (okay jy het my gekidnap).",
       "Jy het my hart heeltemal gesteel, so jy better mooi daarna kyk. Liefie, ek is so bly dat ons Here Jesus jou vir my gegee het en dat Hy ons verhouding geseën het. Ek voel sonder jou sal die lewe nogal boring wees, en ek sal sekerlik nog ‘n suur druif wees.",
       "Dankie dat jy altyd so vol lewe is, even in jou slegte dae. Ek is so so so baie lief vir jou, en ek dink jy lyk super sexy in jou swart toppie. Mhhh, great success.",
-      "Dankie vir die jaar en ‘n bietjie(want ek vat lank om uit te vra. oupsie) wat ek so ver met jou spandeer het. Ek weet net die res van ons lewens saam gaan so lekker wees, vol lewe liefde en sexy tyd...",
+      "Dankie vir die jaar en ‘n bietjie(want ek vat lank om uit te vra. oepsie) wat ek so ver met jou spandeer het. Ek weet net die res van ons lewens saam gaan so lekker wees, vol lewe, liefde en sexy tyd...",
     ],
-    image: { src: "https://picsum.photos/seed/forever/600/750", alt: "The two of us together", caption: "Chapter one of many" }, // → assets/images/forever.jpg
+    // The video plays in the photo viewer; `src` is its still (the frame shows it with a play button).
+    // Leave out `video` to show a photo instead.
+    image: { src: "assets/video/i-love-you-my-liefie-poster.jpg", video: "assets/video/i-love-you-my-liefie.mp4", alt: "A video of our first year together, photo after photo, ending with I love you, My Liefie and Happy 1 year Anniversary", caption: "Chapter one of many" },
     signoff: "I love you, William",
     footer: "Made with love by William, for Zané",
   },

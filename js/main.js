@@ -115,8 +115,7 @@
   // Closing
   const closing = data.closing;
   $("#forever-title").textContent = closing.heading;
-  Object.assign($("#forever-img"), { src: closing.image.src, alt: closing.image.alt });
-  $("#forever-caption").textContent = closing.image.caption || "♥";
+  $("#forever-photo").innerHTML = polaroid(closing.image, 0);
   $("#forever-message").innerHTML = closing.message.map((p) => `<p>${esc(p)}</p>`).join("");
   $("#forever-signoff").textContent = closing.signoff;
   $("#footer-text").textContent = closing.footer;
@@ -274,6 +273,11 @@
     if (!frame) return;
     const month = data.timeline[frame.closest("[data-month]").dataset.month];
     openAlbum(month.images, Number(frame.dataset.index), frame);
+  });
+  // Forever's photo (or video): opens on its own in the viewer
+  $("#forever-photo").addEventListener("click", (e) => {
+    const frame = e.target.closest(".polaroid");
+    if (frame) openAlbum([data.closing.image], 0, frame);
   });
   $(".lightbox__nav--prev", lightbox).addEventListener("click", () => showItem(lbIndex - 1));
   $(".lightbox__nav--next", lightbox).addEventListener("click", () => showItem(lbIndex + 1));
