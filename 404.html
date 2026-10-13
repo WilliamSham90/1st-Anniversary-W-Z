@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Page not found · One Year Together</title>
+  <meta name="theme-color" content="#FFF8F3">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90' fill='%23B5586B'>♥</text></svg>">
+
+  <!-- GitHub Pages shows this page for any missing address (even /a/b/c), so relative links would point
+       into folders that don't exist: aim them at the site's folder (the repo name on github.io) instead -->
+  <script>
+    if (location.protocol !== "file:") {
+      const base = document.createElement("base");
+      base.href = location.hostname.endsWith(".github.io") ? `/${location.pathname.split("/")[1]}/` : "/";
+      document.head.append(base);
+    }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=DM+Sans:wght@400;500;700&family=Great+Vibes&display=swap">
+  <link rel="stylesheet" href="css/style.css">
+
+  <style>
+    /* The hero, without the cats' play area under it */
+    .hero { --play-h: 0px; padding-bottom: calc(var(--nav-h) + 2rem); }
+    .hero.is-ready .hero__inner > :nth-child(5) { animation-delay: 0.8s; }
+    .hero.is-ready .hero__inner > :nth-child(6) { animation-delay: 0.95s; }
+    .hero .hero__names { font-size: clamp(3.2rem, 11vw, 6.5rem); }   /* a longer line than the names */
+    .hero .btn { text-decoration: none; }
+
+    /* Coco sniffing about: sniff.png is a strip of nine 32px frames (played at 6 a second, like js/cats.js).
+       In its own wrapper, as the hero's rise-in animation would replace this one. */
+    .lost-cat {
+      --size: 112px;
+      display: block;
+      width: var(--size);
+      height: var(--size);
+      margin: 0.5rem auto 1.75rem;
+      background: url("assets/images/Cats/cats/grey-cat/sniff.png") 0 0 / calc(var(--size) * 9) var(--size);
+      image-rendering: pixelated;
+      animation: lost-sniff 1.5s steps(9) infinite;
+    }
+    @keyframes lost-sniff { to { background-position-x: calc(var(--size) * -9); } }
+  </style>
+</head>
+<body>
+  <main class="hero is-ready is-in-view">
+    <span class="hero__sparkle hero__sparkle--1" aria-hidden="true">✦</span>
+    <span class="hero__sparkle hero__sparkle--2" aria-hidden="true">✦</span>
+    <span class="hero__sparkle hero__sparkle--3" aria-hidden="true">♥</span>
+    <div class="hero__inner">
+      <p class="hero__eyebrow">Page not found</p>
+      <h1 class="hero__names">Wrong turn, Liefie</h1>
+      <p class="hero__date">404</p>
+      <p class="hero__line">Coco has sniffed everywhere, but this page isn't here. Everything that matters is back home.</p>
+      <div><span class="lost-cat" role="img" aria-label="Coco the grey pixel cat, sniffing around"></span></div>
+      <a class="btn" href="./">Take me home <span aria-hidden="true">♥</span></a>
+    </div>
+  </main>
+</body>
+</html>
