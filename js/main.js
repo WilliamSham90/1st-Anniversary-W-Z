@@ -1067,7 +1067,7 @@
   }
 
   // Highlight the nav link for whichever section crosses the middle of the screen, and run the floating
-  // hearts and drifting colours (hero, music, Forever) only while they're on screen. IntersectionObservers
+  // hearts, drifting colours and Our Year's parade (hero, music, Our Year, Forever) only while they're on screen. IntersectionObservers
   // rather than ScrollTriggers: these only need to know what's in view, which costs the browser no layout.
   const links = $$(".nav__link");
   const middle = new IntersectionObserver((entries) => {
@@ -1084,7 +1084,7 @@
   const onScreen = new IntersectionObserver((entries) => {
     for (const entry of entries) entry.target.classList.toggle("is-in-view", entry.isIntersecting);
   });
-  ["#home", "#songs", "#forever"].forEach((sel) => onScreen.observe($(sel)));
+  ["#home", "#songs", "#our-year", "#forever"].forEach((sel) => onScreen.observe($(sel)));
 
   // Anything marked data-reveal fades up as it comes into view: a CSS transition (style.css, section 5),
   // started by an IntersectionObserver. Like the hero's opening, it runs on the compositor, needs no

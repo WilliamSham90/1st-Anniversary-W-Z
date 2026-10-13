@@ -124,6 +124,7 @@ Along the bottom of the first screen is a little pixel playroom with two cats, C
 
 - **Cursor trail:** moving the mouse leaves a soft trail of dots and tiny hearts in the site's colours. It only runs for a mouse; touch screens don't have a hovering cursor.
 - **Heart burst:** clicking or tapping anywhere pops a small burst of hearts.
+- **Parade along Our Year:** as the line travels from month to month, pixel fireworks and sparkles burst above it and confetti, hearts, music notes and bubbles pop up below it, so it rides past like a parade. They're the sprite sheets in `assets/images/effects/`; which ones, how big and where they go is `parade` in `JOURNEY_CONFIG` (`js/journey.js`). Each sheet must be one row of square frames: the fireworks and sparkle sheets came as grids, so the site uses one-row copies of them (`fireworks-red-strip.png` and so on; the originals are untouched). Only the effects near the line's head play, and only while Our Year is on screen, so they don't slow the scrolling down.
 
 ## Change the words
 
@@ -140,6 +141,6 @@ Section headings and their one-line intros ("Our Year", "Twelve little chapters 
 
 ## Accessibility and motion
 
-If someone's device is set to *reduce motion*, the site automatically turns off smooth scrolling, scroll animations, the drifting colours behind the names and the music, the floating hearts, the cursor trail, the heart bursts and the confetti. Our Year shows its whole line drawn on a map you can scroll sideways, with the month boards stacked below it. The photo booth skips its countdown and flashes and goes straight to the printed strips.
+If someone's device is set to *reduce motion*, the site automatically turns off smooth scrolling, scroll animations, the drifting colours behind the names and the music, the floating hearts, the cursor trail, the heart bursts, the confetti and Our Year's parade of fireworks. Our Year shows its whole line drawn on a map you can scroll sideways, with the month boards stacked below it. The photo booth skips its countdown and flashes and goes straight to the printed strips.
 
 The muted text colour is `#7D6D71`, slightly darker than `#8A7B7F` from the original palette, so small text meets WCAG AA contrast on the cream background. You can change it in `css/style.css` under `--color-muted`.

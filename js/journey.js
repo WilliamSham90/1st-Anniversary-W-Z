@@ -8,7 +8,7 @@
    2. Markup from SITE_DATA.timeline (rendered straight away: main.js, which loads after this,
       hides a letter in month 7's text and opens the lightbox from the photos)
    3. Geometry: the line, the stations, the board layouts
-   4. Motion: the timeline, sway, sparkles, focus (pinned) · the stacked version (reduced motion)
+   4. Motion: the timeline, sway, sparkles, the parade, focus (pinned) · the stacked version (reduced motion)
    5. Start: gsap.matchMedia (wide · phone · reduced motion), rebuilt on resize
    ========================================================= */
 (() => {
@@ -33,6 +33,15 @@
     // Drawn into the line between month n and n+1 (11 of them): "heart", "curl", "curl-down", "love-you"
     // (the words, written along the line) or "none"
     flourishes: ["heart", "curl", "heart", "curl-down", "love-you", "curl", "heart", "curl-down", "heart", "love-you", "heart"],
+    // The parade along the line: pixel effects from assets/images/effects bursting over it (sky) and under it
+    // (ground), a few per stretch, picked at random from these. Where they go is `parade` per kind of screen.
+    parade: {
+      fps: 16,              // frames per second (each effect plays a little faster or slower than this)
+      // Each file is one row of square frames: [frames, frame size (px), drawn at this many times that size]
+      sheets: { fireworks: [27, 96, 3], sparkle: [15, 96, 2], party: [34, 128, 2], hearts: [23, 128, 2], notes: [21, 128, 2], bubbles: [40, 64, 3] },
+      sky: ["fireworks-red-strip", "fireworks-yellow-strip", "fireworks-blue-strip", "sparkle-pink-strip", "sparkle-blue-strip"],
+      ground: ["party-red", "party-green", "party-blue", "hearts-red", "hearts-orange", "notes-blue", "notes-green", "bubbles-blue", "bubbles-green"],
+    },
 
     // The line and the boards per kind of screen. Functions get the stage's width and height in px.
     wide: {
@@ -43,6 +52,9 @@
       heart: 140, curl: 50,           // flourish sizes (px)
       loveYou: 26,                    // "love you": its x-height (px), smaller if the gap between stations is tight
       envelopeAt: (stepX, stepY) => [stepX * 0.55, stepY * 0.15],   // the envelope, from its month's station (px)
+      // Where the parade's effects burst on screen while the camera is halfway along a stretch (share of width,
+      // height; nudged a little each time): clear of the line and its cards. scale: their size.
+      parade: { sky: [[0.6, 0.24], [0.82, 0.36], [0.98, 0.2]], ground: [[0.17, 0.72], [0.45, 0.75]], scale: 1 },
       // Where each month's note card sits on its board (month 1, 2, … then round again); photos fill the rest
       notePlaces: ["left top", "center top", "right top", "center center", "left center", "center center",
                    "left bottom", "center bottom", "right bottom"],
@@ -63,6 +75,7 @@
       loveYouStep: 1.5,               // the gap between stations is this much wider where "love you" is written
       sparkles: 12,                   // fewer on phones
       envelopeAt: (stepX, stepY) => [stepX * 0.65, stepY * 0.15],
+      parade: { sky: [[0.5, 0.22], [0.86, 0.34]], ground: [[0.24, 0.64], [0.52, 0.76]], scale: 0.6 },   // fewer and smaller
       scrub: 0.4,                     // follows the finger more closely than the wheel's 0.8
       flourishes: ["heart", "none", "curl", "none", "love-you", "none", "curl-down", "none", "heart", "love-you", "curl"],
       // (no notePlaces: the note card goes across the top, photos in rows below it)
@@ -161,8 +174,9 @@
   root.addEventListener("load", (e) => {
     const img = e.target;
     if (img.tagName !== "IMG" || !img.naturalWidth) return;
-    const ratio = Math.min(1.6, Math.max(0.66, img.naturalWidth / img.naturalHeight)); // tall phone shots are cropped to 2:3 (`focus` picks the part)
     const li = img.closest(".journey__photo");
+    if (!li) return; // one of the parade's effects
+    const ratio = Math.min(1.6, Math.max(0.66, img.naturalWidth / img.naturalHeight)); // tall phone shots are cropped to 2:3 (`focus` picks the part)
     shapes.set(li, { ...shapes.get(li), ratio });
     img.style.aspectRatio = ratio.toFixed(3);
     sizePhoto(li);
@@ -628,6 +642,38 @@
     };
   }
 
+  // The parade: a few effects per stretch of the line, placed where they'll be on screen while the camera is
+  // halfway along it, so they pass by like floats as the line travels. Seeded, so the same ones every visit.
+  // Each is a CSS animation of a transform (style.css), so it plays on the compositor, not this thread; and
+  // only the stretches beside the camera are shown at all (show), so only a handful ever play at once.
+  function buildParade(m, geo, W, H) {
+    const { fps, sheets, sky, ground } = JOURNEY_CONFIG.parade;
+    const [camX, camY] = m.camera;
+    const box = $(".journey__parade");
+    box.innerHTML = geo.pts.slice(0, -1).map((_, k) => {
+      const rnd = random(k * 13 + 3);
+      const cam = cameraAt(geo.pts, k, 0.5);
+      const fx = (names, [sx, sy]) => {
+        const name = names[Math.floor(rnd() * names.length)];
+        const [frames, frame, scale] = sheets[name.split("-")[0]];
+        const size = Math.round(frame * scale * m.parade.scale);
+        const x = cam.x + (sx - camX + (rnd() - 0.5) * 0.08) * W - size / 2;
+        const y = cam.y + (sy - camY + (rnd() - 0.5) * 0.08) * H - size / 2;
+        const time = frames / (fps * (0.8 + rnd() * 0.4)) / 0.7; // it plays in the first 70% (@keyframes journey-fx)
+        return `<span class="journey__fx${rnd() < 0.5 ? " journey__fx--flip" : ""}" style="left: ${Math.round(x)}px; top: ${Math.round(y)}px; ` +
+          `width: ${size}px; height: ${size}px; --frames: ${frames}; --time: ${time.toFixed(2)}s; --delay: ${(-rnd() * time).toFixed(2)}s">` +
+          `<img src="assets/images/effects/${name}.png" alt="" loading="lazy" decoding="async"></span>`;
+      };
+      return `<div>${m.parade.sky.map((at) => fx(sky, at)).join("")}${m.parade.ground.map((at) => fx(ground, at)).join("")}</div>`;
+    }).join("");
+    const stretches = [...box.children];
+    return {
+      // The stretches either side of stretch i (none: -1)
+      show: (i) => stretches.forEach((el, k) => el.classList.toggle("is-live", i >= 0 && Math.abs(k - i) <= 1)),
+      kill: () => (box.innerHTML = ""),
+    };
+  }
+
   // Wide screens and phones: the stage is pinned and one scrubbed timeline plays the whole year.
   // Per month: TRAVEL along the line → ARRIVE (dot pops, the board opens from it like an iris while the
   // camera pushes in) → EXPLORE (note taps on, photos drop onto their pins, tall boards scroll) → LEAVE.
@@ -644,9 +690,11 @@
     const open = boards.map(() => ({ iris: 0, scroll: 0 }));
     const times = new Map(); // focusable photo → timeline time when it's on screen
     const sparks = buildSparks(m.sparkles ?? cfg.sparkles);
+    const parade = buildParade(m, geo, W, H);
     const last = geo.pts.length - 2;
     const offsets = geo.lens.slice(); // each stretch's dash offset as drawn (all hidden to start)
     let shown = -1;
+    let marching = NaN; // the stretch the parade is shown beside
     let drawnPos = NaN;
     let drawnPush = NaN;
 
@@ -692,6 +740,8 @@
         if (s > 0.001) boardEls[j].style.transform = full ? scroll : `scale(${(1 / s).toFixed(4)}) ${scroll}`;
       });
       map.style.visibility = covered ? "hidden" : ""; // nothing to paint under a full board
+      const near = covered ? -1 : i; // under a full board the parade stops altogether
+      if (near !== marching) parade.show((marching = near));
       if (showing !== shown) {
         lis[shown]?.classList.remove("is-open");
         lis[showing]?.classList.add("is-open");
@@ -809,6 +859,7 @@
       document.removeEventListener("focusin", onFocus);
       ScrollTrigger.removeEventListener("scrollEnd", settle);
       sparks.kill();
+      parade.kill();
       current = null;
       head.style.transform = world.style.transform = map.style.visibility = "";
       lis.forEach((li) => li.classList.remove("is-open", "is-full"));

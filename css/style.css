@@ -433,6 +433,9 @@ svg { fill: currentColor; }
   0%, 100% { opacity: 0.25; transform: scale(0.85); }
   50% { opacity: 0.8; transform: scale(1.1); }
 }
+/* Paused once the hero is off screen (.is-in-view, main.js): off screen they can't run on the compositor,
+   so they'd tick on the main thread every frame for the rest of the visit */
+.hero:not(.is-in-view) :is(.hero__sparkle, .scroll-cue__dot) { animation-play-state: paused; }
 
 .scroll-cue {
   position: absolute;
@@ -643,6 +646,24 @@ svg { fill: currentColor; }
   border-radius: 50%;
   background: var(--color-primary);
 }
+
+/* The parade: pixel effects along the line (journey.js → buildParade). Each one's strip of frames slides past
+   a window one frame wide in steps(), a transform, so it plays on the compositor and costs the page nothing
+   while scrolling. Only the stretches beside the camera (.is-live), and only while Our Year is on screen. */
+.journey__parade { position: absolute; top: 0; left: 0; pointer-events: none; }
+.journey__fx { position: absolute; display: none; overflow: hidden; }
+.journey.is-in-view .is-live > .journey__fx { display: block; }
+.journey__fx--flip { scale: -1 1; }
+.journey__fx img {
+  width: calc(var(--frames) * 100%);
+  max-width: none;
+  height: 100%;
+  image-rendering: pixelated;
+  will-change: transform;
+  animation: journey-fx var(--time) steps(var(--frames)) var(--delay) infinite;
+}
+/* The frames play in the first 70%; then the strip has slid past and the window stays empty till the next */
+@keyframes journey-fx { 70%, 100% { transform: translateX(-100%); } }
 
 /* The boards: one per month, stacked in the stage. Each opens like an iris: a circle centred on the
    station's dot (--iris-x/y, radius --iris-r reaching the farthest corner) that journey.js grows with
